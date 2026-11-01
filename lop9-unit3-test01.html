@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="vi"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMDA5MDc1MjUzNDM1MTM3ODc2MyIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzgzOTNiZWIyMmRkNjY1NzFfbG9wOS11bml0My10ZXN0MDEuaHRtbC0xMzcifSwiZXhwIjoxNzkzNTU0MTg5LCJpYXQiOjE3OTM1NTA1ODksImFsZyI6IlJTMjU2In0.kIkK9um9gFoLMrXHdMfOpqHfi_Y5y8f5S155lkjojiKR-mPLg7uLDgpLHJXe9OmR7GX3dP447VEVHxlicDsGJn_9ja-JGQurtpz7RUkRBPyMRlYruKRJXtHA1TwmX4YuO6YTMw9KiKvhBoeUjLUz3xvY8cEeyp284ipDt1fcOG45xxpen-MdQj0cusmJ0rfDb4VEsZlX_uJiqmv2rBBbM5sMgwbHQbEYKEAPJP_byV1Cuq8JLvi6uy46EpCYtQ1mFweIBJ0gWhP1KaSkPwhW5IFdAURQi_WuembVF5_obSCqJfMCxukfYq1YjEapsa8MLVEsy8scFwgIywBt9-90dg","c_8393beb22dd66571_lop9-unit3-test01.html-137")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiếng Anh 9 - Unit 3: Healthy Living for Teens (Test 01) | Tiếng Anh Ms Tuyết</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Fira+Code:wght@500;600&amp;display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%);
+      min-height: 100vh;
+    }
+
+    /* Highlighter styles */
+    .hl-yellow { background-color: #fef08a !important; color: #0f172a; border-radius: 3px; padding: 1px 3px; }
+    .hl-green  { background-color: #bbf7d0 !important; color: #0f172a; border-radius: 3px; padding: 1px 3px; }
+    .hl-pink   { background-color: #fbcfe8 !important; color: #0f172a; border-radius: 3px; padding: 1px 3px; }
+    .hl-blue   { background-color: #bae6fd !important; color: #0f172a; border-radius: 3px; padding: 1px 3px; }
+
+    /* Interactive Radio Card */
+    .option-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .option-card:hover {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+    .option-card.selected {
+      border-color: #2563eb !important;
+      background-color: #dbeafe !important;
+      box-shadow: 0 0 0 1.5px #2563eb;
+      font-weight: 600;
+    }
+
+    /* Grading Feedback States */
+    .q-correct {
+      border-color: #10b981 !important;
+      background-color: #f0fdf4 !important;
+    }
+    .q-wrong {
+      border-color: #ef4444 !important;
+      background-color: #fef2f2 !important;
+    }
+    .q-answered-exam {
+      border-color: #3b82f6 !important;
+      background-color: #f8fafc !important;
+    }
+    .opt-correct {
+      background-color: #dcfce7 !important;
+      border-color: #10b981 !important;
+      color: #14532d !important;
+      font-weight: 700;
+    }
+    .opt-wrong-selected {
+      background-color: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #7f1d1d !important;
+      text-decoration: line-through;
+    }
+
+    /* Corner Ribbon Badge */
+    .corner-ribbon {
+      position: fixed;
+      top: 24px;
+      right: -55px;
+      transform: rotate(45deg);
+      z-index: 60;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.-bottom-10{bottom:-2.5rem}.-right-10{right:-2.5rem}.bottom-16{bottom:4rem}.bottom-3{bottom:0.75rem}.left-1\/2{left:50%}.right-2{right:0.5rem}.right-4{right:1rem}.top-0{top:0px}.top-20{top:5rem}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-8{margin-top:2rem;margin-bottom:2rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-1\.5{height:0.375rem}.h-10{height:2.5rem}.h-20{height:5rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-60{height:15rem}.h-full{height:100%}.w-10{width:2.5rem}.w-20{width:5rem}.w-3{width:0.75rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-60{width:15rem}.w-full{width:100%}.max-w-2xl{max-width:42rem}.max-w-4xl{max-width:56rem}.max-w-5xl{max-width:64rem}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.flex-shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-6{gap:1.5rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-0{border-width:0px}.border-y{border-top-width:1px;border-bottom-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-blue-400\/30{border-color:rgb(96 165 250 / 0.3)}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-400\/30{border-color:rgb(52 211 153 / 0.3)}.border-green-400{--tw-border-opacity:1;border-color:rgb(74 222 128 / var(--tw-border-opacity, 1))}.border-pink-400{--tw-border-opacity:1;border-color:rgb(244 114 182 / var(--tw-border-opacity, 1))}.border-sky-400{--tw-border-opacity:1;border-color:rgb(56 189 248 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/80{border-color:rgb(226 232 240 / 0.8)}.border-slate-600{--tw-border-opacity:1;border-color:rgb(71 85 105 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-white\/15{border-color:rgb(255 255 255 / 0.15)}.border-white\/30{border-color:rgb(255 255 255 / 0.3)}.border-white\/40{border-color:rgb(255 255 255 / 0.4)}.border-yellow-400{--tw-border-opacity:1;border-color:rgb(250 204 21 / var(--tw-border-opacity, 1))}.bg-amber-50\/80{background-color:rgb(255 251 235 / 0.8)}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.bg-blue-50\/70{background-color:rgb(239 246 255 / 0.7)}.bg-blue-500\/20{background-color:rgb(59 130 246 / 0.2)}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-emerald-500\/20{background-color:rgb(16 185 129 / 0.2)}.bg-emerald-500\/30{background-color:rgb(16 185 129 / 0.3)}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-emerald-600\/95{background-color:rgb(5 150 105 / 0.95)}.bg-green-300{--tw-bg-opacity:1;background-color:rgb(134 239 172 / var(--tw-bg-opacity, 1))}.bg-pink-300{--tw-bg-opacity:1;background-color:rgb(249 168 212 / var(--tw-bg-opacity, 1))}.bg-sky-300{--tw-bg-opacity:1;background-color:rgb(125 211 252 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-teal-500\/20{background-color:rgb(20 184 166 / 0.2)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/10{background-color:rgb(255 255 255 / 0.1)}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-yellow-300{--tw-bg-opacity:1;background-color:rgb(253 224 71 / var(--tw-bg-opacity, 1))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-blue-600{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgb(37 99 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgb(15 23 42 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-indigo-950{--tw-gradient-to:rgb(30 27 75 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #1e1b4b var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-teal-600{--tw-gradient-to:rgb(13 148 136 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #0d9488 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-teal-950{--tw-gradient-to:rgb(4 47 46 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #042f2e var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-blue-600{--tw-gradient-to:#2563eb var(--tw-gradient-to-position)}.to-blue-700{--tw-gradient-to:#1d4ed8 var(--tw-gradient-to-position)}.to-cyan-600{--tw-gradient-to:#0891b2 var(--tw-gradient-to-position)}.to-indigo-600{--tw-gradient-to:#4f46e5 var(--tw-gradient-to-position)}.to-indigo-950{--tw-gradient-to:#1e1b4b var(--tw-gradient-to-position)}.to-slate-900{--tw-gradient-to:#0f172a var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-16{padding-left:4rem;padding-right:4rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-7{padding-left:1.75rem;padding-right:1.75rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-28{padding-bottom:7rem}.pb-3{padding-bottom:0.75rem}.pt-1{padding-top:0.25rem}.pt-3{padding-top:0.75rem}.pt-6{padding-top:1.5rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-blue-200{--tw-text-opacity:1;color:rgb(191 219 254 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-blue-900{--tw-text-opacity:1;color:rgb(30 58 138 / var(--tw-text-opacity, 1))}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-yellow-300{--tw-text-opacity:1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.placeholder-slate-400::placeholder{--tw-placeholder-opacity:1;color:rgb(148 163 184 / var(--tw-placeholder-opacity, 1))}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-blue-200{--tw-shadow-color:#bfdbfe;--tw-shadow:var(--tw-shadow-colored)}.shadow-teal-200{--tw-shadow-color:#99f6e4;--tw-shadow:var(--tw-shadow-colored)}.shadow-teal-500\/25{--tw-shadow-color:rgb(20 184 166 / 0.25);--tw-shadow:var(--tw-shadow-colored)}.shadow-teal-950\/20{--tw-shadow-color:rgb(4 47 46 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.blur-3xl{--tw-blur:blur(64px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-1000{transition-duration:1000ms}.duration-300{transition-duration:300ms}.selection\:bg-amber-200 *::selection{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.selection\:bg-amber-200::selection{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.hover\:scale-110:hover{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-amber-700:hover{--tw-bg-opacity:1;background-color:rgb(180 83 9 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/20:hover{background-color:rgb(255 255 255 / 0.2)}.hover\:from-blue-700:hover{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(29 78 216 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:from-emerald-600:hover{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-blue-700:hover{--tw-gradient-to:#1d4ed8 var(--tw-gradient-to-position)}.hover\:to-indigo-700:hover{--tw-gradient-to:#4338ca var(--tw-gradient-to-position)}.hover\:to-teal-700:hover{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:shadow-blue-300:hover{--tw-shadow-color:#93c5fd;--tw-shadow:var(--tw-shadow-colored)}.focus\:border-emerald-400:focus{--tw-border-opacity:1;border-color:rgb(52 211 153 / var(--tw-border-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-cyan-400:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(34 211 238 / var(--tw-ring-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:gap-2\.5{gap:0.625rem}.sm\:p-7{padding:1.75rem}.sm\:p-8{padding:2rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:flex{display:flex}.md\:hidden{display:none}.md\:flex-row{flex-direction:row}.md\:justify-start{justify-content:flex-start}.md\:text-left{text-align:left}}@media (min-width: 1024px){.lg\:block{display:block}.lg\:hidden{display:none}}</style></head>
+<body class="text-slate-800 antialiased pb-28 selection:bg-amber-200">
+
+  <!-- WATERMARK CORNER BADGE: TIẾNG ANH MS TUYẾT -->
+  <div class="corner-ribbon pointer-events-none hidden lg:block">
+    <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-extrabold text-xs py-1.5 px-16 text-center tracking-wider shadow-lg border-y border-white/30">
+      Tiếng Anh Ms Tuyết
+    </div>
+  </div>
+
+  <!-- Floating Mobile Brand Tag -->
+  <div class="fixed top-20 right-2 z-30 lg:hidden pointer-events-none">
+    <div class="bg-emerald-600/95 backdrop-blur text-white text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md border border-white/40 flex items-center gap-1">
+      <i data-lucide="sparkles" class="w-3 h-3 text-yellow-300"></i>
+      Tiếng Anh Ms Tuyết
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-blue-700 flex items-center justify-center text-white shadow-md shadow-teal-200 flex-shrink-0">
+          <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-sm sm:text-lg font-bold text-slate-900 leading-tight">Tiếng Anh 9 • Unit 3</h1>
+            <span class="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">Test 01</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">Healthy Living for Teens • Đầy đủ 40 câu</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher, Highlighter Tools & Submit Action -->
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+        <!-- Mode Toggle Pill -->
+        <div id="modeSwitchContainer" class="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 gap-1">
+          <button type="button" id="btnModePractice" onclick="setQuizMode('practice')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-white text-blue-700 shadow-sm">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Luyện tập</span>
+          </button>
+          <button type="button" id="btnModeExam" onclick="setQuizMode('exam')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>Kiểm tra thật</span>
+          </button>
+        </div>
+
+        <!-- Desktop Highlighter Tools -->
+        <div class="hidden md:flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 gap-1">
+          <span class="text-[11px] font-bold text-slate-500 px-2 flex items-center gap-1">
+            <i data-lucide="highlighter" class="w-3.5 h-3.5 text-blue-600"></i> Bút dạ:
+          </span>
+          <button type="button" onclick="applyHighlight('yellow')" title="Màu Vàng" class="w-6 h-6 rounded-lg bg-yellow-300 hover:scale-110 transition border border-yellow-400 active:scale-95"></button>
+          <button type="button" onclick="applyHighlight('green')" title="Màu Xanh lá" class="w-6 h-6 rounded-lg bg-green-300 hover:scale-110 transition border border-green-400 active:scale-95"></button>
+          <button type="button" onclick="applyHighlight('pink')" title="Màu Hồng" class="w-6 h-6 rounded-lg bg-pink-300 hover:scale-110 transition border border-pink-400 active:scale-95"></button>
+          <button type="button" onclick="applyHighlight('blue')" title="Màu Xanh dương" class="w-6 h-6 rounded-lg bg-sky-300 hover:scale-110 transition border border-sky-400 active:scale-95"></button>
+          <button type="button" onclick="clearCurrentSelectionHighlight()" title="Xoá highlight chọn" class="px-2 h-6 text-[11px] font-bold text-slate-600 bg-white hover:bg-slate-50 rounded border border-slate-200 flex items-center gap-1">
+            <i data-lucide="eraser" class="w-3 h-3"></i> Tẩy
+          </button>
+        </div>
+
+        <!-- Teacher GitHub Push & Copy Link Button -->
+        <button type="button" id="btnTeacherShare" onclick="openShareModal()" title="Đẩy lên GitHub &amp; Lấy link gửi học sinh" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+          <span>Đẩy GitHub &amp; Lấy Link</span>
+        </button>
+
+        <button type="button" onclick="gradeQuiz()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-200 hover:shadow-blue-300 transition flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Nộp bài</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Real-time Progress Bar -->
+    <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div id="topProgressBar" class="h-full bg-gradient-to-r from-emerald-500 via-teal-600 to-blue-600 transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- Floating Mobile Highlighter Toolbar -->
+  <div class="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl px-3 py-2 flex items-center gap-2">
+    <span class="text-xs font-bold text-blue-700 flex items-center gap-1">
+      <i data-lucide="highlighter" class="w-3.5 h-3.5"></i> Bút dạ:
+    </span>
+    <button type="button" onclick="applyHighlight('yellow')" aria-label="Tô màu vàng" class="w-6 h-6 rounded-full bg-yellow-300 border border-yellow-400"></button>
+    <button type="button" onclick="applyHighlight('green')" aria-label="Tô màu xanh lá" class="w-6 h-6 rounded-full bg-green-300 border border-green-400"></button>
+    <button type="button" onclick="applyHighlight('pink')" aria-label="Tô màu hồng" class="w-6 h-6 rounded-full bg-pink-300 border border-pink-400"></button>
+    <button type="button" onclick="applyHighlight('blue')" aria-label="Tô màu xanh dương" class="w-6 h-6 rounded-full bg-sky-300 border border-sky-400"></button>
+    <button type="button" onclick="clearCurrentSelectionHighlight()" aria-label="Tẩy highlight" class="text-xs bg-slate-100 p-1.5 rounded-lg text-slate-600 font-bold flex items-center">
+      <i data-lucide="eraser" class="w-3.5 h-3.5"></i>
+    </button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-8">
+    <!-- Hero Card Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-teal-950 to-indigo-950 p-6 sm:p-8 text-white shadow-xl shadow-teal-950/20">
+      <div class="relative z-10 max-w-2xl">
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-emerald-300 border border-emerald-400/30">
+            <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-400"></i> Tiếng Anh Ms Tuyết • Lớp 9 Global Success
+          </div>
+          <div id="modeStatusPill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-xs font-bold text-blue-200 border border-blue-400/30">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Chế độ: Luyện tập (Hiện đáp án ngay)
+          </div>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">UNIT 3: HEALTHY LIVING FOR TEENS • TEST 01</h2>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+          Đề thi trọn vẹn <strong>40 câu hỏi trắc nghiệm</strong> chuẩn form: Phát âm, Trọng âm, Câu điều kiện loại 1 với Modal Verbs (can, must, should, might), Từ vựng Sức khỏe thể chất &amp; tinh thần, Biển báo, Đọc hiểu kỹ năng quản lý thời gian và Sắp xếp đoạn văn.
+        </p>
+
+        <!-- Student Name Input for Exam Mode -->
+        <div class="mt-4 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div class="flex items-center gap-2 text-xs font-bold text-cyan-300 flex-shrink-0">
+            <i data-lucide="user-check" class="w-4 h-4"></i> Học sinh làm bài:
+          </div>
+          <input id="studentNameInput" type="text" placeholder="Nhập họ và tên của em (VD: Nguyễn Minh Anh - 9A1)..." class="w-full bg-white/90 text-slate-900 placeholder-slate-400 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-xl border-0 focus:ring-2 focus:ring-cyan-400 outline-none">
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-medium text-slate-300">
+          <span class="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-lg">
+            <i data-lucide="highlighter" class="w-3.5 h-3.5 text-yellow-300"></i> Bôi đen chữ để tô màu từ khóa
+          </span>
+          <span id="answeredCounterBadge" class="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-lg">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-300"></i> Đã làm: 0/40 câu
+          </span>
+          <span id="liveScoreBadge" class="flex items-center gap-1.5 bg-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg font-bold border border-emerald-400/30">
+            <i data-lucide="award" class="w-3.5 h-3.5"></i> Điểm hiện tại: 0.00 / 10
+          </span>
+        </div>
+      </div>
+      <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    </div>
+
+    <!-- Exam Content Container -->
+    <div id="quizContainer" class="space-y-8"></div>
+
+    <!-- Submit Bottom Bar -->
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-800">
+      <div class="text-center md:text-left">
+        <div class="inline-block px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold mb-2">
+          Biên soạn &amp; Giảng dạy: Tiếng Anh Ms Tuyết
+        </div>
+        <h4 class="text-xl font-bold flex items-center justify-center md:justify-start gap-2">
+          <i data-lucide="check-check" class="w-5 h-5 text-cyan-400"></i>
+          Hoàn thành bài thi Unit 3?
+        </h4>
+        <p id="bottomModeNotice" class="text-slate-300 text-sm mt-1 max-w-xl">
+          Bấm "Nộp bài &amp; Chấm điểm" để hệ thống tổng kết điểm thang 10, hiển thị toàn bộ đáp án đúng/sai và lời giải chi tiết từng câu.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <button type="button" onclick="resetQuiz()" class="px-5 py-3 rounded-xl border border-slate-600 hover:bg-slate-800 font-semibold text-sm transition">
+          Làm lại từ đầu
+        </button>
+        <button type="button" onclick="gradeQuiz()" class="px-7 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-600 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white font-bold text-sm shadow-lg shadow-teal-500/25 transition transform active:scale-95 flex items-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Nộp bài &amp; Chấm điểm</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RESULT MODAL -->
+  <div id="resultModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl transform transition-all text-center relative border border-slate-100">
+      <div id="modalIconContainer" class="w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-inner transition-transform"></div>
+
+      <div class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-extrabold rounded-full mb-1">
+        Tiếng Anh Ms Tuyết • Kết quả bài thi
+      </div>
+      <h3 id="modalTitle" class="text-xl sm:text-2xl font-black text-slate-900">Unit 3: Healthy Living for Teens</h3>
+      <p id="modalStudentName" class="text-xs font-bold text-blue-700 mt-1 mb-4"></p>
+
+      <!-- Score Card -->
+      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-5">
+        <div class="flex justify-between items-center text-sm font-semibold text-slate-600 mb-1">
+          <span>Điểm số (Thang 10):</span>
+          <span id="modalScore10Text" class="text-3xl font-black text-blue-600">0.00 / 10</span>
+        </div>
+        <div class="flex justify-between items-center text-xs font-medium text-slate-500 mb-2">
+          <span>Số câu chính xác:</span>
+          <span id="modalScoreRawText" class="font-bold text-slate-700">0 / 40 câu</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+          <div id="modalProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-blue-600 transition-all duration-1000" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-slate-500 mt-2 font-medium">
+          <span>Tỷ lệ hoàn thành đúng</span>
+          <span id="modalPercentText" class="font-bold text-blue-600">0%</span>
+        </div>
+      </div>
+
+      <p id="modalFeedback" class="text-sm font-medium text-slate-600 mb-6 leading-relaxed"></p>
+
+      <button type="button" onclick="closeModal()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition">
+        Xem Chi Tiết Từng Câu &amp; Lời Giải
+      </button>
+    </div>
+  </div>
+
+  <!-- SHARE & 1-CLICK GITHUB PUSH MODAL FOR MS TUYET -->
+  <div id="shareModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 text-left my-8">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">Đẩy lên GitHub &amp; Lấy Link Học Sinh</h3>
+            <p class="text-xs text-slate-500">Tài khoản GitHub: <code id="ghOwnerDisplay" class="font-mono text-emerald-700 font-bold">ndsannn-source/destination-a2-quiz-progress-1</code></p>
+          </div>
+        </div>
+        <button type="button" onclick="closeShareModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- STEP 1: 1-CLICK PUSH TO GITHUB -->
+      <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-3 mb-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <span class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            Bước 1: Tự động đẩy trang này lên GitHub (1-Click)
+          </span>
+          <button type="button" onclick="downloadCleanHtmlFile()" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition flex items-center gap-1">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Tải file .html
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Tài khoản GitHub (Owner):</label>
+            <input id="ghOwnerInput" type="text" oninput="updateShareLinksFromFilename()" value="ndsannn-source" class="w-full bg-slate-800 text-cyan-300 font-mono font-bold text-xs px-3 py-2 rounded-xl border border-slate-700 focus:border-emerald-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Tên kho lưu trữ (Repository):</label>
+            <input id="ghRepoInput" type="text" oninput="updateShareLinksFromFilename()" value="destination-a2-quiz-progress-1" placeholder="VD: destination-a2-quiz-progress-1" class="w-full bg-slate-800 text-amber-300 font-mono font-bold text-xs px-3 py-2 rounded-xl border border-slate-700 focus:border-emerald-400 outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] text-slate-400 mb-1">GitHub Personal Access Token (tự động lưu từ lần trước):</label>
+            <input id="ghTokenInput" type="password" placeholder="Dán mã ghp_... hoặc github_pat_... vào đây" class="w-full bg-slate-800 text-white font-mono text-xs px-3 py-2 rounded-xl border border-slate-700 focus:border-emerald-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Tên file đề (.html):</label>
+            <input id="ghFileNameInput" type="text" oninput="updateShareLinksFromFilename()" value="lop9-unit3-test01.html" class="w-full bg-slate-800 text-emerald-300 font-mono font-bold text-xs px-3 py-2 rounded-xl border border-slate-700 focus:border-emerald-400 outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-1 flex-wrap">
+          <a href="https://github.com/settings/tokens/new?description=MsTuyetQuizBuilder&amp;scopes=repo,workflow" target="_blank" rel="noopener noreferrer" class="text-[11px] text-cyan-300 hover:underline flex items-center gap-1">
+            <i data-lucide="key" class="w-3 h-3"></i> Lấy mã Token trên tài khoản ndsannn-source (tích chọn "repo")
+          </a>
+          <button type="button" id="btnPushGithubNow" onclick="pushToGitHubNow()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+            <span>Đẩy thẳng lên GitHub ngay</span>
+          </button>
+        </div>
+
+        <div id="ghPushStatusBox" class="hidden p-2.5 rounded-xl text-xs font-medium"></div>
+      </div>
+
+      <!-- STEP 2: COPY LINKS FOR STUDENTS -->
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div class="font-bold text-slate-700 text-xs uppercase tracking-wider">Bước 2: Sao chép Link gửi cho Học sinh</div>
+
+        <!-- Option 1: Practice Link -->
+        <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-blue-900 flex items-center gap-1.5 text-xs sm:text-sm">
+              <i data-lucide="sparkles" class="w-4 h-4 text-blue-600"></i>
+              1. Link Luyện tập (Chọn câu nào hiện đáp án &amp; giải thích ngay)
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="inputSharePractice" type="text" readonly="" class="w-full bg-white text-slate-700 font-mono text-xs px-3 py-2 rounded-xl border border-blue-200 outline-none" value="">
+            <button type="button" onclick="copyTextFromInput('inputSharePractice', 'btnCopyPractice')" id="btnCopyPractice" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl flex-shrink-0 transition">
+              Sao chép
+            </button>
+          </div>
+        </div>
+
+        <!-- Option 2: Exam Link (Locked) -->
+        <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-amber-900 flex items-center gap-1.5 text-xs sm:text-sm">
+              <i data-lucide="lock" class="w-4 h-4 text-amber-600"></i>
+              2. Link Kiểm tra lấy điểm thật (Ẩn đáp án đến khi Nộp bài &amp; Khóa nút đổi chế độ)
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="inputShareExam" type="text" readonly="" class="w-full bg-white text-slate-700 font-mono text-xs px-3 py-2 rounded-xl border border-amber-300 outline-none" value="">
+            <button type="button" onclick="copyTextFromInput('inputShareExam', 'btnCopyExam')" id="btnCopyExam" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex-shrink-0 transition">
+              Sao chép
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 flex justify-between items-center">
+        <a id="ghManualUploadLink" href="https://github.com/ndsannn-source" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-blue-600 underline flex items-center gap-1">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Mở trang GitHub của cô (ndsannn-source)
+        </a>
+        <button type="button" onclick="closeShareModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastNotice" class="fixed bottom-16 right-4 z-50 hidden bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl border border-slate-700 items-center gap-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMessage">Đã sao chép!</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & DATABASE -->
+  <script>
+    const DEFAULT_GITHUB_OWNER = "ndsannn-source";
+    const DEFAULT_GITHUB_REPO = "destination-a2-quiz-progress-1";
+    const FILE_SLUG = "lop9-unit3-test01.html";
+
+    // Capture pristine HTML at initial load so teacher can push or download a clean student copy
+    const INITIAL_RAW_HTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+    // 40 QUESTIONS DATABASE FOR UNIT 3: HEALTHY LIVING FOR TEENS (TEST 01)
+    const quizData = [
+      // PART 1: PRONUNCIATION (1-2)
+      {
+        partId: "p1",
+        partTitle: "Phần 1: Phát âm (Pronunciation)",
+        partDesc: "Chọn từ có phần gạch chân phát âm khác với ba từ còn lại.",
+        questions: [
+          {
+            id: 1,
+            text: "Question 1. Choose the word whose underlined part differs from the other three in pronunciation:",
+            options: [
+              { key: "A", text: "<u>a</u>ccomplish" },
+              { key: "B", text: "<u>a</u>dditional" },
+              { key: "C", text: "<u>a</u>nxiety" },
+              { key: "D", text: "<u>a</u>ssignment" }
+            ],
+            correct: "C",
+            translation: "A. accomplish /əˈkʌmplɪʃ/ (hoàn thành) | B. additional /əˈdɪʃənl/ (bổ sung) | C. anxiety /æŋˈzaɪəti/ (sự lo âu) | D. assignment /əˈsaɪnmənt/ (bài tập).",
+            explanation: "Chữ 'a' đầu từ trong 'anxiety' phát âm là /æ/ (hoặc /ɪ/), trong khi ở các từ accomplish, additional, assignment đều phát âm là âm nhẹ /ə/."
+          },
+          {
+            id: 2,
+            text: "Question 2. Choose the word whose underlined part differs from the other three in pronunciation:",
+            options: [
+              { key: "A", text: "ed<u>u</u>cate" },
+              { key: "B", text: "deadline (chữ <u>u</u>: st<u>u</u>dent/c<u>u</u>te)" },
+              { key: "C", text: "distraction (chữ <u>u</u>: n<u>u</u>trition)" },
+              { key: "D", text: "st<u>u</u>dy" }
+            ],
+            correct: "D",
+            translation: "A. educate /ˈedʒukeɪt/ (giáo dục) | B. deadline /ˈdedlaɪn/ | C. distraction /dɪˈstrækʃn/ | D. study /ˈstʌdi/ (học tập).",
+            explanation: "Theo đáp án chuẩn được đánh dấu trong đề gốc, đáp án là D (study /ˈstʌdi/ có nguyên âm /ʌ/ khác biệt)."
+          }
+        ]
+      },
+
+      // PART 2: STRESS (3-4)
+      {
+        partId: "p2",
+        partTitle: "Phần 2: Trọng âm chính (Primary Stress)",
+        partDesc: "Chọn từ có vị trí trọng âm chính khác với các từ còn lại.",
+        questions: [
+          {
+            id: 3,
+            text: "Question 3. Choose the word that differs from the other three in the position of primary stress:",
+            options: [
+              { key: "A", text: "awake" },
+              { key: "B", text: "advise" },
+              { key: "C", text: "delay" },
+              { key: "D", text: "mental" }
+            ],
+            correct: "D",
+            translation: "A. awake /əˈweɪk/ (tỉnh giấc - âm 2) | B. advise /ədˈvaɪz/ (khuyên bảo - âm 2) | C. delay /dɪˈleɪ/ (trì hoãn - âm 2) | D. mental /ˈmentl/ (thuộc tinh thần - âm 1).",
+            explanation: "Đáp án D 'mental' là tính từ 2 âm tiết có trọng âm rơi vào âm tiết thứ 1. Ba từ còn lại (awake, advise, delay) có trọng âm rơi vào âm tiết thứ 2."
+          },
+          {
+            id: 4,
+            text: "Question 4. Choose the word that differs from the other three in the position of primary stress:",
+            options: [
+              { key: "A", text: "cognitive" },
+              { key: "B", text: "abandon" },
+              { key: "C", text: "emotion" },
+              { key: "D", text: "important" }
+            ],
+            correct: "A",
+            translation: "A. cognitive /ˈkɒɡnətɪv/ (nhận thức - âm 1) | B. abandon /əˈbændən/ (từ bỏ - âm 2) | C. emotion /ɪˈməʊʃn/ (cảm xúc - âm 2) | D. important /ɪmˈpɔːtnt/ (quan trọng - âm 2).",
+            explanation: "Đáp án A 'cognitive' có trọng âm rơi vào âm tiết thứ 1, trong khi abandon, emotion, important đều có trọng âm rơi vào âm tiết thứ 2."
+          }
+        ]
+      },
+
+      // PART 3: GRAMMAR & VOCABULARY (5-12)
+      {
+        partId: "p3",
+        partTitle: "Phần 3: Từ vựng & Ngữ pháp (Vocabulary & Grammar)",
+        partDesc: "Chọn phương án đúng nhất A, B, C hoặc D để hoàn thành các câu sau.",
+        questions: [
+          {
+            id: 5,
+            text: "Question 5. To most people, ________ living means both physical and mental health are functioning well together.",
+            options: [
+              { key: "A", text: "healthy" },
+              { key: "B", text: "unhealthy" },
+              { key: "C", text: "health" },
+              { key: "D", text: "healthily" }
+            ],
+            correct: "A",
+            translation: "Đối với hầu hết mọi người, lối sống lành mạnh (healthy living) có nghĩa là cả sức khỏe thể chất và tinh thần đều hoạt động tốt cùng nhau.",
+            explanation: "Trước danh động từ 'living' cần một tính từ mang nghĩa tích cực phù hợp ngữ cảnh: 'healthy living' (sống lành mạnh)."
+          },
+          {
+            id: 6,
+            text: "Question 6. The school counsellor advises the students ________ their study and play time.",
+            options: [
+              { key: "A", text: "underground" },
+              { key: "B", text: "to balance" },
+              { key: "C", text: "taxi" },
+              { key: "D", text: "bus" }
+            ],
+            correct: "B",
+            translation: "Cố vấn học đường khuyên các bạn học sinh nên cân bằng (to balance) thời gian học tập và vui chơi.",
+            explanation: "Cấu trúc 'advise sb to V' (khuyên ai làm gì): 'advises the students to balance...'."
+          },
+          {
+            id: 7,
+            text: "Question 7. Students have to ________ their time by planning their schedule and giving priority to their work.",
+            options: [
+              { key: "A", text: "manage" },
+              { key: "B", text: "waste" },
+              { key: "C", text: "managing" },
+              { key: "D", text: "bring" }
+            ],
+            correct: "A",
+            translation: "Học sinh phải quản lý (manage) thời gian của mình bằng cách lập thời gian biểu và ưu tiên cho công việc.",
+            explanation: "Sau 'have to' là động từ nguyên mẫu (V-inf). Cụm cố định: 'manage time' = quản lý thời gian."
+          },
+          {
+            id: 8,
+            text: "Question 8. If you ________ time for relaxation, you will avoid feeling overwhelmed.",
+            options: [
+              { key: "A", text: "will make" },
+              { key: "B", text: "make" },
+              { key: "C", text: "should make" },
+              { key: "D", text: "must make" }
+            ],
+            correct: "B",
+            translation: "Nếu bạn dành (make) thời gian để thư giãn, bạn sẽ tránh được cảm giác quá tải.",
+            explanation: "Trong mệnh đề điều kiện loại 1 (If-clause), động từ chia ở thì Hiện tại đơn: 'If you make time...'."
+          },
+          {
+            id: 9,
+            text: "Question 9. Unless you follow a healthy diet, you ________ feel tired.",
+            options: [
+              { key: "A", text: "might" },
+              { key: "B", text: "will" },
+              { key: "C", text: "can't" },
+              { key: "D", text: "should" }
+            ],
+            correct: "A",
+            translation: "Trừ khi bạn tuân theo một chế độ ăn uống lành mạnh (Nếu bạn không ăn uống lành mạnh), bạn có thể (might) sẽ cảm thấy mệt mỏi.",
+            explanation: "Trong câu điều kiện loại 1, ta dùng 'might + V' ở mệnh đề chính để diễn tả một khả năng có thể xảy ra nếu điều kiện không được đáp ứng."
+          },
+          {
+            id: 10,
+            text: "Question 10. If you don't hand ________ your homework, you will get into trouble.",
+            options: [
+              { key: "A", text: "in" },
+              { key: "B", text: "into" },
+              { key: "C", text: "up" },
+              { key: "D", text: "on" }
+            ],
+            correct: "A",
+            translation: "Nếu bạn không nộp (hand in) bài tập về nhà, bạn sẽ gặp rắc rối đấy.",
+            explanation: "Cụm động từ (Phrasal verb): 'hand in' = submit (nộp bài cho giáo viên)."
+          },
+          {
+            id: 11,
+            text: "Question 11. I'm not good at art so I'm ________ this subject. I'll try French now.",
+            options: [
+              { key: "A", text: "attending" },
+              { key: "B", text: "marking" },
+              { key: "C", text: "dropping" },
+              { key: "D", text: "taking" }
+            ],
+            correct: "C",
+            translation: "Mình không giỏi môn Mỹ thuật nên mình sẽ bỏ/dừng học (dropping) môn này. Bây giờ mình sẽ thử học tiếng Pháp.",
+            explanation: "'drop a subject/course' nghĩa là ngừng theo học một môn học để chuyển sang môn khác."
+          },
+          {
+            id: 12,
+            text: "Question 12. Mary: 'Shall we have a drink when you finish your talk?' - John: '________'",
+            options: [
+              { key: "A", text: "No you can't" },
+              { key: "B", text: "All right" },
+              { key: "C", text: "You're welcome" },
+              { key: "D", text: "You needn't do that" }
+            ],
+            correct: "B",
+            translation: "Mary: 'Chúng mình đi uống nước sau khi bạn kết thúc bài nói chuyện nhé?' - John: 'Được thôi / Đồng ý (All right)'.",
+            explanation: "'Shall we...?' là câu đề nghị/rủ rê lịch sự. Để đồng ý, ta đáp 'All right' (Được thôi!)."
+          }
+        ]
+      },
+
+      // PART 4: ANNOUNCEMENT (13-16)
+      {
+        partId: "p4",
+        partTitle: "Phần 4: Đọc thông báo (Announcement)",
+        partDesc: "Đọc thông báo về Lớp học Yoga giờ nghỉ trưa và chọn đáp án đúng cho các chỗ trống 13 đến 16.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-2.5">
+            <div class="text-center pb-2 border-b border-emerald-200">
+              <span class="font-extrabold uppercase tracking-wider text-emerald-900 text-sm sm:text-base">COME AND JOIN OUR LUNCHTIME YOGA CLASS WITH EXPERIENCED TEACHER</span>
+            </div>
+            <p>• <strong>When?</strong> - <strong>(13) ________</strong> Tuesday at 1.30 p.m.</p>
+            <p>• <strong>Where?</strong> - <strong>(14) ________</strong> Room 7</p>
+            <p>• <strong>How much?</strong> - $10 for four 30-minute classes.</p>
+            <p>• <strong>What to bring?</strong> - <strong>(15) ________</strong> clothes. Divya will provide the yoga mats.</p>
+            <p>• <strong>How to join?</strong> - Write to Sam at Sam@yoga.com. We can only take a <strong>(16) ________</strong> of 20 in the room, so book now!</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 13,
+            text: "Question 13. [Announcement Blank 13]",
+            options: [
+              { key: "A", text: "Almost" },
+              { key: "B", text: "Most" },
+              { key: "C", text: "Every" },
+              { key: "D", text: "All" }
+            ],
+            correct: "C",
+            translation: "Khi nào? - Vào mỗi thứ Ba hàng tuần (Every Tuesday) lúc 1 giờ 30 chiều.",
+            explanation: "'Every + danh từ số ít chỉ ngày trong tuần' (Every Tuesday) = vào mỗi thứ Ba hàng tuần."
+          },
+          {
+            id: 14,
+            text: "Question 14. [Announcement Blank 14]",
+            options: [
+              { key: "A", text: "in" },
+              { key: "B", text: "at" },
+              { key: "C", text: "on" },
+              { key: "D", text: "about" }
+            ],
+            correct: "A",
+            translation: "Ở đâu? - Tại Phòng số 7 (in Room 7).",
+            explanation: "Ta dùng giới từ 'in' trước tên phòng cụ thể: 'in Room 7' (trong phòng số 7)."
+          },
+          {
+            id: 15,
+            text: "Question 15. [Announcement Blank 15]",
+            options: [
+              { key: "A", text: "fashionable" },
+              { key: "B", text: "comfortable" },
+              { key: "C", text: "expensive" },
+              { key: "D", text: "cheap" }
+            ],
+            correct: "B",
+            translation: "Cần mang theo gì? - Quần áo thoải mái (comfortable clothes). Divya sẽ chuẩn bị sẵn thảm tập yoga.",
+            explanation: "Khi đi tập yoga cần mặc trang phục thoải mái, dễ vận động ('comfortable clothes')."
+          },
+          {
+            id: 16,
+            text: "Question 16. [Announcement Blank 16]",
+            options: [
+              { key: "A", text: "minimum" },
+              { key: "B", text: "number" },
+              { key: "C", text: "maximum" },
+              { key: "D", text: "minority" }
+            ],
+            correct: "C",
+            translation: "Chúng tôi chỉ có thể nhận tối đa (a maximum of) 20 học viên trong phòng, vì vậy hãy đăng ký ngay!",
+            explanation: "Cụm 'only take a maximum of 20' = chỉ nhận tối đa 20 người (vì giới hạn diện tích phòng)."
+          }
+        ]
+      },
+
+      // PART 5: SENTENCE ORDERING (17-18)
+      {
+        partId: "p5",
+        partTitle: "Phần 5: Sắp xếp trật tự câu (Sentence Ordering)",
+        partDesc: "Chọn trật tự sắp xếp đúng để tạo thành đoạn văn hoàn chỉnh, mạch lạc.",
+        questions: [
+          {
+            id: 17,
+            text: 'Question 17. Sắp xếp các câu sau thành đoạn văn nói về giấc ngủ:<div class="mt-2 p-3.5 bg-slate-50 rounded-xl text-xs sm:text-sm text-slate-700 space-y-1.5 font-mono"><p><strong>a.</strong> Sleep is very important for staying healthy because it helps your brain and emotions work well.</p><p><strong>b.</strong> So, if you keep a regular sleep schedule, you will feel better.</p><p><strong>c.</strong> This way, you can take better care of your health.</p><p><strong>d.</strong> In addition, avoiding late-night activities makes your sleep better.</p><p><strong>e.</strong> Also, creating a calm bedtime routine can help you fall asleep.</p></div>',
+            options: [
+              { key: "A", text: "a - c - d - b - e" },
+              { key: "B", text: "a - b - e - c - d" },
+              { key: "C", text: "a - d - b - e - c" },
+              { key: "D", text: "a - e - b - d - c" }
+            ],
+            correct: "D",
+            translation: "Giấc ngủ rất quan trọng vì giúp não bộ và cảm xúc hoạt động tốt (a) -> Ngoài ra, tạo thói quen thư giãn trước khi ngủ giúp dễ ngủ hơn (e) -> Vì vậy, nếu duy trì lịch ngủ đều đặn bạn sẽ thấy khỏe hơn (b) -> Thêm vào đó, tránh các hoạt động khuya giúp ngủ ngon hơn (d) -> Bằng cách này, bạn có thể chăm sóc sức khỏe tốt hơn (c).",
+            explanation: "Câu chủ đề (a) mở đầu đoạn văn; câu (c) 'This way, you can take better care of your health' đóng vai trò câu kết tóm lại toàn đoạn -> Trật tự chuẩn trong đề là D (a-e-b-d-c)."
+          },
+          {
+            id: 18,
+            text: 'Question 18. Sắp xếp các câu sau thành đoạn văn về hoạt động thể chất cho thanh thiếu niên:<div class="mt-2 p-3.5 bg-slate-50 rounded-xl text-xs sm:text-sm text-slate-700 space-y-1.5 font-mono"><p><strong>a.</strong> Physical activity is beneficial for teens.</p><p><strong>b.</strong> Therefore, if you engage in regular exercise, you can enhance your fitness levels.</p><p><strong>c.</strong> As a result, regular exercise also helps in managing stress effectively.</p><p><strong>d.</strong> Additionally, choosing enjoyable activities increases motivation for exercise.</p><p><strong>e.</strong> Moreover, incorporating different types of exercise can benefit overall health.</p></div>',
+            options: [
+              { key: "A", text: "a - c - b - e - d" },
+              { key: "B", text: "a - d - b - e - c" },
+              { key: "C", text: "a - b - e - c - d" },
+              { key: "D", text: "a - e - b - c - d" }
+            ],
+            correct: "C",
+            translation: "Hoạt động thể chất rất có lợi cho thanh thiếu niên (a) -> Do đó, tập thể dục thường xuyên giúp nâng cao thể lực (b) -> Hơn nữa, kết hợp nhiều bài tập khác nhau có lợi cho sức khỏe tổng thể (e) -> Kết quả là tập luyện còn giúp quản lý căng thẳng hiệu quả (c) -> Thêm vào đó, chọn hoạt động yêu thích sẽ tăng động lực tập luyện (d).",
+            explanation: "Mở đầu bằng câu chủ đề (a) -> Hệ quả trực tiếp 'Therefore' (b) -> Mở rộng 'Moreover' (e) -> Kết quả về tinh thần 'As a result' (c) -> Lời khuyên bổ sung 'Additionally' (d). Đáp án đúng là C (a-b-e-c-d)."
+          }
+        ]
+      },
+
+      // PART 6: CLOZE TEXT (19-24)
+      {
+        partId: "p6",
+        partTitle: "Phần 6: Đọc điền từ vào đoạn văn (Cloze Passage)",
+        partDesc: "Đọc đoạn văn chia sẻ bí quyết sống cân bằng khi còn đi học và chọn từ thích hợp cho các chỗ trống từ 19 đến 24.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3">
+            <p>When I was at school, I had to learn how to have a well-balanced life in order to reduce stress and anxiety. Here are some of the typical things I did. Firstly, I managed my time properly. <strong>(19) ________</strong>, I started to plan my schedule, made a weekly work list and gave priority to some of my work. This helped me concentrate my efforts on my most important tasks. In addition, I communicated with my family, friends, and teachers about my busy schedule and problems, so they would offer me additional <strong>(20) ________</strong> support. I also took breaks appropriately because they helped me keep away from stress and anxiety and gave my brain a rest and improved my <strong>(21) ________</strong>.</p>
+            <p>Finally, I looked after my <strong>(22) ________</strong>. I got at least eight hours of sleep a day. I played football with my classmates twice a week and went for a walk with my grandparents early every morning. Besides, I also tried to <strong>(23) ________</strong> a healthy diet. I ate a lot of fruit and vegetables. I ate little fattening foods and avoided <strong>(24) ________</strong> like chips, cookies, pizza, etc.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 19,
+            text: "Question 19. [Passage Blank 19]",
+            options: [
+              { key: "A", text: "However" },
+              { key: "B", text: "Therefore" },
+              { key: "C", text: "But" },
+              { key: "D", text: "Because" }
+            ],
+            correct: "B",
+            translation: "Đầu tiên, tôi quản lý thời gian hợp lý. Do đó (Therefore), tôi bắt đầu lập thời gian biểu, lên danh sách việc làm hàng tuần...",
+            explanation: "'Therefore' (Do đó, vì vậy) đứng đầu câu và ngăn cách bởi dấu phẩy để chỉ hành động cụ thể triển khai từ ý trước."
+          },
+          {
+            id: 20,
+            text: "Question 20. [Passage Blank 20]",
+            options: [
+              { key: "A", text: "a" },
+              { key: "B", text: "the" },
+              { key: "C", text: "some" },
+              { key: "D", text: "X (không dùng mạo từ)" }
+            ],
+            correct: "D",
+            translation: "...để họ có thể dành cho tôi sự hỗ trợ thêm (offer me additional Ø support).",
+            explanation: "'support' là danh từ không đếm được và trước nó đã có tính từ 'additional' nên không dùng mạo từ (X)."
+          },
+          {
+            id: 21,
+            text: "Question 21. [Passage Blank 21]",
+            options: [
+              { key: "A", text: "happy" },
+              { key: "B", text: "happier" },
+              { key: "C", text: "happiness" },
+              { key: "D", text: "happily" }
+            ],
+            correct: "C",
+            translation: "...giúp não bộ được nghỉ ngơi và cải thiện niềm vui/tâm trạng tích cực của tôi (improved my happiness).",
+            explanation: "Sau tính từ sở hữu 'my' bắt buộc phải là một danh từ -> Chọn 'happiness'."
+          },
+          {
+            id: 22,
+            text: "Question 22. [Passage Blank 22]",
+            options: [
+              { key: "A", text: "healthy diet" },
+              { key: "B", text: "junk foods" },
+              { key: "C", text: "physical health" },
+              { key: "D", text: "mood" }
+            ],
+            correct: "C",
+            translation: "Cuối cùng, tôi chăm sóc sức khỏe thể chất (physical health) của mình. Tôi ngủ ít nhất 8 tiếng mỗi ngày, đá bóng 2 lần/tuần và đi bộ mỗi sáng...",
+            explanation: "Các hoạt động ngủ đủ 8 tiếng, đá bóng, đi bộ, ăn uống lành mạnh đều là cách chăm sóc 'physical health' (sức khỏe thể chất)."
+          },
+          {
+            id: 23,
+            text: "Question 23. [Passage Blank 23]",
+            options: [
+              { key: "A", text: "take part" },
+              { key: "B", text: "follow / maintain (healthy diet)" },
+              { key: "C", text: "be careful" },
+              { key: "D", text: "make sure" }
+            ],
+            correct: "B",
+            translation: "Bên cạnh đó, tôi cũng cố gắng duy trì/theo đuổi một chế độ ăn uống lành mạnh.",
+            explanation: "Theo đáp án được tô vàng trong đề gốc, câu 23 chọn phương án B."
+          },
+          {
+            id: 24,
+            text: "Question 24. [Passage Blank 24]",
+            options: [
+              { key: "A", text: "junk foods" },
+              { key: "B", text: "healthy diet" },
+              { key: "C", text: "physical health" },
+              { key: "D", text: "support" }
+            ],
+            correct: "A",
+            translation: "Tôi ăn ít thực phẩm gây béo và tránh đồ ăn vặt không lành mạnh (junk foods) như khoai tây chiên, bánh quy, pizza...",
+            explanation: "Chips, cookies, pizza là các ví dụ điển hình của 'junk foods' (đồ ăn vặt có hại cho sức khỏe)."
+          }
+        ]
+      },
+
+      // PART 7: SENTENCE TRANSFORMATION & BUILDING (25-28)
+      {
+        partId: "p7",
+        partTitle: "Phần 7: Biến đổi câu & Tạo câu (Transformation)",
+        partDesc: "Chọn câu có ý nghĩa gần nhất hoặc câu được tạo chính xác từ các từ gợi ý.",
+        questions: [
+          {
+            id: 25,
+            text: "Question 25. Choose the sentence closest in meaning: 'Taking care of both physical and mental health is important.'",
+            options: [
+              { key: "A", text: "Taking care of both physical and mental health is unnecessary." },
+              { key: "B", text: "If you take care of both physical and mental health, it will not matter." },
+              { key: "C", text: "Both physical and mental health do not need to be taken care of." },
+              { key: "D", text: "It is important to take care of both physical and mental health." }
+            ],
+            correct: "D",
+            translation: "Việc chăm sóc cả sức khỏe thể chất lẫn tinh thần là rất quan trọng.",
+            explanation: "Cấu trúc tương đương: 'V-ing + is + adj' = 'It is + adj + to V-inf' -> 'It is important to take care of both physical and mental health'."
+          },
+          {
+            id: 26,
+            text: "Question 26. Choose the sentence closest in meaning: 'You don't manage your time well, you may feel stressed out accomplishing all the assignments.'",
+            options: [
+              { key: "A", text: "If you don't manage your time well, you can easily finish all the assignments." },
+              { key: "B", text: "You will never feel stressed out no matter how badly you manage your time." },
+              { key: "C", text: "Managing your time poorly means you won't feel stressed out." },
+              { key: "D", text: "If you don't manage your time well, you will feel stressed out accomplishing all the assignments." }
+            ],
+            correct: "D",
+            translation: "Nếu bạn không quản lý thời gian tốt, bạn sẽ cảm thấy căng thẳng khi phải hoàn thành tất cả các bài tập.",
+            explanation: "Viết lại bằng câu điều kiện loại 1 diễn tả hệ quả tất yếu khi không quản lý tốt thời gian: 'If you don't manage your time well, you will feel stressed out...'."
+          },
+          {
+            id: 27,
+            text: "Question 27. Build sentence from cues: 'you / want / take part / contest / you / fill / this form.'",
+            options: [
+              { key: "A", text: "If you want take part contest, you must filling this form." },
+              { key: "B", text: "You must take part in the contest if you want fill this form." },
+              { key: "C", text: "If you want to taking part in the contest, you must fill this form." },
+              { key: "D", text: "If you want to take part in the contest, you must fill in this form." }
+            ],
+            correct: "D",
+            translation: "Nếu bạn muốn tham gia cuộc thi, bạn phải điền vào biểu mẫu này.",
+            explanation: "Cấu trúc: 'want to V' + cụm 'take part in the contest' (tham gia cuộc thi); mệnh đề chính dùng modal verb 'must + fill in this form' (phải điền vào đơn này)."
+          },
+          {
+            id: 28,
+            text: "Question 28. Build sentence from cues: 'your brother / get / tired / tomorrow / he / stay up late / tonight.'",
+            options: [
+              { key: "A", text: "If your brother might get tired tomorrow, he stays up late tonight." },
+              { key: "B", text: "Your brother stays up late tonight if he might get tired tomorrow." },
+              { key: "C", text: "Your brother might get tired tomorrow if he stays up late tonight." },
+              { key: "D", text: "Your brother might tired get tomorrow if he stays late up tonight." }
+            ],
+            correct: "C",
+            translation: "Anh trai của bạn có thể sẽ bị mệt vào ngày mai nếu tối nay anh ấy thức khuya.",
+            explanation: "Câu điều kiện loại 1 với 'might' ở mệnh đề chính và thì Hiện tại đơn ở mệnh đề If: 'Your brother might get tired tomorrow if he stays up late tonight'."
+          }
+        ]
+      },
+
+      // PART 8: SIGNS & NOTICES (29-30)
+      {
+        partId: "p8",
+        partTitle: "Phần 8: Biển báo & Thông báo thực tế (Signs & Notices)",
+        partDesc: "Đọc biển báo / thông báo và chọn phương án giải thích đúng nhất.",
+        questions: [
+          {
+            id: 29,
+            text: 'Question 29. What does the sign say?<div class="my-3 flex justify-center"><div class="w-48 p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-500 shadow-sm text-center flex flex-col items-center"><div class="px-2.5 py-0.5 bg-amber-500 text-slate-950 font-black text-[10px] tracking-widest uppercase rounded mb-2">⚠️ WARNING</div><svg viewBox="0 0 64 44" class="w-16 h-11 mb-1"><rect x="8" y="10" width="34" height="22" rx="4" fill="#1e293b"/><polygon points="42,15 56,8 56,34 42,27" fill="#334155"/><circle cx="20" cy="21" r="5" fill="#ef4444"/></svg><div class="font-black text-xs text-slate-900 leading-tight uppercase">SECURITY CAMERA<br/>IN USE</div></div></div>',
+            options: [
+              { key: "A", text: "Security cameras are not being used in this area." },
+              { key: "B", text: "Security cameras are watching and recording in this area." },
+              { key: "C", text: "There are no security cameras around this building." },
+              { key: "D", text: "Security cameras are only active during the night." }
+            ],
+            correct: "B",
+            translation: "Camera an ninh đang quan sát và ghi hình tại khu vực này.",
+            explanation: "Biển cảnh báo 'WARNING: SECURITY CAMERA IN USE' = Camera an ninh đang hoạt động (theo dõi và ghi hình) trong khu vực này."
+          },
+          {
+            id: 30,
+            text: 'Question 30. What does the notice say?<div class="my-3 p-4 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-950 font-medium text-sm"><p class="font-bold mb-1">🎵 Café Notice:</p><p>&quot;The cafe will have live music on Friday nights starting at 7 PM. Enjoy music while you dine.&quot;</p></div>',
+            options: [
+              { key: "A", text: "Live music will be played on Saturday nights." },
+              { key: "B", text: "The café will have live music on Friday nights starting at 7 PM." },
+              { key: "C", text: "Music will be played only in the morning." },
+              { key: "D", text: "The café will not have live music this month." }
+            ],
+            correct: "B",
+            translation: "Quán cà phê sẽ có nhạc sống vào các tối thứ Sáu bắt đầu từ lúc 7 giờ tối.",
+            explanation: "Thông báo ghi rõ: 'The cafe will have live music on Friday nights starting at 7 PM'."
+          }
+        ]
+      },
+
+      // PART 9: READING COMPREHENSION (31-36)
+      {
+        partId: "p9",
+        partTitle: "Phần 9: Đọc hiểu văn bản (Reading Comprehension)",
+        partDesc: "Đọc bài viết về cách quản lý thời gian của Mary và James và trả lời câu hỏi từ 31 đến 36.",
+        passage: `
+          <div class="p-4 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3">
+            <p>Balance is key for Mary, a busy teenager. She uses an app to stay <strong>organized</strong> with her assignments and deadlines; the app helps her receive <strong>reminders</strong> to ensure she doesn't forget anything. Mary also makes a daily to-do list to help her stay focused and motivated. She's mindful of not spending too much time on online social media, limiting her usage to an hour each day to avoid wasting her time. On weekends, Mary enjoys relaxing and socializing with friends, going to the cinema, shopping, or just hanging out. She also does some volunteer work at a local charity, which provides valuable academic experience and looks great on her CV.</p>
+            <p>James, an adult working a nine-to-five job, is also aware of the importance of time management. He starts his day by making a to-do list, prioritizing the most urgent or difficult tasks first when he has the most energy. To avoid <strong>distractions</strong>, James turns off email and social media notifications on his phone and closes his office door, allowing him to concentrate. On the day when he must work overtime, he quickly rearranges his tasks and makes sure everything gets completed on time. When at home, James spends his quality time with his family, playing games or going to the park with his two young children. James and his wife share the housework, taking turns cooking and cleaning, ensuring a great work-life balance. In his free time, James keeps fit by playing football with friends and going to the gym, which helps him relax and clear his mind.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 31,
+            text: "Question 31. Which title best describes the content of the text?",
+            options: [
+              { key: "A", text: "How to Use Social Media Effectively" },
+              { key: "B", text: "Tips for Healthy Eating Habits" },
+              { key: "C", text: "Strategies for Managing Time Efficiently" },
+              { key: "D", text: "Importance of Exercise in Daily Life" }
+            ],
+            correct: "C",
+            translation: "Tiêu đề nào mô tả đúng nhất nội dung của bài đọc? -> Các chiến lược quản lý thời gian hiệu quả (Strategies for Managing Time Efficiently).",
+            explanation: "Cả hai đoạn văn đều tập trung mô tả cách cô thiếu niên Mary và anh nhân viên văn phòng James sắp xếp thời gian biểu, lập to-do list, tránh xao nhãng và cân bằng cuộc sống."
+          },
+          {
+            id: 32,
+            text: "Question 32. What is the main difference between Mary and James's approach to managing their time?",
+            options: [
+              { key: "A", text: "Mary limits her social media use, while James avoids distractions by turning off notifications." },
+              { key: "B", text: "Mary uses a to-do list, while James does not use any planning tools." },
+              { key: "C", text: "Mary works overtime frequently, while James has a flexible work schedule." },
+              { key: "D", text: "Mary spends a lot of time on social media, while James spends little time with his family." }
+            ],
+            correct: "A",
+            translation: "Điểm khác biệt chính trong cách quản lý thời gian của Mary và James là gì? -> Mary giới hạn thời gian dùng mạng xã hội (1 tiếng/ngày), trong khi James tránh xao nhãng bằng cách tắt thông báo và đóng cửa phòng làm việc.",
+            explanation: "Đoạn 1 nêu Mary 'limiting her usage to an hour each day', còn đoạn 2 nêu James 'turns off email and social media notifications on his phone'."
+          },
+          {
+            id: 33,
+            text: "Question 33. Which word is CLOSEST in meaning to 'organized'?",
+            options: [
+              { key: "A", text: "Arranged / Orderly (Arrange)" },
+              { key: "B", text: "Ignore" },
+              { key: "C", text: "Delay" },
+              { key: "D", text: "Confuse" }
+            ],
+            correct: "A",
+            translation: "Từ nào GẦN NGHĨA nhất với 'organized' (có tổ chức, ngăn nắp)? -> Arrange (sắp xếp có trật tự).",
+            explanation: "'stay organized' (sắp xếp ngăn nắp, khoa học) gần nghĩa nhất với 'Arrange' trong 4 phương án."
+          },
+          {
+            id: 34,
+            text: "Question 34. Which word is the OPPOSITE of 'distractions'?",
+            options: [
+              { key: "A", text: "Interruptions" },
+              { key: "B", text: "Focus" },
+              { key: "C", text: "Disturbances" },
+              { key: "D", text: "Transaction" }
+            ],
+            correct: "B",
+            translation: "Từ nào TRÁI NGHĨA với 'distractions' (sự xao nhãng, phân tâm)? -> Focus (sự tập trung).",
+            explanation: "'distractions' là những yếu tố gây mất tập trung, trái nghĩa hoàn toàn với 'Focus' (sự tập trung chú ý)."
+          },
+          {
+            id: 35,
+            text: "Question 35. Which word is CLOSEST in meaning to 'reminders'?",
+            options: [
+              { key: "A", text: "Alerts" },
+              { key: "B", text: "Warnings" },
+              { key: "C", text: "Notifications" },
+              { key: "D", text: "Announcements" }
+            ],
+            correct: "C",
+            translation: "Từ nào GẦN NGHĨA nhất với 'reminders' (lời nhắc trên ứng dụng)? -> Notifications (thông báo nhắc nhở).",
+            explanation: "Theo đáp án đánh dấu trong đề gốc, 'reminders' trên ứng dụng điện thoại đồng nghĩa với 'Notifications' (thông báo nhắc việc)."
+          },
+          {
+            id: 36,
+            text: "Question 36. Why does Mary limit her social media time?",
+            options: [
+              { key: "A", text: "To avoid wasting time and stay focused" },
+              { key: "B", text: "To relax and clear her mind" },
+              { key: "C", text: "To focus on volunteer work" },
+              { key: "D", text: "To spend more time with her family" }
+            ],
+            correct: "A",
+            translation: "Tại sao Mary lại giới hạn thời gian sử dụng mạng xã hội? -> Để tránh lãng phí thời gian và giữ sự tập trung.",
+            explanation: "Đoạn 1 nêu rõ: 'limiting her usage to an hour each day to avoid wasting her time'."
+          }
+        ]
+      },
+
+      // PART 10: SENTENCE INSERTION (37-40)
+      {
+        partId: "p10",
+        partTitle: "Phần 10: Điền câu/cụm từ vào đoạn văn (Sentence Insertion)",
+        partDesc: "Chọn câu/cụm từ A, B, C hoặc D phù hợp nhất cho mỗi chỗ trống từ 37 đến 40.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3">
+            <p>There are many things we should do to manage our time effectively. Firstly, <strong>(37) ________</strong>. This will help us keep focused on our most important tasks and avoid wasting time on tasks that do not contribute to our goals. Secondly, <strong>(38) ________</strong> can help us manage our time efficiently by breaking down our day into manageable chunks. We should also be realistic about how long each task will take and build in extra time for unexpected interruptions or delays. <strong>(39) ________</strong> such as social media or unnecessary meetings, <strong>(40) ________</strong>. By following these tips, we can effectively manage our time and achieve success in all aspects of our life.</p>
+          </div>
+          <div class="mt-3 p-3.5 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-700 space-y-1 font-medium">
+            <div><strong>A.</strong> creating a schedule or to-do list</div>
+            <div><strong>B.</strong> Thirdly, it is essential to eliminate distractions</div>
+            <div><strong>C.</strong> which can reduce our productivity</div>
+            <div><strong>D.</strong> we should set specific goals and prioritize tasks based on their importance level</div>
+          </div>
+        `,
+        questions: [
+          {
+            id: 37,
+            text: "Question 37. Điền mệnh đề phù hợp cho vị trí (37):",
+            options: [
+              { key: "A", text: "creating a schedule or to-do list" },
+              { key: "B", text: "Thirdly, it is essential to eliminate distractions" },
+              { key: "C", text: "which can reduce our productivity" },
+              { key: "D", text: "we should set specific goals" }
+            ],
+            correct: "D",
+            translation: "Đầu tiên, chúng ta nên đặt ra các mục tiêu cụ thể (we should set specific goals). Điều này sẽ giúp chúng ta tập trung vào những nhiệm vụ quan trọng nhất...",
+            explanation: "Sau trạng từ 'Firstly,' cần một mệnh đề hoàn chỉnh. Câu kế tiếp có nhắc tới 'do not contribute to our goals' nên vị trí 37 là D ('we should set specific goals')."
+          },
+          {
+            id: 38,
+            text: "Question 38. Điền cụm từ làm chủ ngữ phù hợp cho vị trí (38):",
+            options: [
+              { key: "A", text: "creating a schedule or to-do list" },
+              { key: "B", text: "Thirdly, it is essential to eliminate distractions" },
+              { key: "C", text: "which can reduce our productivity" },
+              { key: "D", text: "we should set specific goals" }
+            ],
+            correct: "A",
+            translation: "Thứ hai, việc lập lịch trình hoặc danh sách việc cần làm (creating a schedule or to-do list) có thể giúp chúng ta quản lý thời gian hiệu quả bằng cách chia nhỏ ngày làm việc...",
+            explanation: "Trước động từ khuyết thiếu 'can help us...' cần một cụm danh động từ (V-ing) đóng vai trò làm chủ ngữ -> Chọn A ('creating a schedule or to-do list')."
+          },
+          {
+            id: 39,
+            text: "Question 39. Điền mệnh đề phù hợp cho vị trí (39):",
+            options: [
+              { key: "A", text: "creating a schedule or to-do list" },
+              { key: "B", text: "Thirdly, it is essential to eliminate distractions" },
+              { key: "C", text: "which can reduce our productivity" },
+              { key: "D", text: "we should set specific goals" }
+            ],
+            correct: "B",
+            translation: "Thứ ba, điều thiết yếu là phải loại bỏ các yếu tố gây xao nhãng (Thirdly, it is essential to eliminate distractions) chẳng hạn như mạng xã hội hoặc các cuộc họp không cần thiết...",
+            explanation: "Mạch văn liệt kê: Firstly -> Secondly -> Thirdly. Hơn nữa phía sau có ví dụ 'such as social media or unnecessary meetings' minh họa cho 'distractions'."
+          },
+          {
+            id: 40,
+            text: "Question 40. Điền mệnh đề quan hệ phù hợp cho vị trí (40):",
+            options: [
+              { key: "A", text: "creating a schedule or to-do list" },
+              { key: "B", text: "Thirdly, it is essential to eliminate distractions" },
+              { key: "C", text: "which can reduce our productivity" },
+              { key: "D", text: "we should set specific goals" }
+            ],
+            correct: "C",
+            translation: "...chẳng hạn như mạng xã hội hoặc các cuộc họp không cần thiết, những thứ có thể làm giảm năng suất của chúng ta (which can reduce our productivity).",
+            explanation: "Sau dấu phẩy cuối câu cần một mệnh đề quan hệ mở rộng 'which can reduce our productivity' bổ nghĩa cho các yếu tố gây xao nhãng đứng trước."
+          }
+        ]
+      }
+    ];
+
+    // App State
+    const userAnswers = {};
+    let isGraded = false;
+    // quizMode: 'practice' (instant reveal) or 'exam' (hide answers until submit)
+    let quizMode = "practice";
+    let isModeLockedByUrl = false;
+
+    function getTotalQuestions() {
+      let count = 0;
+      quizData.forEach(sec => { count += sec.questions.length; });
+      return count;
+    }
+
+    function initModeFromUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const m = params.get('mode');
+        if (m === 'exam') {
+          quizMode = 'exam';
+          isModeLockedByUrl = true;
+        } else if (m === 'practice') {
+          quizMode = 'practice';
+        }
+      } catch (e) {}
+      updateModeUI();
+    }
+
+    function setQuizMode(mode) {
+      if (isModeLockedByUrl) {
+        showToast("Đề đang ở chế độ Kiểm tra lấy điểm thật (đã khóa chuyển đổi)!");
+        return;
+      }
+      if (quizMode === mode) return;
+      quizMode = mode;
+      isGraded = false;
+      updateModeUI();
+      refreshAllQuestionsVisualState();
+      updateProgress();
+      showToast(mode === 'exam'
+        ? "Đã bật chế độ Kiểm tra thật: Ẩn đáp án cho đến khi bấm Nộp bài!"
+        : "Đã bật chế độ Luyện tập: Hiện đáp án & lời giải ngay khi chọn!");
+    }
+
+    function updateModeUI() {
+      const btnPractice = document.getElementById('btnModePractice');
+      const btnExam = document.getElementById('btnModeExam');
+      const pill = document.getElementById('modeStatusPill');
+      const liveScoreBadge = document.getElementById('liveScoreBadge');
+      const modeSwitchContainer = document.getElementById('modeSwitchContainer');
+      const btnTeacherShare = document.getElementById('btnTeacherShare');
+
+      if (isModeLockedByUrl) {
+        if (modeSwitchContainer) modeSwitchContainer.classList.add('hidden');
+        if (btnTeacherShare) btnTeacherShare.classList.add('hidden');
+      }
+
+      if (quizMode === 'exam') {
+        if (btnExam) {
+          btnExam.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-amber-500 text-white shadow-sm";
+        }
+        if (btnPractice) {
+          btnPractice.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+        }
+        if (pill) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/25 text-xs font-bold text-amber-200 border border-amber-400/40";
+          pill.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i> Chế độ: Kiểm tra lấy điểm thật (Ẩn đáp án đến khi Nộp bài)`;
+        }
+        if (liveScoreBadge && !isGraded) {
+          liveScoreBadge.className = "flex items-center gap-1.5 bg-amber-500/30 text-amber-200 px-2.5 py-1 rounded-lg font-bold border border-amber-400/30";
+        }
+      } else {
+        if (btnPractice) {
+          btnPractice.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-white text-blue-700 shadow-sm";
+        }
+        if (btnExam) {
+          btnExam.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+        }
+        if (pill) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-xs font-bold text-blue-200 border border-blue-400/30";
+          pill.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Chế độ: Luyện tập (Hiện đáp án ngay)`;
+        }
+        if (liveScoreBadge) {
+          liveScoreBadge.className = "flex items-center gap-1.5 bg-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg font-bold border border-emerald-400/30";
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      let html = '';
+
+      quizData.forEach((section, sIdx) => {
+        html += `
+          <section class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200/80 transition-all hover:shadow-md">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-100">Phần ${sIdx + 1}</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 hidden sm:inline-block">Tiếng Anh Ms Tuyết</span>
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 mt-2">${section.partTitle}</h3>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">${section.partDesc}</p>
+            </div>
+
+            ${section.passage ? section.passage : ''}
+
+            <div class="space-y-6 mt-5">
+        `;
+
+        section.questions.forEach((q) => {
+          html += `
+            <div id="qBox-${q.id}" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 transition-all">
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="font-bold text-slate-900 text-sm sm:text-base leading-relaxed">
+                  ${q.text}
+                </div>
+                <span id="badge-${q.id}" class="hidden flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full"></span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          `;
+
+          q.options.forEach((opt) => {
+            html += `
+              <div id="opt-${q.id}-${opt.key}" onclick="selectOption(${q.id}, '${opt.key}')" class="option-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+                <span class="w-7 h-7 rounded-lg bg-white border border-slate-300 font-bold text-xs flex items-center justify-center text-slate-700 flex-shrink-0 shadow-sm">
+                  ${opt.key}
+                </span>
+                <span class="text-sm text-slate-800 font-medium leading-normal">${opt.text}</span>
+              </div>
+            `;
+          });
+
+          html += `
+              </div>
+
+              <div id="exp-${q.id}" class="hidden mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm space-y-1.5">
+                <div class="font-bold text-blue-950 flex items-center gap-1.5">
+                  <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                  <span>Đáp án đúng: <span class="text-emerald-700 font-black">${q.correct}</span></span>
+                </div>
+                <p class="text-slate-700 leading-relaxed"><strong class="text-slate-800">Dịch nghĩa:</strong> ${q.translation}</p>
+                <p class="text-slate-600 leading-relaxed"><strong class="text-slate-800">Giải thích chi tiết:</strong> ${q.explanation}</p>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </section>
+        `;
+      });
+
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function applyQuestionVisualState(q) {
+      const userKey = userAnswers[q.id];
+      const box = document.getElementById(`qBox-${q.id}`);
+      const badge = document.getElementById(`badge-${q.id}`);
+      const exp = document.getElementById(`exp-${q.id}`);
+      if (!box || !badge || !exp) return;
+
+      box.classList.remove('q-correct', 'q-wrong', 'q-answered-exam');
+      badge.className = "hidden flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full";
+      exp.classList.add('hidden');
+
+      q.options.forEach(opt => {
+        const el = document.getElementById(`opt-${q.id}-${opt.key}`);
+        if (el) el.classList.remove('selected', 'opt-correct', 'opt-wrong-selected');
+      });
+
+      if (!userKey && !isGraded) return;
+
+      // Case 1: Exam mode AND not yet graded -> Only highlight selected option, hide answer
+      if (quizMode === 'exam' && !isGraded) {
+        if (userKey) {
+          box.classList.add('q-answered-exam');
+          badge.classList.remove('hidden');
+          badge.classList.add('bg-blue-100', 'text-blue-800');
+          badge.innerHTML = `Đã chọn ${userKey}`;
+          const selEl = document.getElementById(`opt-${q.id}-${userKey}`);
+          if (selEl) selEl.classList.add('selected');
+        }
+        return;
+      }
+
+      // Case 2: Practice mode OR already graded -> Show full feedback
+      const total = getTotalQuestions();
+      const pointPerQ = (10 / total).toFixed(2);
+      const isCorrect = userKey === q.correct;
+
+      box.classList.add(isCorrect ? 'q-correct' : 'q-wrong');
+      badge.classList.remove('hidden');
+      if (isCorrect) {
+        badge.classList.add('bg-emerald-100', 'text-emerald-800');
+        badge.innerHTML = `✓ Đúng (+${pointPerQ}đ)`;
+      } else if (userKey) {
+        badge.classList.add('bg-rose-100', 'text-rose-800');
+        badge.innerHTML = `✗ Sai (Đ/a: ${q.correct})`;
+      } else {
+        badge.classList.add('bg-rose-100', 'text-rose-800');
+        badge.innerHTML = `Chưa làm (Đ/a: ${q.correct})`;
+      }
+
+      q.options.forEach(opt => {
+        const el = document.getElementById(`opt-${q.id}-${opt.key}`);
+        if (!el) return;
+        if (opt.key === q.correct) {
+          el.classList.add('opt-correct');
+        } else if (opt.key === userKey && !isCorrect) {
+          el.classList.add('opt-wrong-selected');
+        }
+      });
+
+      exp.classList.remove('hidden');
+    }
+
+    function refreshAllQuestionsVisualState() {
+      quizData.forEach(sec => {
+        sec.questions.forEach(q => applyQuestionVisualState(q));
+      });
+      lucide.createIcons();
+    }
+
+    function selectOption(qId, key) {
+      if (quizMode === 'exam' && isGraded) {
+        showToast("Bài kiểm tra đã nộp! Bấm 'Làm lại từ đầu' nếu muốn làm lại.");
+        return;
+      }
+      const q = findQuestion(qId);
+      if (!q) return;
+
+      userAnswers[qId] = key;
+      applyQuestionVisualState(q);
+      updateProgress();
+      lucide.createIcons();
+    }
+
+    function findQuestion(qId) {
+      for (const sec of quizData) {
+        for (const q of sec.questions) {
+          if (q.id === qId) return q;
+        }
+      }
+      return null;
+    }
+
+    function updateProgress() {
+      const answeredCount = Object.keys(userAnswers).length;
+      const total = getTotalQuestions();
+      const percent = Math.round((answeredCount / total) * 100);
+
+      let liveCorrectCount = 0;
+      for (const qId in userAnswers) {
+        const q = findQuestion(parseInt(qId, 10));
+        if (q && userAnswers[qId] === q.correct) {
+          liveCorrectCount++;
+        }
+      }
+      const liveScore10 = ((liveCorrectCount / total) * 10).toFixed(2);
+
+      document.getElementById('topProgressBar').style.width = `${percent}%`;
+      const badge = document.getElementById('answeredCounterBadge');
+      if (badge) {
+        badge.innerHTML = `<i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-300"></i> Đã làm: ${answeredCount}/${total} câu`;
+      }
+      const scoreBadge = document.getElementById('liveScoreBadge');
+      if (scoreBadge) {
+        if (quizMode === 'exam' && !isGraded) {
+          scoreBadge.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i> Điểm: Ẩn cho đến khi Nộp bài`;
+        } else {
+          scoreBadge.innerHTML = `<i data-lucide="award" class="w-3.5 h-3.5"></i> Điểm: ${liveScore10}/10 (${liveCorrectCount}/${total} câu đúng)`;
+        }
+      }
+      lucide.createIcons();
+    }
+
+    // Highlighter System
+    function applyHighlight(color) {
+      const selection = window.getSelection();
+      if (!selection.rangeCount || selection.isCollapsed) return;
+
+      const range = selection.getRangeAt(0);
+      const span = document.createElement('span');
+      span.className = `hl-${color}`;
+
+      try {
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+        selection.removeAllRanges();
+      } catch (e) {
+        console.warn("Cross boundary highlight ignored:", e);
+      }
+    }
+
+    function clearCurrentSelectionHighlight() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount || selection.isCollapsed) return;
+      const range = selection.getRangeAt(0);
+
+      let container = range.commonAncestorContainer;
+      if (container.nodeType === 3) container = container.parentNode;
+
+      if (container.classList && (container.classList.contains('hl-yellow') || container.classList.contains('hl-green') || container.classList.contains('hl-pink') || container.classList.contains('hl-blue'))) {
+        const parent = container.parentNode;
+        while (container.firstChild) parent.insertBefore(container.firstChild, container);
+        parent.removeChild(container);
+      }
+      selection.removeAllRanges();
+    }
+
+    // Grade and Show Score
+    function gradeQuiz() {
+      let correctCount = 0;
+      const total = getTotalQuestions();
+
+      isGraded = true;
+      quizData.forEach(sec => {
+        sec.questions.forEach(q => {
+          if (userAnswers[q.id] === q.correct) correctCount++;
+          applyQuestionVisualState(q);
+        });
+      });
+
+      updateProgress();
+
+      const score10 = ((correctCount / total) * 10).toFixed(2);
+      const percent = Math.round((correctCount / total) * 100);
+
+      const studentName = (document.getElementById('studentNameInput')?.value || '').trim();
+      const studentNameEl = document.getElementById('modalStudentName');
+      if (studentNameEl) {
+        studentNameEl.innerText = studentName ? `Học sinh: ${studentName}` : '';
+      }
+
+      document.getElementById('modalScore10Text').innerText = `${score10} / 10`;
+      document.getElementById('modalScoreRawText').innerText = `${correctCount} / ${total} câu`;
+      document.getElementById('modalPercentText').innerText = `${percent}%`;
+      document.getElementById('modalProgressBar').style.width = `${percent}%`;
+
+      const iconBox = document.getElementById('modalIconContainer');
+      const feedback = document.getElementById('modalFeedback');
+
+      if (percent >= 85) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-emerald-100 text-emerald-600 border border-emerald-200";
+        iconBox.innerHTML = "🏆";
+        feedback.innerText = `Xuất sắc! Em đạt ${score10}/10 điểm. Em nắm rất vững kiến thức câu điều kiện loại 1 và từ vựng Unit 3! (Lớp Tiếng Anh Ms Tuyết)`;
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 100, spread: 75, origin: { y: 0.6 } });
+        }
+      } else if (percent >= 65) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-blue-100 text-blue-600 border border-blue-200";
+        iconBox.innerHTML = "🌟";
+        feedback.innerText = `Làm tốt lắm! Em đạt ${score10}/10 điểm. Hãy xem lại lời giải chi tiết của các câu sai để nắm chắc kiến thức hơn nhé!`;
+      } else {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-amber-100 text-amber-600 border border-amber-200";
+        iconBox.innerHTML = "💡";
+        feedback.innerText = `Em đạt ${score10}/10 điểm. Đừng nản lòng nhé, hãy đọc kỹ phần dịch nghĩa và giải thích chi tiết phía dưới từng câu để ôn lại bài cùng Ms Tuyết!`;
+      }
+
+      document.getElementById('resultModal').classList.remove('hidden');
+      document.getElementById('resultModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeModal() {
+      document.getElementById('resultModal').classList.add('hidden');
+      document.getElementById('resultModal').classList.remove('flex');
+    }
+
+    function resetQuiz() {
+      for (const k in userAnswers) delete userAnswers[k];
+      isGraded = false;
+      renderQuiz();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Share Modal, 1-Click GitHub Push & Copy Helpers
+    function getGithubConfig() {
+      const owner = (document.getElementById('ghOwnerInput')?.value || DEFAULT_GITHUB_OWNER).trim();
+      const repo = (document.getElementById('ghRepoInput')?.value || DEFAULT_GITHUB_REPO).trim();
+      const slug = (document.getElementById('ghFileNameInput')?.value || FILE_SLUG).trim();
+      return { owner, repo, slug };
+    }
+
+    function updateShareLinksFromFilename() {
+      const { owner, repo, slug } = getGithubConfig();
+      const baseUrl = `https://${owner}.github.io/${repo}/`;
+      const cleanUrl = slug === 'index.html' ? baseUrl : `${baseUrl}${slug}`;
+      document.getElementById('inputSharePractice').value = cleanUrl;
+      document.getElementById('inputShareExam').value = `${cleanUrl}?mode=exam`;
+      const ownerDisp = document.getElementById('ghOwnerDisplay');
+      if (ownerDisp) ownerDisp.innerText = `${owner}/${repo}`;
+      const manualLink = document.getElementById('ghManualUploadLink');
+      if (manualLink) manualLink.href = `https://github.com/${owner}/${repo}/upload/main`;
+    }
+
+    function openShareModal() {
+      try {
+        const savedToken = localStorage.getItem('ms_tuyet_gh_token');
+        if (savedToken) document.getElementById('ghTokenInput').value = savedToken;
+        const savedOwner = localStorage.getItem('ms_tuyet_gh_owner');
+        if (savedOwner) document.getElementById('ghOwnerInput').value = savedOwner;
+        const savedRepo = localStorage.getItem('ms_tuyet_gh_repo');
+        if (savedRepo) document.getElementById('ghRepoInput').value = savedRepo;
+      } catch (e) {}
+      updateShareLinksFromFilename();
+      document.getElementById('shareModal').classList.remove('hidden');
+      document.getElementById('shareModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeShareModal() {
+      document.getElementById('shareModal').classList.add('hidden');
+      document.getElementById('shareModal').classList.remove('flex');
+    }
+
+    function encodeUtf8Base64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
+      return btoa(binary);
+    }
+
+    async function pushToGitHubNow() {
+      const tokenInput = document.getElementById('ghTokenInput');
+      const statusBox = document.getElementById('ghPushStatusBox');
+      const btn = document.getElementById('btnPushGithubNow');
+
+      const token = (tokenInput?.value || '').trim();
+      const { owner, repo, slug } = getGithubConfig();
+
+      if (!token) {
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+        statusBox.innerHTML = "⚠️ Cô vui lòng dán mã GitHub Personal Access Token của tài khoản <strong>" + owner + "</strong> vào ô bên trên (chỉ cần nhập 1 lần đầu tiên)!";
+        statusBox.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        localStorage.setItem('ms_tuyet_gh_token', token);
+        localStorage.setItem('ms_tuyet_gh_owner', owner);
+        localStorage.setItem('ms_tuyet_gh_repo', repo);
+      } catch (e) {}
+
+      btn.disabled = true;
+      const oldBtnHtml = btn.innerHTML;
+      btn.innerHTML = `<span>Đang đẩy lên GitHub...</span>`;
+      statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-blue-500/20 text-blue-200 border border-blue-400/30";
+      statusBox.innerText = `⏳ Đang kiểm tra kho ${owner}/${repo} và tải lên tệp ${slug}...`;
+      statusBox.classList.remove('hidden');
+
+      const headers = {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      };
+
+      try {
+        // 1. Check if repo exists; if not, automatically create it as public with auto_init
+        const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
+        const repoCheck = await fetch(repoUrl, { method: "GET", headers });
+        if (repoCheck.status === 404) {
+          statusBox.innerText = `⏳ Chưa có kho "${repo}" trên tài khoản ${owner}. Đang tự động khởi tạo kho mới...`;
+          const createRepoRes = await fetch("https://api.github.com/user/repos", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              name: repo,
+              description: "Hệ thống Bài Tập Tương Tác - Tiếng Anh Ms Tuyết",
+              public: true,
+              auto_init: true
+            })
+          });
+          if (!createRepoRes.ok) {
+            const errRepo = await createRepoRes.json().catch(() => ({}));
+            throw new Error(errRepo.message || `Không thể tạo kho ${repo} (HTTP ${createRepoRes.status})`);
+          }
+        }
+
+        // 2. Check if file already exists to get its SHA
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(slug)}`;
+        let existingSha = null;
+        const getRes = await fetch(apiUrl, { method: "GET", headers });
+        if (getRes.ok) {
+          const fileData = await getRes.json();
+          existingSha = fileData.sha;
+        }
+
+        // 3. Upload / update the HTML file
+        const bodyPayload = {
+          message: `Đăng bài tập tương tác: ${slug} (Tiếng Anh Ms Tuyết)`,
+          content: encodeUtf8Base64(INITIAL_RAW_HTML)
+        };
+        if (existingSha) {
+          bodyPayload.sha = existingSha;
+        }
+
+        const putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(bodyPayload)
+        });
+
+        if (!putRes.ok) {
+          const errJson = await putRes.json().catch(() => ({}));
+          throw new Error(errJson.message || `Lỗi HTTP ${putRes.status}`);
+        }
+
+        // 4. Automatically enable GitHub Pages on branch main if not yet enabled
+        await fetch(`https://api.github.com/repos/${owner}/${repo}/pages`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ source: { branch: "main", path: "/" } })
+        }).catch(() => {});
+
+        updateShareLinksFromFilename();
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/40";
+        statusBox.innerHTML = `✅ Đã đẩy thành công tệp <strong>${slug}</strong> lên kho <strong>${owner}/${repo}</strong>! Link bên dưới sẽ sẵn sàng sau 30–60 giây. Cô bấm "Sao chép" để gửi học sinh nhé!`;
+        showToast("Đã đẩy bài tập Unit 3 lên GitHub thành công!");
+      } catch (err) {
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+        statusBox.innerHTML = `❌ Không thể đẩy tự động: ${err.message}. Cô hãy kiểm tra lại mã Token (cần tích quyền "repo") hoặc bấm "Tải file .html" để kéo vào GitHub nhé.`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldBtnHtml;
+        lucide.createIcons();
+      }
+    }
+
+    function downloadCleanHtmlFile() {
+      const { slug } = getGithubConfig();
+      const blob = new Blob([INITIAL_RAW_HTML], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = slug;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Đã tải xuống tệp ${slug}!`);
+    }
+
+    function copyTextFromInput(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input) return;
+
+      input.focus();
+      input.select();
+      input.setSelectionRange(0, 99999);
+
+      let copied = false;
+      try {
+        copied = document.execCommand('copy');
+      } catch (err) {
+        copied = false;
+      }
+
+      if (!copied) {
+        try {
+          const tempTextArea = document.createElement('textarea');
+          tempTextArea.value = input.value;
+          tempTextArea.style.position = 'fixed';
+          tempTextArea.style.left = '-9999px';
+          tempTextArea.style.top = '0';
+          document.body.appendChild(tempTextArea);
+          tempTextArea.focus();
+          tempTextArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempTextArea);
+        } catch (fallbackErr) {
+          console.warn('Copy fallback error:', fallbackErr);
+        }
+      }
+
+      if (btn) {
+        const oldText = btn.innerText;
+        btn.innerText = "✓ Đã chép";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      }
+      showToast("Đã sao chép đường link gửi học sinh!");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotice');
+      const msgEl = document.getElementById('toastMessage');
+      if (!toast || !msgEl) return;
+      msgEl.innerText = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3000);
+    }
+
+    window.onload = function() {
+      renderQuiz();
+      initModeFromUrl();
+      updateProgress();
+    };
+  </script></body></html>
