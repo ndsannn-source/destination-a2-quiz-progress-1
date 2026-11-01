@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="vi"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMDA5MDc1MjUzNDM1MTM3ODc2MyIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzgzOTNiZWIyMmRkNjY1NzFfZGVlMzk0NzBfbG9wOS11bml0Mi10ZXN0MDEuaHRtbC11bmRlZmluZWQifSwiZXhwIjoxNzkzNTUzNzQ3LCJpYXQiOjE3OTM1NTAxNDcsImFsZyI6IlJTMjU2In0.HQQR6tzRRJQFcka7MMM5jnW-ZFjIfhC-D6pdbOM4xds-jSu4CxXqX8QmiNVCcptzPpVeapnBSVa0L6an6ejk0NeP9jidNFzFckSf-TVcUPeuIdBv_G2DQY1WX106kqoZepxHXPJnkHheZPcRN3jF10TbS2y9CovYXjrE9SqK3cECXGarhm7kf6n3ODJfCxh_d1hlpVsgC8d3zBVYWGFV7hi9g-0JqgvPSYDPtgtBKHTset9foG2-n_eekvC6J3E8Jtv3rOw4wQgoAjqNDEoZWv81oZ9LMbURRqN3Z07HQyNju2J_5iMAY3pAernEG-xzLmxBNvXK26dBSUoKkQIM4g","c_8393beb22dd66571_dee39470_lop9-unit2-test01.html-undefined")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiếng Anh 9 - Unit 2: City Life (Test 01) | Tiếng Anh Ms Tuyết</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Fira+Code:wght@500;600&amp;display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%);
+      min-height: 100vh;
+    }
+
+    /* Highlighter styles */
+    .hl-yellow { background-color: #fef08a !important; color: #0f172a; border-radius: 3px; padding: 1px 3px; }
+    .hl-green  { background-color: #bbf7d0 !important; color: #0f172a; border-radius: 3px; padding: 1px 3px; }
+    .hl-pink   { background-color: #fbcfe8 !important; color: #0f172a; border-radius: 3px; padding: 1px 3px; }
+    .hl-blue   { background-color: #bae6fd !important; color: #0f172a; border-radius: 3px; padding: 1px 3px; }
+
+    /* Interactive Radio Card */
+    .option-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .option-card:hover {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+    .option-card.selected {
+      border-color: #2563eb !important;
+      background-color: #dbeafe !important;
+      box-shadow: 0 0 0 1.5px #2563eb;
+      font-weight: 600;
+    }
+
+    /* Grading Feedback States */
+    .q-correct {
+      border-color: #10b981 !important;
+      background-color: #f0fdf4 !important;
+    }
+    .q-wrong {
+      border-color: #ef4444 !important;
+      background-color: #fef2f2 !important;
+    }
+    .q-answered-exam {
+      border-color: #3b82f6 !important;
+      background-color: #f8fafc !important;
+    }
+    .opt-correct {
+      background-color: #dcfce7 !important;
+      border-color: #10b981 !important;
+      color: #14532d !important;
+      font-weight: 700;
+    }
+    .opt-wrong-selected {
+      background-color: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #7f1d1d !important;
+      text-decoration: line-through;
+    }
+
+    /* Corner Ribbon Badge */
+    .corner-ribbon {
+      position: fixed;
+      top: 24px;
+      right: -55px;
+      transform: rotate(45deg);
+      z-index: 60;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.-bottom-10{bottom:-2.5rem}.-right-10{right:-2.5rem}.bottom-16{bottom:4rem}.bottom-3{bottom:0.75rem}.left-1\/2{left:50%}.right-2{right:0.5rem}.right-4{right:1rem}.top-0{top:0px}.top-20{top:5rem}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-8{margin-top:2rem;margin-bottom:2rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-1\.5{height:0.375rem}.h-10{height:2.5rem}.h-20{height:5rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-60{height:15rem}.h-full{height:100%}.w-10{width:2.5rem}.w-20{width:5rem}.w-3{width:0.75rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-60{width:15rem}.w-full{width:100%}.max-w-2xl{max-width:42rem}.max-w-4xl{max-width:56rem}.max-w-5xl{max-width:64rem}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.flex-shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-6{gap:1.5rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-0{border-width:0px}.border-y{border-top-width:1px;border-bottom-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-blue-400\/30{border-color:rgb(96 165 250 / 0.3)}.border-emerald-400\/30{border-color:rgb(52 211 153 / 0.3)}.border-green-400{--tw-border-opacity:1;border-color:rgb(74 222 128 / var(--tw-border-opacity, 1))}.border-pink-400{--tw-border-opacity:1;border-color:rgb(244 114 182 / var(--tw-border-opacity, 1))}.border-sky-400{--tw-border-opacity:1;border-color:rgb(56 189 248 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/80{border-color:rgb(226 232 240 / 0.8)}.border-slate-600{--tw-border-opacity:1;border-color:rgb(71 85 105 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-white\/15{border-color:rgb(255 255 255 / 0.15)}.border-white\/30{border-color:rgb(255 255 255 / 0.3)}.border-white\/40{border-color:rgb(255 255 255 / 0.4)}.border-yellow-400{--tw-border-opacity:1;border-color:rgb(250 204 21 / var(--tw-border-opacity, 1))}.bg-amber-50\/80{background-color:rgb(255 251 235 / 0.8)}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-blue-50\/70{background-color:rgb(239 246 255 / 0.7)}.bg-blue-500\/20{background-color:rgb(59 130 246 / 0.2)}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-emerald-500\/20{background-color:rgb(16 185 129 / 0.2)}.bg-emerald-500\/30{background-color:rgb(16 185 129 / 0.3)}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-emerald-600\/95{background-color:rgb(5 150 105 / 0.95)}.bg-green-300{--tw-bg-opacity:1;background-color:rgb(134 239 172 / var(--tw-bg-opacity, 1))}.bg-pink-300{--tw-bg-opacity:1;background-color:rgb(249 168 212 / var(--tw-bg-opacity, 1))}.bg-sky-300{--tw-bg-opacity:1;background-color:rgb(125 211 252 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/10{background-color:rgb(255 255 255 / 0.1)}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-yellow-300{--tw-bg-opacity:1;background-color:rgb(253 224 71 / var(--tw-bg-opacity, 1))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-blue-600{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgb(37 99 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-cyan-500{--tw-gradient-from:#06b6d4 var(--tw-gradient-from-position);--tw-gradient-to:rgb(6 182 212 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-cyan-600{--tw-gradient-from:#0891b2 var(--tw-gradient-from-position);--tw-gradient-to:rgb(8 145 178 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgb(15 23 42 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-blue-600{--tw-gradient-to:rgb(37 99 235 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #2563eb var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-blue-950{--tw-gradient-to:rgb(23 37 84 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #172554 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-indigo-950{--tw-gradient-to:rgb(30 27 75 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #1e1b4b var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-teal-600{--tw-gradient-to:rgb(13 148 136 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #0d9488 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-blue-600{--tw-gradient-to:#2563eb var(--tw-gradient-to-position)}.to-cyan-600{--tw-gradient-to:#0891b2 var(--tw-gradient-to-position)}.to-indigo-600{--tw-gradient-to:#4f46e5 var(--tw-gradient-to-position)}.to-indigo-700{--tw-gradient-to:#4338ca var(--tw-gradient-to-position)}.to-indigo-950{--tw-gradient-to:#1e1b4b var(--tw-gradient-to-position)}.to-slate-900{--tw-gradient-to:#0f172a var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-16{padding-left:4rem;padding-right:4rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-7{padding-left:1.75rem;padding-right:1.75rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-28{padding-bottom:7rem}.pb-3{padding-bottom:0.75rem}.pt-1{padding-top:0.25rem}.pt-3{padding-top:0.75rem}.pt-6{padding-top:1.5rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-blue-200{--tw-text-opacity:1;color:rgb(191 219 254 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-blue-900{--tw-text-opacity:1;color:rgb(30 58 138 / var(--tw-text-opacity, 1))}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-yellow-300{--tw-text-opacity:1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.placeholder-slate-400::placeholder{--tw-placeholder-opacity:1;color:rgb(148 163 184 / var(--tw-placeholder-opacity, 1))}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-blue-200{--tw-shadow-color:#bfdbfe;--tw-shadow:var(--tw-shadow-colored)}.shadow-blue-500\/25{--tw-shadow-color:rgb(59 130 246 / 0.25);--tw-shadow:var(--tw-shadow-colored)}.shadow-blue-950\/20{--tw-shadow-color:rgb(23 37 84 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.blur-3xl{--tw-blur:blur(64px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-1000{transition-duration:1000ms}.duration-300{transition-duration:300ms}.selection\:bg-amber-200 *::selection{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.selection\:bg-amber-200::selection{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.hover\:scale-110:hover{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-amber-700:hover{--tw-bg-opacity:1;background-color:rgb(180 83 9 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/20:hover{background-color:rgb(255 255 255 / 0.2)}.hover\:from-blue-700:hover{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(29 78 216 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:from-cyan-600:hover{--tw-gradient-from:#0891b2 var(--tw-gradient-from-position);--tw-gradient-to:rgb(8 145 178 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:from-emerald-600:hover{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-indigo-700:hover{--tw-gradient-to:#4338ca var(--tw-gradient-to-position)}.hover\:to-teal-700:hover{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:shadow-blue-300:hover{--tw-shadow-color:#93c5fd;--tw-shadow:var(--tw-shadow-colored)}.focus\:border-emerald-400:focus{--tw-border-opacity:1;border-color:rgb(52 211 153 / var(--tw-border-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-cyan-400:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(34 211 238 / var(--tw-ring-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:gap-2\.5{gap:0.625rem}.sm\:p-7{padding:1.75rem}.sm\:p-8{padding:2rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:flex{display:flex}.md\:hidden{display:none}.md\:flex-row{flex-direction:row}.md\:justify-start{justify-content:flex-start}.md\:text-left{text-align:left}}@media (min-width: 1024px){.lg\:block{display:block}.lg\:hidden{display:none}}</style></head>
+<body class="text-slate-800 antialiased pb-28 selection:bg-amber-200">
+
+  <!-- WATERMARK CORNER BADGE: TIẾNG ANH MS TUYẾT -->
+  <div class="corner-ribbon pointer-events-none hidden lg:block">
+    <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-extrabold text-xs py-1.5 px-16 text-center tracking-wider shadow-lg border-y border-white/30">
+      Tiếng Anh Ms Tuyết
+    </div>
+  </div>
+
+  <!-- Floating Mobile Brand Tag -->
+  <div class="fixed top-20 right-2 z-30 lg:hidden pointer-events-none">
+    <div class="bg-emerald-600/95 backdrop-blur text-white text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md border border-white/40 flex items-center gap-1">
+      <i data-lucide="sparkles" class="w-3 h-3 text-yellow-300"></i>
+      Tiếng Anh Ms Tuyết
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-blue-200 flex-shrink-0">
+          <i data-lucide="book-open-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-sm sm:text-lg font-bold text-slate-900 leading-tight">Tiếng Anh 9 • Unit 2</h1>
+            <span class="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">Test 01</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">City Life (Cuộc sống thành thị) • Đầy đủ 40 câu</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher, Highlighter Tools & Submit Action -->
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+        <!-- Mode Toggle Pill -->
+        <div id="modeSwitchContainer" class="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 gap-1">
+          <button type="button" id="btnModePractice" onclick="setQuizMode('practice')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-white text-blue-700 shadow-sm">
+            <i data-lucide="Sparkles" class="w-3.5 h-3.5"></i>
+            <span>Luyện tập</span>
+          </button>
+          <button type="button" id="btnModeExam" onclick="setQuizMode('exam')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>Kiểm tra thật</span>
+          </button>
+        </div>
+
+        <!-- Desktop Highlighter Tools -->
+        <div class="hidden md:flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 gap-1">
+          <span class="text-[11px] font-bold text-slate-500 px-2 flex items-center gap-1">
+            <i data-lucide="highlighter" class="w-3.5 h-3.5 text-blue-600"></i> Bút dạ:
+          </span>
+          <button type="button" onclick="applyHighlight('yellow')" title="Màu Vàng" class="w-6 h-6 rounded-lg bg-yellow-300 hover:scale-110 transition border border-yellow-400 active:scale-95"></button>
+          <button type="button" onclick="applyHighlight('green')" title="Màu Xanh lá" class="w-6 h-6 rounded-lg bg-green-300 hover:scale-110 transition border border-green-400 active:scale-95"></button>
+          <button type="button" onclick="applyHighlight('pink')" title="Màu Hồng" class="w-6 h-6 rounded-lg bg-pink-300 hover:scale-110 transition border border-pink-400 active:scale-95"></button>
+          <button type="button" onclick="applyHighlight('blue')" title="Màu Xanh dương" class="w-6 h-6 rounded-lg bg-sky-300 hover:scale-110 transition border border-sky-400 active:scale-95"></button>
+          <button type="button" onclick="clearCurrentSelectionHighlight()" title="Xoá highlight chọn" class="px-2 h-6 text-[11px] font-bold text-slate-600 bg-white hover:bg-slate-50 rounded border border-slate-200 flex items-center gap-1">
+            <i data-lucide="eraser" class="w-3 h-3"></i> Tẩy
+          </button>
+        </div>
+
+        <!-- Teacher GitHub Push & Copy Link Button -->
+        <button type="button" id="btnTeacherShare" onclick="openShareModal()" title="Đẩy lên GitHub &amp; Lấy link gửi học sinh" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+          <span>Đẩy GitHub &amp; Lấy Link</span>
+        </button>
+
+        <button type="button" onclick="gradeQuiz()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-200 hover:shadow-blue-300 transition flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Nộp bài</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Real-time Progress Bar -->
+    <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div id="topProgressBar" class="h-full bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- Floating Mobile Highlighter Toolbar -->
+  <div class="md:hidden fixed bottom-3 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-md border border-slate-200 shadow-2xl rounded-2xl px-3 py-2 flex items-center gap-2">
+    <span class="text-xs font-bold text-blue-700 flex items-center gap-1">
+      <i data-lucide="highlighter" class="w-3.5 h-3.5"></i> Bút dạ:
+    </span>
+    <button type="button" onclick="applyHighlight('yellow')" aria-label="Tô màu vàng" class="w-6 h-6 rounded-full bg-yellow-300 border border-yellow-400"></button>
+    <button type="button" onclick="applyHighlight('green')" aria-label="Tô màu xanh lá" class="w-6 h-6 rounded-full bg-green-300 border border-green-400"></button>
+    <button type="button" onclick="applyHighlight('pink')" aria-label="Tô màu hồng" class="w-6 h-6 rounded-full bg-pink-300 border border-pink-400"></button>
+    <button type="button" onclick="applyHighlight('blue')" aria-label="Tô màu xanh dương" class="w-6 h-6 rounded-full bg-sky-300 border border-sky-400"></button>
+    <button type="button" onclick="clearCurrentSelectionHighlight()" aria-label="Tẩy highlight" class="text-xs bg-slate-100 p-1.5 rounded-lg text-slate-600 font-bold flex items-center">
+      <i data-lucide="eraser" class="w-3.5 h-3.5"></i>
+    </button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-8">
+    <!-- Hero Card Banner -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 p-6 sm:p-8 text-white shadow-xl shadow-blue-950/20">
+      <div class="relative z-10 max-w-2xl">
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-emerald-300 border border-emerald-400/30">
+            <i data-lucide="award" class="w-3.5 h-3.5 text-emerald-400"></i> Tiếng Anh Ms Tuyết
+          </div>
+          <div id="modeStatusPill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-xs font-bold text-blue-200 border border-blue-400/30">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Chế độ: Luyện tập (Hiện đáp án ngay)
+          </div>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">UNIT 2: CITY LIFE • TEST 01</h2>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+          Đề thi trọn vẹn <strong>40 câu hỏi trắc nghiệm</strong> chuẩn form: Phát âm, Trọng âm, Cấu trúc so sánh kép (The more... the more...), Phrasal verbs đời sống đô thị, Biển báo &amp; Thông báo thực tế, Đọc hiểu giao thông công cộng và Sắp xếp câu.
+        </p>
+
+        <!-- Student Name Input for Exam Mode -->
+        <div class="mt-4 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div class="flex items-center gap-2 text-xs font-bold text-cyan-300 flex-shrink-0">
+            <i data-lucide="user-check" class="w-4 h-4"></i> Học sinh làm bài:
+          </div>
+          <input id="studentNameInput" type="text" placeholder="Nhập họ và tên của em (VD: Nguyễn Minh Anh - 9A1)..." class="w-full bg-white/90 text-slate-900 placeholder-slate-400 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-xl border-0 focus:ring-2 focus:ring-cyan-400 outline-none">
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-medium text-slate-300">
+          <span class="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-lg">
+            <i data-lucide="highlighter" class="w-3.5 h-3.5 text-yellow-300"></i> Bôi đen chữ để tô màu từ khóa
+          </span>
+          <span id="answeredCounterBadge" class="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-lg">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-300"></i> Đã làm: 0/40 câu
+          </span>
+          <span id="liveScoreBadge" class="flex items-center gap-1.5 bg-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg font-bold border border-emerald-400/30">
+            <i data-lucide="award" class="w-3.5 h-3.5"></i> Điểm hiện tại: 0.00 / 10
+          </span>
+        </div>
+      </div>
+      <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    </div>
+
+    <!-- Exam Content Container -->
+    <div id="quizContainer" class="space-y-8"></div>
+
+    <!-- Submit Bottom Bar -->
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-800">
+      <div class="text-center md:text-left">
+        <div class="inline-block px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold mb-2">
+          Biên soạn &amp; Giảng dạy: Tiếng Anh Ms Tuyết
+        </div>
+        <h4 class="text-xl font-bold flex items-center justify-center md:justify-start gap-2">
+          <i data-lucide="check-check" class="w-5 h-5 text-cyan-400"></i>
+          Hoàn thành bài làm?
+        </h4>
+        <p id="bottomModeNotice" class="text-slate-300 text-sm mt-1 max-w-xl">
+          Bấm "Nộp bài &amp; Chấm điểm" để hệ thống tổng kết điểm thang 10, hiển thị toàn bộ đáp án đúng/sai và lời giải chi tiết từng câu.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <button type="button" onclick="resetQuiz()" class="px-5 py-3 rounded-xl border border-slate-600 hover:bg-slate-800 font-semibold text-sm transition">
+          Làm lại từ đầu
+        </button>
+        <button type="button" onclick="gradeQuiz()" class="px-7 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-600 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition transform active:scale-95 flex items-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Nộp bài &amp; Chấm điểm</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RESULT MODAL -->
+  <div id="resultModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl transform transition-all text-center relative border border-slate-100">
+      <div id="modalIconContainer" class="w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-inner transition-transform"></div>
+
+      <div class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-extrabold rounded-full mb-1">
+        Tiếng Anh Ms Tuyết • Kết quả bài thi
+      </div>
+      <h3 id="modalTitle" class="text-2xl font-black text-slate-900">Tiếng Anh 9 - Unit 2: City Life (Test 01)</h3>
+      <p id="modalStudentName" class="text-xs font-bold text-blue-700 mt-1 mb-4"></p>
+
+      <!-- Score Card -->
+      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-5">
+        <div class="flex justify-between items-center text-sm font-semibold text-slate-600 mb-1">
+          <span>Điểm số (Thang 10):</span>
+          <span id="modalScore10Text" class="text-3xl font-black text-blue-600">0.00 / 10</span>
+        </div>
+        <div class="flex justify-between items-center text-xs font-medium text-slate-500 mb-2">
+          <span>Số câu chính xác:</span>
+          <span id="modalScoreRawText" class="font-bold text-slate-700">0 / 40 câu</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+          <div id="modalProgressBar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-1000" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-slate-500 mt-2 font-medium">
+          <span>Tỷ lệ hoàn thành đúng</span>
+          <span id="modalPercentText" class="font-bold text-blue-600">0%</span>
+        </div>
+      </div>
+
+      <p id="modalFeedback" class="text-sm font-medium text-slate-600 mb-6 leading-relaxed"></p>
+
+      <button type="button" onclick="closeModal()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition">
+        Xem Chi Tiết Từng Câu &amp; Lời Giải
+      </button>
+    </div>
+  </div>
+
+  <!-- SHARE & 1-CLICK GITHUB PUSH MODAL FOR MS TUYET -->
+  <div id="shareModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 text-left my-8">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">Đẩy lên GitHub &amp; Lấy Link Học Sinh</h3>
+            <p class="text-xs text-slate-500">Tài khoản GitHub: <code id="ghOwnerDisplay" class="font-mono text-emerald-700 font-bold">ndsannn-source</code></p>
+          </div>
+        </div>
+        <button type="button" onclick="closeShareModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- STEP 1: 1-CLICK PUSH TO GITHUB -->
+      <div class="p-4 rounded-2xl bg-slate-900 text-white space-y-3 mb-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <span class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center gap-1.5">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            Bước 1: Tự động đẩy trang này lên GitHub (1-Click)
+          </span>
+          <button type="button" onclick="downloadCleanHtmlFile()" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition flex items-center gap-1">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Tải file .html
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Tài khoản GitHub (Owner):</label>
+            <input id="ghOwnerInput" type="text" oninput="updateShareLinksFromFilename()" value="ndsannn-source" class="w-full bg-slate-800 text-cyan-300 font-mono font-bold text-xs px-3 py-2 rounded-xl border border-slate-700 focus:border-emerald-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Tên kho lưu trữ (Repository):</label>
+            <input id="ghRepoInput" type="text" oninput="updateShareLinksFromFilename()" value="destination-a2-quiz-progress-1" placeholder="VD: destination-a2-quiz-progress-1" class="w-full bg-slate-800 text-amber-300 font-mono font-bold text-xs px-3 py-2 rounded-xl border border-slate-700 focus:border-emerald-400 outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] text-slate-400 mb-1">GitHub Personal Access Token (tự động tạo kho &amp; bật GitHub Pages nếu chưa có):</label>
+            <input id="ghTokenInput" type="password" placeholder="Dán mã ghp_... hoặc github_pat_... vào đây" class="w-full bg-slate-800 text-white font-mono text-xs px-3 py-2 rounded-xl border border-slate-700 focus:border-emerald-400 outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Tên file đề (.html):</label>
+            <input id="ghFileNameInput" type="text" oninput="updateShareLinksFromFilename()" value="lop9-unit2-test01.html" class="w-full bg-slate-800 text-emerald-300 font-mono font-bold text-xs px-3 py-2 rounded-xl border border-slate-700 focus:border-emerald-400 outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-1 flex-wrap">
+          <a href="https://github.com/settings/tokens/new?description=MsTuyetQuizBuilder&amp;scopes=repo,workflow" target="_blank" rel="noopener noreferrer" class="text-[11px] text-cyan-300 hover:underline flex items-center gap-1">
+            <i data-lucide="key" class="w-3 h-3"></i> Lấy mã Token trên tài khoản ndsannn-source (tích chọn "repo")
+          </a>
+          <button type="button" id="btnPushGithubNow" onclick="pushToGitHubNow()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+            <span>Đẩy thẳng lên GitHub ngay</span>
+          </button>
+        </div>
+
+        <div id="ghPushStatusBox" class="hidden p-2.5 rounded-xl text-xs font-medium"></div>
+      </div>
+
+      <!-- STEP 2: COPY LINKS FOR STUDENTS -->
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div class="font-bold text-slate-700 text-xs uppercase tracking-wider">Bước 2: Sao chép Link gửi cho Học sinh</div>
+
+        <!-- Option 1: Practice Link -->
+        <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-blue-900 flex items-center gap-1.5 text-xs sm:text-sm">
+              <i data-lucide="sparkles" class="w-4 h-4 text-blue-600"></i>
+              1. Link Luyện tập (Chọn câu nào hiện đáp án &amp; giải thích ngay)
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="inputSharePractice" type="text" readonly="" class="w-full bg-white text-slate-700 font-mono text-xs px-3 py-2 rounded-xl border border-blue-200 outline-none" value="">
+            <button type="button" onclick="copyTextFromInput('inputSharePractice', 'btnCopyPractice')" id="btnCopyPractice" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl flex-shrink-0 transition">
+              Sao chép
+            </button>
+          </div>
+        </div>
+
+        <!-- Option 2: Exam Link (Locked) -->
+        <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-amber-900 flex items-center gap-1.5 text-xs sm:text-sm">
+              <i data-lucide="lock" class="w-4 h-4 text-amber-600"></i>
+              2. Link Kiểm tra lấy điểm thật (Ẩn đáp án đến khi Nộp bài &amp; Khóa nút đổi chế độ)
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="inputShareExam" type="text" readonly="" class="w-full bg-white text-slate-700 font-mono text-xs px-3 py-2 rounded-xl border border-amber-300 outline-none" value="">
+            <button type="button" onclick="copyTextFromInput('inputShareExam', 'btnCopyExam')" id="btnCopyExam" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex-shrink-0 transition">
+              Sao chép
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 flex justify-between items-center">
+        <a id="ghManualUploadLink" href="https://github.com/ndsannn-source" target="_blank" rel="noopener noreferrer" class="text-xs text-slate-500 hover:text-blue-600 underline flex items-center gap-1">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Mở trang GitHub của cô (ndsannn-source)
+        </a>
+        <button type="button" onclick="closeShareModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastNotice" class="fixed bottom-16 right-4 z-50 hidden bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl border border-slate-700 items-center gap-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMessage">Đã sao chép!</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & DATABASE -->
+  <script>
+    const DEFAULT_GITHUB_OWNER = "ndsannn-source";
+    const DEFAULT_GITHUB_REPO = "destination-a2-quiz-progress-1";
+    const FILE_SLUG = "lop9-unit2-test01.html";
+
+    // Capture pristine HTML at initial load so teacher can push or download a clean student copy
+    const INITIAL_RAW_HTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+    // QUIZ DATA INJECTED HERE
+    const quizData = [
+      // PART 1: PRONUNCIATION (1-2)
+      {
+        partId: "p1",
+        partTitle: "Phần 1: Phát âm (Pronunciation)",
+        partDesc: "Chọn từ có phần gạch chân phát âm khác với ba từ còn lại.",
+        questions: [
+          {
+            id: 1,
+            text: "Question 1. Choose the word whose underlined part differs from the other three in pronunciation:",
+            options: [
+              { key: "A", text: "sl<u>ow</u>ly" },
+              { key: "B", text: "d<u>ow</u>ntown" },
+              { key: "C", text: "p<u>ow</u>er" },
+              { key: "D", text: "cr<u>ow</u>ded" }
+            ],
+            correct: "A",
+            translation: "A. slowly /ˈsləʊli/ (chậm chạp) | B. downtown /ˌdaʊnˈtaʊn/ (trung tâm) | C. power /ˈpaʊə/ (năng lượng) | D. crowded /ˈkraʊdɪd/ (đông đúc).",
+            explanation: "Phần gạch chân ở đáp án A phát âm là /əʊ/ (slowly), trong khi ở các từ còn lại phát âm là /aʊ/."
+          },
+          {
+            id: 2,
+            text: "Question 2. Choose the word whose underlined part differs from the other three in pronunciation:",
+            options: [
+              { key: "A", text: "m<u>o</u>dern" },
+              { key: "B", text: "p<u>o</u>llute" },
+              { key: "C", text: "pr<u>o</u>duce" },
+              { key: "D", text: "c<u>o</u>ngested" }
+            ],
+            correct: "A",
+            translation: "A. modern /ˈmɒdn/ (hiện đại) | B. pollute /pəˈluːt/ (ô nhiễm) | C. produce /prəˈdjuːs/ (sản xuất) | D. congested /kənˈdʒestɪd/ (tắc nghẽn).",
+            explanation: "Chữ cái 'o' trong 'modern' phát âm là /ɒ/ (ngắn, nhấn trọng âm 1), trong khi ở các từ pollute, produce, congested nó là âm nhẹ không nhấn /ə/."
+          }
+        ]
+      },
+
+      // PART 2: STRESS (3-4)
+      {
+        partId: "p2",
+        partTitle: "Phần 2: Trọng âm chính (Primary Stress)",
+        partDesc: "Chọn từ có vị trí trọng âm chính khác với các từ còn lại.",
+        questions: [
+          {
+            id: 3,
+            text: "Question 3. Choose the word that differs from the other three in the position of primary stress:",
+            options: [
+              { key: "A", text: "fabulous" },
+              { key: "B", text: "reliable" },
+              { key: "C", text: "variety" },
+              { key: "D", text: "forbidden" }
+            ],
+            correct: "A",
+            translation: "A. fabulous /ˈfæbjələs/ (tuyệt vời - âm 1) | B. reliable /rɪˈlaɪəbl/ (đáng tin cậy - âm 2) | C. variety /vəˈraɪəti/ (sự đa dạng - âm 2) | D. forbidden /fəˈbɪdn/ (bị cấm - âm 2).",
+            explanation: "Đáp án A 'fabulous' có trọng âm rơi vào âm tiết thứ 1, ba từ còn lại có trọng âm rơi vào âm tiết thứ 2."
+          },
+          {
+            id: 4,
+            text: "Question 4. Choose the word that differs from the other three in the position of primary stress:",
+            options: [
+              { key: "A", text: "pricey" },
+              { key: "B", text: "metro" },
+              { key: "C", text: "advance" },
+              { key: "D", text: "process" }
+            ],
+            correct: "C",
+            translation: "A. pricey /ˈpraɪsi/ (đắt đỏ - âm 1) | B. metro /ˈmetrəʊ/ (tàu điện ngầm - âm 1) | C. advance /ədˈvɑːns/ (tiến bộ/sớm - âm 2) | D. process /ˈprəʊses/ (quá trình - âm 1).",
+            explanation: "Đáp án C 'advance' có trọng âm nhấn vào âm tiết thứ 2, các từ còn lại có trọng âm rơi vào âm tiết thứ 1."
+          }
+        ]
+      },
+
+      // PART 3: GRAMMAR & VOCABULARY (5-12)
+      {
+        partId: "p3",
+        partTitle: "Phần 3: Từ vựng & Ngữ pháp (Vocabulary & Grammar)",
+        partDesc: "Chọn phương án đúng nhất A, B, C hoặc D để hoàn thành các câu sau.",
+        questions: [
+          {
+            id: 5,
+            text: "Question 5. The sky train is ________ with commuters at rush hour.",
+            options: [
+              { key: "A", text: "packed" },
+              { key: "B", text: "full" },
+              { key: "C", text: "busy" },
+              { key: "D", text: "interesting" }
+            ],
+            correct: "A",
+            translation: "Tàu điện trên cao chật ních (packed with) người đi làm vào giờ cao điểm.",
+            explanation: "Cụm tính từ đi với giới từ: 'packed with' = chật cứng, đông nghẹt người. Trong khi 'full' đi với 'of' (full of)."
+          },
+          {
+            id: 6,
+            text: "Question 6. It is often more ________ to live in the downtown than in the suburbs.",
+            options: [
+              { key: "A", text: "quite" },
+              { key: "B", text: "peaceful" },
+              { key: "C", text: "convenient" },
+              { key: "D", text: "silent" }
+            ],
+            correct: "C",
+            translation: "Sống ở khu trung tâm thường tiện lợi (convenient) hơn là ở vùng ngoại ô.",
+            explanation: "Khu vực trung tâm thành phố (downtown) có nhiều dịch vụ, phương tiện giao thông, siêu thị nên mang tính 'convenient' (tiện lợi). Ngoại ô mới là nơi yên bình (peaceful)."
+          },
+          {
+            id: 7,
+            text: "Question 7. The ________ the public transport system is, the ________ it is for residents to get around the city.",
+            options: [
+              { key: "A", text: "more reliable / easier" },
+              { key: "B", text: "more reliable / harder" },
+              { key: "C", text: "less reliable / easier" },
+              { key: "D", text: "less reliable / harder" }
+            ],
+            correct: "A",
+            translation: "Hệ thống giao thông công cộng càng đáng tin cậy thì người dân di chuyển quanh thành phố càng dễ dàng hơn.",
+            explanation: "Cấu trúc so sánh kép (The + comparative, the + comparative): 'The more reliable..., the easier...' (Càng đáng tin cậy... càng dễ dàng)."
+          },
+          {
+            id: 8,
+            text: "Question 8. My phone battery is low; I need to ________ it before the meeting.",
+            options: [
+              { key: "A", text: "turn off" },
+              { key: "B", text: "pick up" },
+              { key: "C", text: "turn on" },
+              { key: "D", text: "run out of" }
+            ],
+            correct: "A",
+            translation: "Pin điện thoại của tôi đang yếu; tôi cần tắt nó đi (turn off) trước cuộc họp.",
+            explanation: "'turn off' nghĩa là tắt thiết bị để tiết kiệm pin hoặc tránh gây ồn trong cuộc họp. 'pick up': nhặt lên/đón; 'run out of': hết sạch."
+          },
+          {
+            id: 9,
+            text: "Question 9. We've ________ all the milk; we need to buy more.",
+            options: [
+              { key: "A", text: "set up" },
+              { key: "B", text: "get along" },
+              { key: "C", text: "put up with" },
+              { key: "D", text: "run out of" }
+            ],
+            correct: "D",
+            translation: "Chúng tôi đã dùng hết (run out of) sữa rồi; chúng ta cần phải mua thêm.",
+            explanation: "Cụm động từ 'run out of' mang nghĩa dùng hết, cạn kiệt cái gì. 'put up with': chịu đựng; 'set up': thành lập."
+          },
+          {
+            id: 10,
+            text: "Question 10. During ________, traffic can be very heavy and slow-moving.",
+            options: [
+              { key: "A", text: "public transport" },
+              { key: "B", text: "rush hour" },
+              { key: "C", text: "concrete jungle" },
+              { key: "D", text: "high crime rate" }
+            ],
+            correct: "B",
+            translation: "Trong giờ cao điểm (rush hour), giao thông có thể rất đông đúc và di chuyển chậm chạp.",
+            explanation: "'rush hour' là giờ cao điểm trong ngày, thời điểm xe cộ đông đúc nhất."
+          },
+          {
+            id: 11,
+            text: "Question 11. ________ smoother the traffic flow in the downtown area, ________ better the commute for workers.",
+            options: [
+              { key: "A", text: "The / the / the" },
+              { key: "B", text: "A / the / a" },
+              { key: "C", text: "The / a / a" },
+              { key: "D", text: "The / the" }
+            ],
+            correct: "D",
+            translation: "Lưu lượng giao thông ở trung tâm càng thông suốt thì việc đi lại của người lao động càng thuận lợi hơn.",
+            explanation: "Cấu trúc so sánh kép sóng đôi: The + comparative (smoother)..., the + comparative (better)... Vì vậy cả hai vế so sánh đều bắt đầu bằng 'The'."
+          },
+          {
+            id: 12,
+            text: "Question 12. Linda: 'Would you mind opening the window?' - Jane: '________'",
+            options: [
+              { key: "A", text: "I agree with you" },
+              { key: "B", text: "Yes, you can" },
+              { key: "C", text: "Not at all" },
+              { key: "D", text: "Yes, I'd love to" }
+            ],
+            correct: "C",
+            translation: "Linda: 'Bạn có phiền mở cửa sổ không?' - Jane: 'Không phiền chút nào cả (mình sẽ mở ngay)'.",
+            explanation: "Với câu hỏi 'Would you mind...?' (Bạn có phiền không?), khi đồng ý giúp ta trả lời 'No, not at all' hoặc 'Not at all' (Tôi không phiền đâu)."
+          }
+        ]
+      },
+
+      // PART 4: ANNOUNCEMENT (13-16)
+      {
+        partId: "p4",
+        partTitle: "Phần 4: Đọc thông báo (Announcement)",
+        partDesc: "Đọc thông báo về Lễ hội Cuộc sống Thành thị và chọn đáp án đúng cho các chỗ trống 13 đến 16.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3">
+            <div class="text-center pb-2 border-b border-blue-200">
+              <span class="font-extrabold uppercase tracking-wider text-blue-900 text-base">ANNOUNCEMENT: CITY LIFE FESTIVAL</span>
+            </div>
+            <p>Welcome to the annual City Life Festival! This event will showcase <strong>(13) ________</strong> vibrant culture and <strong>(14) ________</strong> activities of our city.</p>
+            <p>Join us <strong>(15) ________</strong> Central Park for a day filled with music, and fun. There will be performances from local bands, <strong>(16) ________</strong> a food market featuring international cuisines.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 13,
+            text: "Question 13. [Announcement Blank 13]",
+            options: [
+              { key: "A", text: "a" },
+              { key: "B", text: "an" },
+              { key: "C", text: "the" },
+              { key: "D", text: "X (không dùng)" }
+            ],
+            correct: "C",
+            translation: "Sự kiện này sẽ giới thiệu nền văn hóa sôi động (the vibrant culture) của thành phố chúng ta...",
+            explanation: "Cụm 'vibrant culture... of our city' là đối tượng đã được xác định rõ ràng bởi vế 'of our city' nên bắt buộc dùng mạo từ xác định 'the'."
+          },
+          {
+            id: 14,
+            text: "Question 14. [Announcement Blank 14]",
+            options: [
+              { key: "A", text: "diverse" },
+              { key: "B", text: "diversity" },
+              { key: "C", text: "diversing" },
+              { key: "D", text: "diver" }
+            ],
+            correct: "A",
+            translation: "...và các hoạt động đa dạng (diverse activities) của thành phố chúng ta.",
+            explanation: "Vị trí trước danh từ 'activities' cần một tính từ bổ nghĩa: 'diverse' (đa dạng, phong phú)."
+          },
+          {
+            id: 15,
+            text: "Question 15. [Announcement Blank 15]",
+            options: [
+              { key: "A", text: "at" },
+              { key: "B", text: "in" },
+              { key: "C", text: "on" },
+              { key: "D", text: "by" }
+            ],
+            correct: "A",
+            translation: "Hãy cùng tham gia với chúng tôi tại Công viên Trung tâm (at Central Park)...",
+            explanation: "Giới từ 'at' được sử dụng để chỉ địa điểm diễn ra sự kiện cụ thể ('at Central Park'). (Ghi chú: trong tiếng Anh Anh 'in' cũng có thể dùng cho công viên, tuy nhiên 'at' là đáp án chuẩn cho địa điểm tổ chức sự kiện)."
+          },
+          {
+            id: 16,
+            text: "Question 16. [Announcement Blank 16]",
+            options: [
+              { key: "A", text: "including" },
+              { key: "B", text: "included" },
+              { key: "C", text: "include" },
+              { key: "D", text: "includes" }
+            ],
+            correct: "A",
+            translation: "...sẽ có các buổi biểu diễn từ các ban nhạc địa phương, bao gồm (including) cả một khu chợ ẩm thực...",
+            explanation: "'including' đóng vai trò là một giới từ mang nghĩa 'bao gồm cả'."
+          }
+        ]
+      },
+
+      // PART 5: SENTENCE ORDERING (17-18)
+      {
+        partId: "p5",
+        partTitle: "Phần 5: Sắp xếp trật tự câu (Sentence Ordering)",
+        partDesc: "Chọn trật tự sắp xếp đúng để tạo thành văn bản hoàn chỉnh, mạch lạc.",
+        questions: [
+          {
+            id: 17,
+            text: 'Question 17. Sắp xếp các câu sau thành một bức thư hoàn chỉnh:<div class="mt-2 p-3.5 bg-slate-50 rounded-xl text-xs sm:text-sm text-slate-700 space-y-1.5 font-mono"><p><strong>a.</strong> However, I am still looking for the best spots to eat and shop.</p><p><strong>b.</strong> Additionally, I have discovered many parks where I can relax and enjoy nature.</p><p><strong>c.</strong> I hope you are doing well. I am writing to tell you about my new city life. Firstly, I have been exploring various places and activities in the city.</p><p><strong>d.</strong> Moreover, there are numerous entertainment options available, including theaters and music venues.</p><p><strong>e.</strong> Finally, I look forward to hearing about your experiences in the city as well!</p></div>',
+            options: [
+              { key: "A", text: "b - d - c - a - e" },
+              { key: "B", text: "a - c - d - b - e" },
+              { key: "C", text: "c - d - a - b - e" },
+              { key: "D", text: "c - d - b - a - e" }
+            ],
+            correct: "C",
+            translation: "Thư mở đầu chào hỏi & giới thiệu 'Firstly' (c) -> 'Moreover' bổ sung khu vui chơi (d) -> 'However' nêu việc vẫn đang tìm quán ăn (a) -> 'Additionally' khám phá thêm công viên (b) -> 'Finally' mong nhận thư hồi âm (e).",
+            explanation: "Câu (c) phải đứng đầu vì chứa câu chào mở thư 'I hope you are doing well'. Câu (e) đứng cuối cùng với liên từ 'Finally'."
+          },
+          {
+            id: 18,
+            text: 'Question 18. Sắp xếp các câu sau thành đoạn văn logic:<div class="mt-2 p-3.5 bg-slate-50 rounded-xl text-xs sm:text-sm text-slate-700 space-y-1.5 font-mono"><p><strong>a.</strong> Firstly, the city offers a diverse range of experiences for its residents.</p><p><strong>b.</strong> For example, from shopping malls to museums, there is something for everyone.</p><p><strong>c.</strong> Moreover, public transport is easily accessible, making it convenient to get around.</p><p><strong>d.</strong> In contrast, many people enjoy the hustle and bustle of city life, while others may find it stressful.</p><p><strong>e.</strong> However, living in the city can be exciting but also overwhelming at times.</p></div>',
+            options: [
+              { key: "A", text: "a - c - b - d - e" },
+              { key: "B", text: "a - b - d - c - e" },
+              { key: "C", text: "b - a - d - c - e" },
+              { key: "D", text: "a - b - c - e - d" }
+            ],
+            correct: "D",
+            translation: "Đầu tiên nêu các trải nghiệm đa dạng (a) -> Ví dụ cụ thể từ mua sắm đến bảo tàng (b) -> Hơn nữa giao thông thuận tiện (c) -> Tuy nhiên đôi khi cũng ngợp (e) -> Trái lại có người thích náo nhiệt, có người thấy căng thẳng (d).",
+            explanation: "Cấu trúc đoạn văn: Luận điểm 'Firstly' (a) -> Dẫn chứng 'For example' (b) -> Bổ sung 'Moreover' (c) -> Chuyển ý đối lập 'However' (e) -> Kết luận tương phản 'In contrast' (d)."
+          }
+        ]
+      },
+
+      // PART 6: CLOZE TEXT (19-24)
+      {
+        partId: "p6",
+        partTitle: "Phần 6: Đọc điền từ vào đoạn văn (Cloze Passage)",
+        partDesc: "Đọc đoạn văn miêu tả không khí thành phố và chọn từ thích hợp cho các chỗ trống từ 19 đến 24.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3">
+            <p>The city is known <strong>(19) ________</strong> its lively atmosphere and diverse population. <strong>(20) ________</strong> the high cost of living, many people find the urban environment stimulating. The city's landscape is filled with <strong>(21) ________</strong> landmarks and modern architecture.</p>
+            <p><strong>(22) ________</strong> the hustle and bustle of daily life, residents often find solace in the city's green spaces. The vibrant energy of the city <strong>(23) ________</strong> it an appealing place for those who enjoy an active lifestyle. <strong>(24) ________</strong> you're looking for excitement or relaxation, the city provides plenty of options.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 19,
+            text: "Question 19. [Passage Blank 19]",
+            options: [
+              { key: "A", text: "as" },
+              { key: "B", text: "for" },
+              { key: "C", text: "with" },
+              { key: "D", text: "to" }
+            ],
+            correct: "B",
+            translation: "Thành phố được biết đến vì (known for) không khí sôi động và dân cư đa dạng...",
+            explanation: "Cụm tính từ/bị động quen thuộc: 'be known for sth' = nổi tiếng vì cái gì. ('be known as' = được biết đến với tư cách là)."
+          },
+          {
+            id: 20,
+            text: "Question 20. [Passage Blank 20]",
+            options: [
+              { key: "A", text: "Although" },
+              { key: "B", text: "Because" },
+              { key: "C", text: "Despite" },
+              { key: "D", text: "Because of" }
+            ],
+            correct: "C",
+            translation: "Mặc dù chi phí sinh hoạt cao (Despite the high cost of living), nhiều người vẫn thấy môi trường đô thị rất kích thích.",
+            explanation: "'the high cost of living' là một cụm danh từ (Noun phrase) mang ý tương phản -> Dùng 'Despite' đứng đầu câu."
+          },
+          {
+            id: 21,
+            text: "Question 21. [Passage Blank 21]",
+            options: [
+              { key: "A", text: "historical" },
+              { key: "B", text: "history" },
+              { key: "C", text: "historic" },
+              { key: "D", text: "historian" }
+            ],
+            correct: "C",
+            translation: "Cảnh quan thành phố tràn ngập các địa danh mang tính lịch sử (historic landmarks) và kiến trúc hiện đại.",
+            explanation: "'historic landmarks' mang nghĩa là các công trình/di tích có tầm quan trọng lịch sử. (historical thường dùng cho nghiên cứu, sự kiện trong lịch sử)."
+          },
+          {
+            id: 22,
+            text: "Question 22. [Passage Blank 22]",
+            options: [
+              { key: "A", text: "Despite" },
+              { key: "B", text: "Because" },
+              { key: "C", text: "Although" },
+              { key: "D", text: "Because of" }
+            ],
+            correct: "A",
+            translation: "Bất chấp sự hối hả và nhộn nhịp của cuộc sống hàng ngày (Despite the hustle and bustle...), cư dân vẫn tìm thấy sự bình yên...",
+            explanation: "'the hustle and bustle of daily life' là một cụm danh từ chỉ sự đối lập -> Chọn 'Despite'."
+          },
+          {
+            id: 23,
+            text: "Question 23. [Passage Blank 23]",
+            options: [
+              { key: "A", text: "makes" },
+              { key: "B", text: "puts" },
+              { key: "C", text: "takes" },
+              { key: "D", text: "make" }
+            ],
+            correct: "A",
+            translation: "Năng lượng tràn đầy của thành phố biến nó thành một nơi hấp dẫn (makes it an appealing place)...",
+            explanation: "Chủ ngữ là danh từ không đếm được 'The vibrant energy' (ngôi thứ 3 số ít) -> Động từ chia thêm 's': 'makes'. Cấu trúc 'make sth adj/noun'."
+          },
+          {
+            id: 24,
+            text: "Question 24. [Passage Blank 24]",
+            options: [
+              { key: "A", text: "When" },
+              { key: "B", text: "Whether" },
+              { key: "C", text: "While" },
+              { key: "D", text: "Although" }
+            ],
+            correct: "B",
+            translation: "Dù bạn đang tìm kiếm sự phấn khích hay thư giãn (Whether you're looking for excitement or relaxation), thành phố đều đáp ứng...",
+            explanation: "Cặp liên từ song hành 'Whether... or...' (dù là cái này hay cái kia)."
+          }
+        ]
+      },
+
+      // PART 7: SENTENCE TRANSFORMATION & BUILDING (25-28)
+      {
+        partId: "p7",
+        partTitle: "Phần 7: Biến đổi câu & Tạo câu (Transformation)",
+        partDesc: "Chọn câu có ý nghĩa gần nhất hoặc câu được tạo chính xác từ các từ gợi ý.",
+        questions: [
+          {
+            id: 25,
+            text: "Question 25. Choose the sentence closest in meaning: 'Mary doesn't study as well as she used to.'",
+            options: [
+              { key: "A", text: "Mary used to study worse than she does now." },
+              { key: "B", text: "Mary used to study better than she does now." },
+              { key: "C", text: "As time flew, Mary studies better." },
+              { key: "D", text: "Mary doesn't use good studying methods now." }
+            ],
+            correct: "B",
+            translation: "Mary trước đây từng học tốt hơn bây giờ.",
+            explanation: "Câu gốc: 'Mary không học tốt như cô ấy từng học trước đây' = 'Trước đây Mary từng học tốt hơn bây giờ' (Mary used to study better than she does now)."
+          },
+          {
+            id: 26,
+            text: "Question 26. Choose the sentence closest in meaning: 'My current house is more spacious than the old one.'",
+            options: [
+              { key: "A", text: "My old house is smaller the current one." },
+              { key: "B", text: "My current house is the most spacious house." },
+              { key: "C", text: "My old house is smaller than the current one." },
+              { key: "D", text: "My old house had more space than the new one." }
+            ],
+            correct: "C",
+            translation: "Ngôi nhà cũ của tôi nhỏ hơn ngôi nhà hiện tại.",
+            explanation: "Ngôi nhà hiện tại rộng rãi hơn ngôi nhà cũ ('more spacious') tương đương với ngôi nhà cũ nhỏ hơn ngôi nhà hiện tại ('smaller than the current one')."
+          },
+          {
+            id: 27,
+            text: "Question 27. Build sentence from cues: 'Some cities/ be/ not safe/ because/ high crime rates.'",
+            options: [
+              { key: "A", text: "Some cities are not safe because of high crime rates." },
+              { key: "B", text: "Some cities are not safe because high crime rates." },
+              { key: "C", text: "Some cities are not safe because in high crime rates." },
+              { key: "D", text: "Some cities are not safe for because high crime rates." }
+            ],
+            correct: "A",
+            translation: "Một số thành phố không an toàn vì tỷ lệ tội phạm cao.",
+            explanation: "Sau liên từ/giới từ chỉ lý do là cụm danh từ 'high crime rates' thì phải dùng 'because of + Noun Phrase'."
+          },
+          {
+            id: 28,
+            text: "Question 28. Build sentence from cues: 'The town's/ public amenities/ make/ liveable place/ its residents.'",
+            options: [
+              { key: "A", text: "The town's public amenities make it a liveable place for its residents." },
+              { key: "B", text: "The town's public amenities makes it a liveable place for its residents." },
+              { key: "C", text: "The town's public amenities make liveable place for its residents." },
+              { key: "D", text: "The town's public amenities makes liveable place for its residents." }
+            ],
+            correct: "A",
+            translation: "Các tiện ích công cộng của thị trấn biến nơi đây thành một nơi đáng sống cho cư dân.",
+            explanation: "Chủ ngữ 'The town's public amenities' là danh từ số nhiều -> Động từ nguyên thể không chia 'make' + tân ngữ giả 'it' + cụm danh từ 'a liveable place for its residents'."
+          }
+        ]
+      },
+
+      // PART 8: SIGNS & NOTICES (29-30)
+      {
+        partId: "p8",
+        partTitle: "Phần 8: Biển báo & Thông báo thực tế (Signs & Notices)",
+        partDesc: "Đọc biển báo / thông báo và chọn phương án giải thích đúng nhất.",
+        questions: [
+          {
+            id: 29,
+            text: 'Question 29. What does the sign say?<div class="my-3 flex justify-center"><div class="relative w-32 h-32 flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-slate-200 shadow-sm"><svg viewBox="0 0 100 100" class="w-24 h-24"><circle cx="50" cy="50" r="45" fill="#f8fafc" stroke="#dc2626" stroke-width="8"/><line x1="20" y1="20" x2="80" y2="80" stroke="#dc2626" stroke-width="8"/><text x="50" y="66" font-family="Arial, sans-serif" font-size="46" font-weight="900" fill="#1e293b" text-anchor="middle">P</text></svg><span class="text-[11px] font-black tracking-widest text-red-600 mt-1 uppercase">NO PARKING</span></div></div>',
+            options: [
+              { key: "A", text: "You can park your car in any place." },
+              { key: "B", text: "Do not park your car here." },
+              { key: "C", text: "Only customers can park in this area." },
+              { key: "D", text: "You can park your car in any spot you like." }
+            ],
+            correct: "B",
+            translation: "Không được đỗ xe của bạn ở đây.",
+            explanation: "Biển báo chữ P gạch chéo màu đỏ là biển cấm đỗ xe (NO PARKING) = 'Do not park your car here'."
+          },
+          {
+            id: 30,
+            text: 'Question 30. What does the notice say?<div class="my-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 font-medium text-sm"><p class="font-bold mb-1">🥣 Food Label Notice:</p><p>&quot;Don\'t keep this soup in the fridge for more than two days after opening it.&quot;</p></div>',
+            options: [
+              { key: "A", text: "If you open this soup, only keep it in the fridge for two days." },
+              { key: "B", text: "You must open and eat this soup in the next two days." },
+              { key: "C", text: "Put this soup in the fridge as soon as you open it." },
+              { key: "D", text: "If you open this soup, you shouldn't keep it in the fridge." }
+            ],
+            correct: "A",
+            translation: "Nếu bạn mở hộp súp này ra, chỉ nên bảo quản trong tủ lạnh tối đa 2 ngày.",
+            explanation: "Thông báo hướng dẫn: không giữ món súp trong tủ lạnh quá hai ngày ('for more than two days') sau khi đã mở nắp."
+          }
+        ]
+      },
+
+      // PART 9: READING COMPREHENSION (31-36)
+      {
+        partId: "p9",
+        partTitle: "Phần 9: Đọc hiểu văn bản (Reading Comprehension)",
+        partDesc: "Đọc bài viết về Giao thông công cộng tại các đô thị và trả lời câu hỏi 31 đến 36.",
+        passage: `
+          <div class="p-4 sm:p-6 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3">
+            <p>One of the most important aspects of city life is public transportation. Efficient public transport systems can greatly enhance the quality of life for city dwellers by reducing traffic congestion and pollution. Many large cities have developed extensive networks of buses, trains, and subways to help people get around quickly and affordably.</p>
+            <p>In cities like Tokyo and New York, public transportation is an essential part of daily life. The Tokyo subway system is known for its <strong>punctuality</strong> and cleanliness, transporting millions of passengers every day. Similarly, New York's subway system, though older and less reliable, is crucial for the mobility of its residents.</p>
+            <p>Public transportation not only benefits individuals but also has a positive impact on the environment. By reducing the number of private vehicles on the road, public transport systems help to lower emissions and decrease the city's carbon footprint. Additionally, using public transportation can be more economical for residents, saving money on fuel and parking fees.</p>
+            <p>However, public transportation systems also face challenges. In many cities, aging infrastructure and lack of funding can lead to delays and overcrowding. Safety and cleanliness are other concerns that need to be addressed to make public transport more appealing to users.</p>
+            <p>Despite these issues, the advantages of public transportation in city life are clear. Investments in modernizing and expanding public transport can lead to significant improvements in urban living conditions. Encouraging the use of public transportation is essential for the sustainable development of cities.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 31,
+            text: "Question 31. What is the passage mainly about?",
+            options: [
+              { key: "A", text: "The history of public transportation" },
+              { key: "B", text: "The benefits and challenges of public transportation in cities" },
+              { key: "C", text: "The differences between public transportation in Tokyo and New York." },
+              { key: "D", text: "The environmental impact of private vehicles." }
+            ],
+            correct: "B",
+            translation: "Đoạn văn chủ yếu nói về điều gì? -> Những lợi ích và thách thức của giao thông công cộng ở các thành phố.",
+            explanation: "Bài đọc chia rõ hai mảng: các lợi ích vượt trội (giảm kẹt xe, giảm khí thải, tiết kiệm) và thách thức (cơ sở hạ tầng xuống cấp, thiếu kinh phí, quá tải)."
+          },
+          {
+            id: 32,
+            text: "Question 32. The word 'punctuality' in paragraph 2 is CLOSEST in meaning to:",
+            options: [
+              { key: "A", text: "Speed" },
+              { key: "B", text: "Cleanliness" },
+              { key: "C", text: "Reliability" },
+              { key: "D", text: "Timeliness" }
+            ],
+            correct: "D",
+            translation: "Từ 'punctuality' (sự đúng giờ) ở đoạn 2 đồng nghĩa nhất với: Timeliness (tính đúng giờ).",
+            explanation: "'punctuality' = 'timeliness' (việc tuân thủ thời gian, chạy đúng giờ giấc đã định)."
+          },
+          {
+            id: 33,
+            text: "Question 33. According to the passage, what is the benefit of public transportation?",
+            options: [
+              { key: "A", text: "Increased traffic congestion" },
+              { key: "B", text: "Reduced emissions" },
+              { key: "C", text: "Higher fuel costs" },
+              { key: "D", text: "Less safety" }
+            ],
+            correct: "B",
+            translation: "Theo đoạn văn, lợi ích của giao thông công cộng là gì? -> Giảm thiểu khí thải (Reduced emissions).",
+            explanation: "Đoạn 3 đề cập: 'help to lower emissions and decrease the city's carbon footprint' (giúp giảm phát thải)."
+          },
+          {
+            id: 34,
+            text: "Question 34. Which of the following is NOT mentioned as a challenge for public transportation?",
+            options: [
+              { key: "A", text: "Aging infrastructure" },
+              { key: "B", text: "Lack of funding" },
+              { key: "C", text: "Overcrowding" },
+              { key: "D", text: "High fuel costs" }
+            ],
+            correct: "D",
+            translation: "Điều nào KHÔNG được nhắc đến như là một thách thức của giao thông công cộng? -> Giá nhiên liệu cao.",
+            explanation: "Đoạn 4 nêu các thách thức: 'aging infrastructure', 'lack of funding', 'overcrowding', 'safety and cleanliness'. Chi phí nhiên liệu ('High fuel costs') không được liệt kê là thách thức của hệ thống công cộng."
+          },
+          {
+            id: 35,
+            text: "Question 35. The word 'increase' is OPPOSITE in meaning to:",
+            options: [
+              { key: "A", text: "Reduce" },
+              { key: "B", text: "Improve" },
+              { key: "C", text: "Develop" },
+              { key: "D", text: "Expand" }
+            ],
+            correct: "A",
+            translation: "Từ 'increase' (tăng lên) TRÁI NGHĨA với: Reduce (giảm bớt).",
+            explanation: "Trái nghĩa với 'increase' (gia tăng) là 'reduce' / 'decrease' (cắt giảm, suy giảm)."
+          },
+          {
+            id: 36,
+            text: "Question 36. What is one of the biggest challenges for public transportation systems?",
+            options: [
+              { key: "A", text: "Too many train lines in small cities." },
+              { key: "B", text: "The difficulty of finding passengers." },
+              { key: "C", text: "Aging infrastructure and lack of funding." },
+              { key: "D", text: "The high cost of private vehicles." }
+            ],
+            correct: "C",
+            translation: "Một trong những thách thức lớn nhất đối với hệ thống giao thông công cộng là gì? -> Cơ sở hạ tầng xuống cấp và thiếu kinh phí đầu tư.",
+            explanation: "Đoạn 4 nêu rõ: 'In many cities, aging infrastructure and lack of funding can lead to delays and overcrowding'."
+          }
+        ]
+      },
+
+      // PART 10: SENTENCE INSERTION (37-40)
+      {
+        partId: "p10",
+        partTitle: "Phần 10: Điền câu/cụm từ vào đoạn văn (Sentence Insertion)",
+        partDesc: "Chọn câu/cụm từ A, B, C hoặc D phù hợp nhất cho mỗi chỗ trống từ 37 đến 40.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-blue-50/70 border border-blue-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3">
+            <p>I love city life. First, the availability of good and reliable health services <strong>(37) ________</strong> is an important aspect that ensures a sense of security and well-being. Second, the convenience of easy shopping with numerous markets and malls, <strong>(38) ________</strong>. Third, cities offer a wealth of public amenities, <strong>(39) ________</strong> making city living a well-rounded and fulfilling experience. In conclusion, <strong>(40) ________</strong> and enhance the quality of city life.</p>
+          </div>
+          <div class="mt-3 p-3.5 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-700 space-y-1 font-medium">
+            <div><strong>A.</strong> so that buying daily necessities is quicker and simpler</div>
+            <div><strong>B.</strong> ranging from parks and recreational spaces to cultural institutions and educational facilities,</div>
+            <div><strong>C.</strong> that are available whenever needed,</div>
+            <div><strong>D.</strong> the combination of these factors collectively contribute to a vibrant and livable urban lifestyle</div>
+          </div>
+        `,
+        questions: [
+          {
+            id: 37,
+            text: "Question 37. Điền cụm từ phù hợp cho vị trí (37):",
+            options: [
+              { key: "A", text: "so that buying daily necessities is quicker and simpler" },
+              { key: "B", text: "ranging from parks and recreational spaces to cultural institutions and educational facilities" },
+              { key: "C", text: "that are available whenever needed" },
+              { key: "D", text: "the combination of these factors collectively contribute to a vibrant and livable urban lifestyle" }
+            ],
+            correct: "C",
+            translation: "Đầu tiên, sự sẵn có của các dịch vụ y tế tốt và đáng tin cậy luôn sẵn sàng bất cứ khi nào cần thiết (that are available whenever needed)...",
+            explanation: "Mệnh đề quan hệ 'that are available whenever needed' bổ nghĩa hoàn hảo cho cụm 'health services' đứng trước."
+          },
+          {
+            id: 38,
+            text: "Question 38. Điền cụm từ phù hợp cho vị trí (38):",
+            options: [
+              { key: "A", text: "so that buying daily necessities is quicker and simpler" },
+              { key: "B", text: "ranging from parks and recreational spaces to cultural institutions and educational facilities" },
+              { key: "C", text: "that are available whenever needed" },
+              { key: "D", text: "the combination of these factors collectively contribute to a vibrant and livable urban lifestyle" }
+            ],
+            correct: "A",
+            translation: "Thứ hai, sự tiện lợi khi mua sắm dễ dàng với nhiều chợ và trung tâm thương mại, nhờ đó việc mua nhu yếu phẩm hàng ngày nhanh hơn và đơn giản hơn (so that buying daily necessities is quicker and simpler).",
+            explanation: "Cụm chỉ kết quả/mục đích 'so that buying daily necessities...' bổ trợ trực tiếp cho ý mua sắm (easy shopping with numerous markets and malls)."
+          },
+          {
+            id: 39,
+            text: "Question 39. Điền cụm từ phù hợp cho vị trí (39):",
+            options: [
+              { key: "A", text: "so that buying daily necessities is quicker and simpler" },
+              { key: "B", text: "ranging from parks and recreational spaces to cultural institutions and educational facilities" },
+              { key: "C", text: "that are available whenever needed" },
+              { key: "D", text: "the combination of these factors collectively contribute to a vibrant and livable urban lifestyle" }
+            ],
+            correct: "B",
+            translation: "Thứ ba, các thành phố cung cấp vô vàn tiện ích công cộng, trải dài từ công viên, không gian giải trí đến các tổ chức văn hóa và cơ sở giáo dục...",
+            explanation: "Cụm 'ranging from... to...' (trải dài từ... đến...) dùng để liệt kê chi tiết các tiện ích công cộng ('public amenities')."
+          },
+          {
+            id: 40,
+            text: "Question 40. Điền câu phù hợp cho vị trí (40):",
+            options: [
+              { key: "A", text: "so that buying daily necessities is quicker and simpler" },
+              { key: "B", text: "ranging from parks and recreational spaces to cultural institutions and educational facilities" },
+              { key: "C", text: "that are available whenever needed" },
+              { key: "D", text: "the combination of these factors collectively contribute to a vibrant and livable urban lifestyle" }
+            ],
+            correct: "D",
+            translation: "Tóm lại, sự kết hợp của các yếu tố này cùng nhau góp phần tạo nên một lối sống đô thị năng động và đáng sống...",
+            explanation: "Đứng sau liên từ kết luận 'In conclusion', mệnh đề hoàn chỉnh làm chủ ngữ và vị ngữ tóm lược toàn bài: 'the combination of these factors...'."
+          }
+        ]
+      }
+    ];
+
+    // App State
+    const userAnswers = {};
+    let isGraded = false;
+    // quizMode: 'practice' (instant reveal) or 'exam' (hide answers until submit)
+    let quizMode = "practice";
+    let isModeLockedByUrl = false;
+
+    function getTotalQuestions() {
+      let count = 0;
+      quizData.forEach(sec => { count += sec.questions.length; });
+      return count;
+    }
+
+    function initModeFromUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const m = params.get('mode');
+        if (m === 'exam') {
+          quizMode = 'exam';
+          isModeLockedByUrl = true;
+        } else if (m === 'practice') {
+          quizMode = 'practice';
+        }
+      } catch (e) {}
+      updateModeUI();
+    }
+
+    function setQuizMode(mode) {
+      if (isModeLockedByUrl) {
+        showToast("Đề đang ở chế độ Kiểm tra lấy điểm thật (đã khóa chuyển đổi)!");
+        return;
+      }
+      if (quizMode === mode) return;
+      quizMode = mode;
+      isGraded = false;
+      updateModeUI();
+      refreshAllQuestionsVisualState();
+      updateProgress();
+      showToast(mode === 'exam'
+        ? "Đã bật chế độ Kiểm tra thật: Ẩn đáp án cho đến khi bấm Nộp bài!"
+        : "Đã bật chế độ Luyện tập: Hiện đáp án & lời giải ngay khi chọn!");
+    }
+
+    function updateModeUI() {
+      const btnPractice = document.getElementById('btnModePractice');
+      const btnExam = document.getElementById('btnModeExam');
+      const pill = document.getElementById('modeStatusPill');
+      const liveScoreBadge = document.getElementById('liveScoreBadge');
+      const modeSwitchContainer = document.getElementById('modeSwitchContainer');
+      const btnTeacherShare = document.getElementById('btnTeacherShare');
+
+      if (isModeLockedByUrl) {
+        if (modeSwitchContainer) modeSwitchContainer.classList.add('hidden');
+        if (btnTeacherShare) btnTeacherShare.classList.add('hidden');
+      }
+
+      if (quizMode === 'exam') {
+        if (btnExam) {
+          btnExam.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-amber-500 text-white shadow-sm";
+        }
+        if (btnPractice) {
+          btnPractice.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+        }
+        if (pill) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/25 text-xs font-bold text-amber-200 border border-amber-400/40";
+          pill.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i> Chế độ: Kiểm tra lấy điểm thật (Ẩn đáp án đến khi Nộp bài)`;
+        }
+        if (liveScoreBadge && !isGraded) {
+          liveScoreBadge.className = "flex items-center gap-1.5 bg-amber-500/30 text-amber-200 px-2.5 py-1 rounded-lg font-bold border border-amber-400/30";
+        }
+      } else {
+        if (btnPractice) {
+          btnPractice.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-white text-blue-700 shadow-sm";
+        }
+        if (btnExam) {
+          btnExam.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+        }
+        if (pill) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-xs font-bold text-blue-200 border border-blue-400/30";
+          pill.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Chế độ: Luyện tập (Hiện đáp án ngay)`;
+        }
+        if (liveScoreBadge) {
+          liveScoreBadge.className = "flex items-center gap-1.5 bg-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg font-bold border border-emerald-400/30";
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      let html = '';
+
+      quizData.forEach((section, sIdx) => {
+        html += `
+          <section class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200/80 transition-all hover:shadow-md">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">Phần ${sIdx + 1}</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 hidden sm:inline-block">Tiếng Anh Ms Tuyết</span>
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 mt-2">${section.partTitle}</h3>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">${section.partDesc}</p>
+            </div>
+
+            ${section.passage ? section.passage : ''}
+
+            <div class="space-y-6 mt-5">
+        `;
+
+        section.questions.forEach((q) => {
+          html += `
+            <div id="qBox-${q.id}" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 transition-all">
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="font-bold text-slate-900 text-sm sm:text-base leading-relaxed">
+                  ${q.text}
+                </div>
+                <span id="badge-${q.id}" class="hidden flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full"></span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          `;
+
+          q.options.forEach((opt) => {
+            html += `
+              <div id="opt-${q.id}-${opt.key}" onclick="selectOption(${q.id}, '${opt.key}')" class="option-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+                <span class="w-7 h-7 rounded-lg bg-white border border-slate-300 font-bold text-xs flex items-center justify-center text-slate-700 flex-shrink-0 shadow-sm">
+                  ${opt.key}
+                </span>
+                <span class="text-sm text-slate-800 font-medium leading-normal">${opt.text}</span>
+              </div>
+            `;
+          });
+
+          html += `
+              </div>
+
+              <div id="exp-${q.id}" class="hidden mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm space-y-1.5">
+                <div class="font-bold text-blue-950 flex items-center gap-1.5">
+                  <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                  <span>Đáp án đúng: <span class="text-emerald-700 font-black">${q.correct}</span></span>
+                </div>
+                <p class="text-slate-700 leading-relaxed"><strong class="text-slate-800">Dịch nghĩa:</strong> ${q.translation}</p>
+                <p class="text-slate-600 leading-relaxed"><strong class="text-slate-800">Giải thích chi tiết:</strong> ${q.explanation}</p>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </section>
+        `;
+      });
+
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function applyQuestionVisualState(q) {
+      const userKey = userAnswers[q.id];
+      const box = document.getElementById(`qBox-${q.id}`);
+      const badge = document.getElementById(`badge-${q.id}`);
+      const exp = document.getElementById(`exp-${q.id}`);
+      if (!box || !badge || !exp) return;
+
+      box.classList.remove('q-correct', 'q-wrong', 'q-answered-exam');
+      badge.className = "hidden flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full";
+      exp.classList.add('hidden');
+
+      q.options.forEach(opt => {
+        const el = document.getElementById(`opt-${q.id}-${opt.key}`);
+        if (el) el.classList.remove('selected', 'opt-correct', 'opt-wrong-selected');
+      });
+
+      if (!userKey && !isGraded) return;
+
+      // Case 1: Exam mode AND not yet graded -> Only highlight selected option, hide answer
+      if (quizMode === 'exam' && !isGraded) {
+        if (userKey) {
+          box.classList.add('q-answered-exam');
+          badge.classList.remove('hidden');
+          badge.classList.add('bg-blue-100', 'text-blue-800');
+          badge.innerHTML = `Đã chọn ${userKey}`;
+          const selEl = document.getElementById(`opt-${q.id}-${userKey}`);
+          if (selEl) selEl.classList.add('selected');
+        }
+        return;
+      }
+
+      // Case 2: Practice mode OR already graded -> Show full feedback
+      const total = getTotalQuestions();
+      const pointPerQ = (10 / total).toFixed(2);
+      const isCorrect = userKey === q.correct;
+
+      box.classList.add(isCorrect ? 'q-correct' : 'q-wrong');
+      badge.classList.remove('hidden');
+      if (isCorrect) {
+        badge.classList.add('bg-emerald-100', 'text-emerald-800');
+        badge.innerHTML = `✓ Đúng (+${pointPerQ}đ)`;
+      } else if (userKey) {
+        badge.classList.add('bg-rose-100', 'text-rose-800');
+        badge.innerHTML = `✗ Sai (Đ/a: ${q.correct})`;
+      } else {
+        badge.classList.add('bg-rose-100', 'text-rose-800');
+        badge.innerHTML = `Chưa làm (Đ/a: ${q.correct})`;
+      }
+
+      q.options.forEach(opt => {
+        const el = document.getElementById(`opt-${q.id}-${opt.key}`);
+        if (!el) return;
+        if (opt.key === q.correct) {
+          el.classList.add('opt-correct');
+        } else if (opt.key === userKey && !isCorrect) {
+          el.classList.add('opt-wrong-selected');
+        }
+      });
+
+      exp.classList.remove('hidden');
+    }
+
+    function refreshAllQuestionsVisualState() {
+      quizData.forEach(sec => {
+        sec.questions.forEach(q => applyQuestionVisualState(q));
+      });
+      lucide.createIcons();
+    }
+
+    function selectOption(qId, key) {
+      if (quizMode === 'exam' && isGraded) {
+        showToast("Bài kiểm tra đã nộp! Bấm 'Làm lại từ đầu' nếu muốn làm lại.");
+        return;
+      }
+      const q = findQuestion(qId);
+      if (!q) return;
+
+      userAnswers[qId] = key;
+      applyQuestionVisualState(q);
+      updateProgress();
+      lucide.createIcons();
+    }
+
+    function findQuestion(qId) {
+      for (const sec of quizData) {
+        for (const q of sec.questions) {
+          if (q.id === qId) return q;
+        }
+      }
+      return null;
+    }
+
+    function updateProgress() {
+      const answeredCount = Object.keys(userAnswers).length;
+      const total = getTotalQuestions();
+      const percent = Math.round((answeredCount / total) * 100);
+
+      let liveCorrectCount = 0;
+      for (const qId in userAnswers) {
+        const q = findQuestion(parseInt(qId, 10));
+        if (q && userAnswers[qId] === q.correct) {
+          liveCorrectCount++;
+        }
+      }
+      const liveScore10 = ((liveCorrectCount / total) * 10).toFixed(2);
+
+      document.getElementById('topProgressBar').style.width = `${percent}%`;
+      const badge = document.getElementById('answeredCounterBadge');
+      if (badge) {
+        badge.innerHTML = `<i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-300"></i> Đã làm: ${answeredCount}/${total} câu`;
+      }
+      const scoreBadge = document.getElementById('liveScoreBadge');
+      if (scoreBadge) {
+        if (quizMode === 'exam' && !isGraded) {
+          scoreBadge.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i> Điểm: Ẩn cho đến khi Nộp bài`;
+        } else {
+          scoreBadge.innerHTML = `<i data-lucide="award" class="w-3.5 h-3.5"></i> Điểm: ${liveScore10}/10 (${liveCorrectCount}/${total} câu đúng)`;
+        }
+      }
+      lucide.createIcons();
+    }
+
+    // Highlighter System
+    function applyHighlight(color) {
+      const selection = window.getSelection();
+      if (!selection.rangeCount || selection.isCollapsed) return;
+
+      const range = selection.getRangeAt(0);
+      const span = document.createElement('span');
+      span.className = `hl-${color}`;
+
+      try {
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+        selection.removeAllRanges();
+      } catch (e) {
+        console.warn("Cross boundary highlight ignored:", e);
+      }
+    }
+
+    function clearCurrentSelectionHighlight() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount || selection.isCollapsed) return;
+      const range = selection.getRangeAt(0);
+
+      let container = range.commonAncestorContainer;
+      if (container.nodeType === 3) container = container.parentNode;
+
+      if (container.classList && (container.classList.contains('hl-yellow') || container.classList.contains('hl-green') || container.classList.contains('hl-pink') || container.classList.contains('hl-blue'))) {
+        const parent = container.parentNode;
+        while (container.firstChild) parent.insertBefore(container.firstChild, container);
+        parent.removeChild(container);
+      }
+      selection.removeAllRanges();
+    }
+
+    // Grade and Show Score
+    function gradeQuiz() {
+      let correctCount = 0;
+      const total = getTotalQuestions();
+
+      isGraded = true;
+      quizData.forEach(sec => {
+        sec.questions.forEach(q => {
+          if (userAnswers[q.id] === q.correct) correctCount++;
+          applyQuestionVisualState(q);
+        });
+      });
+
+      updateProgress();
+
+      const score10 = ((correctCount / total) * 10).toFixed(2);
+      const percent = Math.round((correctCount / total) * 100);
+
+      const studentName = (document.getElementById('studentNameInput')?.value || '').trim();
+      const studentNameEl = document.getElementById('modalStudentName');
+      if (studentNameEl) {
+        studentNameEl.innerText = studentName ? `Học sinh: ${studentName}` : '';
+      }
+
+      document.getElementById('modalScore10Text').innerText = `${score10} / 10`;
+      document.getElementById('modalScoreRawText').innerText = `${correctCount} / ${total} câu`;
+      document.getElementById('modalPercentText').innerText = `${percent}%`;
+      document.getElementById('modalProgressBar').style.width = `${percent}%`;
+
+      const iconBox = document.getElementById('modalIconContainer');
+      const feedback = document.getElementById('modalFeedback');
+
+      if (percent >= 85) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-emerald-100 text-emerald-600 border border-emerald-200";
+        iconBox.innerHTML = "🏆";
+        feedback.innerText = `Xuất sắc! Em đạt ${score10}/10 điểm. Em nắm rất vững kiến thức ngữ pháp và từ vựng của bài! (Lớp Tiếng Anh Ms Tuyết)`;
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 100, spread: 75, origin: { y: 0.6 } });
+        }
+      } else if (percent >= 65) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-blue-100 text-blue-600 border border-blue-200";
+        iconBox.innerHTML = "🌟";
+        feedback.innerText = `Làm tốt lắm! Em đạt ${score10}/10 điểm. Hãy xem lại lời giải chi tiết của các câu sai để nắm chắc kiến thức hơn nhé!`;
+      } else {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-amber-100 text-amber-600 border border-amber-200";
+        iconBox.innerHTML = "💡";
+        feedback.innerText = `Em đạt ${score10}/10 điểm. Đừng nản lòng nhé, hãy đọc kỹ phần dịch nghĩa và giải thích chi tiết phía dưới từng câu để ôn lại bài cùng Ms Tuyết!`;
+      }
+
+      document.getElementById('resultModal').classList.remove('hidden');
+      document.getElementById('resultModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeModal() {
+      document.getElementById('resultModal').classList.add('hidden');
+      document.getElementById('resultModal').classList.remove('flex');
+    }
+
+    function resetQuiz() {
+      for (const k in userAnswers) delete userAnswers[k];
+      isGraded = false;
+      renderQuiz();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Share Modal, 1-Click GitHub Push & Copy Helpers
+    function getGithubConfig() {
+      const owner = (document.getElementById('ghOwnerInput')?.value || DEFAULT_GITHUB_OWNER).trim();
+      const repo = (document.getElementById('ghRepoInput')?.value || DEFAULT_GITHUB_REPO).trim();
+      const slug = (document.getElementById('ghFileNameInput')?.value || FILE_SLUG).trim();
+      return { owner, repo, slug };
+    }
+
+    function updateShareLinksFromFilename() {
+      const { owner, repo, slug } = getGithubConfig();
+      const baseUrl = `https://${owner}.github.io/${repo}/`;
+      const cleanUrl = slug === 'index.html' ? baseUrl : `${baseUrl}${slug}`;
+      document.getElementById('inputSharePractice').value = cleanUrl;
+      document.getElementById('inputShareExam').value = `${cleanUrl}?mode=exam`;
+      const ownerDisp = document.getElementById('ghOwnerDisplay');
+      if (ownerDisp) ownerDisp.innerText = `${owner}/${repo}`;
+      const manualLink = document.getElementById('ghManualUploadLink');
+      if (manualLink) manualLink.href = `https://github.com/${owner}/${repo}/upload/main`;
+    }
+
+    function openShareModal() {
+      try {
+        const savedToken = localStorage.getItem('ms_tuyet_gh_token');
+        if (savedToken) document.getElementById('ghTokenInput').value = savedToken;
+        const savedOwner = localStorage.getItem('ms_tuyet_gh_owner');
+        if (savedOwner) document.getElementById('ghOwnerInput').value = savedOwner;
+        const savedRepo = localStorage.getItem('ms_tuyet_gh_repo');
+        if (savedRepo) document.getElementById('ghRepoInput').value = savedRepo;
+      } catch (e) {}
+      updateShareLinksFromFilename();
+      document.getElementById('shareModal').classList.remove('hidden');
+      document.getElementById('shareModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeShareModal() {
+      document.getElementById('shareModal').classList.add('hidden');
+      document.getElementById('shareModal').classList.remove('flex');
+    }
+
+    function encodeUtf8Base64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
+      return btoa(binary);
+    }
+
+    async function pushToGitHubNow() {
+      const tokenInput = document.getElementById('ghTokenInput');
+      const statusBox = document.getElementById('ghPushStatusBox');
+      const btn = document.getElementById('btnPushGithubNow');
+
+      const token = (tokenInput?.value || '').trim();
+      const { owner, repo, slug } = getGithubConfig();
+
+      if (!token) {
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+        statusBox.innerHTML = "⚠️ Cô vui lòng dán mã GitHub Personal Access Token của tài khoản <strong>" + owner + "</strong> vào ô bên trên (chỉ cần nhập 1 lần đầu tiên)!";
+        statusBox.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        localStorage.setItem('ms_tuyet_gh_token', token);
+        localStorage.setItem('ms_tuyet_gh_owner', owner);
+        localStorage.setItem('ms_tuyet_gh_repo', repo);
+      } catch (e) {}
+
+      btn.disabled = true;
+      const oldBtnHtml = btn.innerHTML;
+      btn.innerHTML = `<span>Đang đẩy lên GitHub...</span>`;
+      statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-blue-500/20 text-blue-200 border border-blue-400/30";
+      statusBox.innerText = `⏳ Đang kiểm tra kho ${owner}/${repo} và tải lên tệp ${slug}...`;
+      statusBox.classList.remove('hidden');
+
+      const headers = {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      };
+
+      try {
+        // 1. Check if repo exists; if not, automatically create it as public with auto_init
+        const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
+        const repoCheck = await fetch(repoUrl, { method: "GET", headers });
+        if (repoCheck.status === 404) {
+          statusBox.innerText = `⏳ Chưa có kho "${repo}" trên tài khoản ${owner}. Đang tự động khởi tạo kho mới...`;
+          const createRepoRes = await fetch("https://api.github.com/user/repos", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              name: repo,
+              description: "Hệ thống Bài Tập Tương Tác - Tiếng Anh Ms Tuyết",
+              public: true,
+              auto_init: true
+            })
+          });
+          if (!createRepoRes.ok) {
+            const errRepo = await createRepoRes.json().catch(() => ({}));
+            throw new Error(errRepo.message || `Không thể tạo kho ${repo} (HTTP ${createRepoRes.status})`);
+          }
+        }
+
+        // 2. Check if file already exists to get its SHA
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(slug)}`;
+        let existingSha = null;
+        const getRes = await fetch(apiUrl, { method: "GET", headers });
+        if (getRes.ok) {
+          const fileData = await getRes.json();
+          existingSha = fileData.sha;
+        }
+
+        // 3. Upload / update the HTML file
+        const bodyPayload = {
+          message: `Đăng bài tập tương tác: ${slug} (Tiếng Anh Ms Tuyết)`,
+          content: encodeUtf8Base64(INITIAL_RAW_HTML)
+        };
+        if (existingSha) {
+          bodyPayload.sha = existingSha;
+        }
+
+        const putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(bodyPayload)
+        });
+
+        if (!putRes.ok) {
+          const errJson = await putRes.json().catch(() => ({}));
+          throw new Error(errJson.message || `Lỗi HTTP ${putRes.status}`);
+        }
+
+        // 4. Automatically enable GitHub Pages on branch main/master if not yet enabled
+        await fetch(`https://api.github.com/repos/${owner}/${repo}/pages`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ source: { branch: "main", path: "/" } })
+        }).catch(() => {});
+
+        updateShareLinksFromFilename();
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/40";
+        statusBox.innerHTML = `✅ Đã đẩy thành công tệp <strong>${slug}</strong> lên kho <strong>${owner}/${repo}</strong> và kích hoạt GitHub Pages! Link bên dưới sẽ sẵn sàng sau 30–60 giây. Cô bấm "Sao chép" để gửi học sinh nhé!`;
+        showToast("Đã đẩy bài tập lên GitHub thành công!");
+      } catch (err) {
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+        statusBox.innerHTML = `❌ Không thể đẩy tự động: ${err.message}. Cô hãy kiểm tra lại mã Token (cần tích quyền "repo") hoặc bấm "Tải file .html" để kéo vào GitHub nhé.`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldBtnHtml;
+        lucide.createIcons();
+      }
+    }
+
+    function downloadCleanHtmlFile() {
+      const { slug } = getGithubConfig();
+      const blob = new Blob([INITIAL_RAW_HTML], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = slug;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Đã tải xuống tệp ${slug}!`);
+    }
+
+    function copyTextFromInput(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input) return;
+      input.select();
+      input.setSelectionRange(0, 99999);
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(input.value);
+        } else {
+          document.execCommand('copy');
+        }
+      } catch (e) {
+        document.execCommand('copy');
+      }
+      const oldText = btn.innerText;
+      btn.innerText = "✓ Đã chép";
+      showToast("Đã sao chép đường link gửi học sinh!");
+      setTimeout(() => { btn.innerText = oldText; }, 2000);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotice');
+      const msgEl = document.getElementById('toastMessage');
+      if (!toast || !msgEl) return;
+      msgEl.innerText = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3000);
+    }
+
+    window.onload = function() {
+      renderQuiz();
+      initModeFromUrl();
+      updateProgress();
+    };
+  </script></body></html>
