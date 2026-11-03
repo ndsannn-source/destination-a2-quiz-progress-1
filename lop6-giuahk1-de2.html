@@ -1,0 +1,2354 @@
+<!DOCTYPE html>
+<html lang="vi"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMDA5MDc1MjUzNDM1MTM3ODc2MyIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzgzOTNiZWIyMmRkNjY1NzFfbG9wNi1naXVhaGsxLWRlMi5odG1sLTg5NiJ9LCJleHAiOjE3OTM2Nzk1NDcsImlhdCI6MTc5MzY3NTk0NywiYWxnIjoiUlMyNTYifQ.e3ftTtc1PmFheDCfY_4aDmBGIyVbtHUcXsdOQ57vEpSeVBfJ-754Ebwdy2gG7LGsUFE0sj2XvvSdKsPoBNaGY1MtgZw-imSUygdjTj-tJqoEtzdQcFHJOvkbWp2Akbh4T8DTsRIqEnBydIji395JBzJhAF5ACKzyplIZrLonjt2WT-lXD5n4iEUTVWE1BoYdbCW_koPdnRz2qlo1B0t5VnuMTILbsxyxgNQIQnuD2PV7_FkRqJxNb8mfUH7KDK4SaNAana_K-1DJlHocMki3HZ0GOg2Uo6KLpzX2ZPt4MKRGEqkZa5CZ2PXl1RiddB4Pm0GK4aLjZP36dbXxadO5KQ","c_8393beb22dd66571_lop6-giuahk1-de2.html-896")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đề Kiểm Tra Giữa HK1 - Tiếng Anh 6 (Đề 2) | Tiếng Anh Ms Tuyết</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Quicksand:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+  
+  <!-- Icons & Effects -->
+  <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%);
+      min-height: 100vh;
+    }
+    
+    h1, h2, h3, .font-heading {
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    /* Highlighter styles */
+    .hl-yellow { background-color: #fef08a !important; color: #854d0e; border-radius: 3px; padding: 1px 3px; }
+    .hl-green  { background-color: #bbf7d0 !important; color: #166534; border-radius: 3px; padding: 1px 3px; }
+    .hl-pink   { background-color: #fbcfe8 !important; color: #9d174d; border-radius: 3px; padding: 1px 3px; }
+    .hl-blue   { background-color: #bae6fd !important; color: #1e3a8a; border-radius: 3px; padding: 1px 3px; }
+
+    /* Interactive Radio Card */
+    .option-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .option-card:hover {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+    .option-card.selected {
+      border-color: #2563eb !important;
+      background-color: #dbeafe !important;
+      box-shadow: 0 0 0 1.5px #2563eb;
+      font-weight: 600;
+    }
+
+    /* Grading Feedback States */
+    .q-correct {
+      border-color: #10b981 !important;
+      background-color: #f0fdf4 !important;
+    }
+    .q-wrong {
+      border-color: #ef4444 !important;
+      background-color: #fef2f2 !important;
+    }
+    .q-answered-exam {
+      border-color: #3b82f6 !important;
+      background-color: #f8fafc !important;
+    }
+    .opt-correct {
+      background-color: #dcfce7 !important;
+      border-color: #10b981 !important;
+      color: #14532d !important;
+      font-weight: 700;
+    }
+    .opt-wrong-selected {
+      background-color: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #7f1d1d !important;
+      text-decoration: line-through;
+    }
+
+    /* Corner Ribbon Badge */
+    .corner-ribbon {
+      position: fixed;
+      top: 24px;
+      right: -55px;
+      transform: rotate(45deg);
+      z-index: 60;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .passage-box {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.-bottom-8{bottom:-2rem}.-right-8{right:-2rem}.bottom-16{bottom:4rem}.right-2{right:0.5rem}.right-4{right:1rem}.top-0{top:0px}.top-20{top:5rem}.top-\[58px\]{top:58px}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-8{margin-top:2rem;margin-bottom:2rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.ml-2{margin-left:0.5rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-1\.5{height:0.375rem}.h-10{height:2.5rem}.h-20{height:5rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-40{height:10rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-full{height:100%}.w-10{width:2.5rem}.w-20{width:5rem}.w-3{width:0.75rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-40{width:10rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-full{width:100%}.min-w-max{min-width:max-content}.max-w-4xl{max-width:56rem}.max-w-5xl{max-width:64rem}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.flex-shrink-0{flex-shrink:0}.shrink-0{flex-shrink:0}.scale-110{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-y{border-top-width:1px;border-bottom-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-blue-300{--tw-border-opacity:1;border-color:rgb(147 197 253 / var(--tw-border-opacity, 1))}.border-blue-400\/30{border-color:rgb(96 165 250 / 0.3)}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/80{border-color:rgb(226 232 240 / 0.8)}.border-slate-600{--tw-border-opacity:1;border-color:rgb(71 85 105 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.border-white\/20{border-color:rgb(255 255 255 / 0.2)}.border-white\/30{border-color:rgb(255 255 255 / 0.3)}.border-white\/40{border-color:rgb(255 255 255 / 0.4)}.bg-amber-400\/90{background-color:rgb(251 191 36 / 0.9)}.bg-amber-50\/80{background-color:rgb(255 251 235 / 0.8)}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-50\/70{background-color:rgb(239 246 255 / 0.7)}.bg-blue-500\/20{background-color:rgb(59 130 246 / 0.2)}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-emerald-600\/95{background-color:rgb(5 150 105 / 0.95)}.bg-green-300{--tw-bg-opacity:1;background-color:rgb(134 239 172 / var(--tw-bg-opacity, 1))}.bg-pink-300{--tw-bg-opacity:1;background-color:rgb(249 168 212 / var(--tw-bg-opacity, 1))}.bg-sky-300{--tw-bg-opacity:1;background-color:rgb(125 211 252 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/10{background-color:rgb(255 255 255 / 0.1)}.bg-white\/15{background-color:rgb(255 255 255 / 0.15)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-yellow-300{--tw-bg-opacity:1;background-color:rgb(253 224 71 / var(--tw-bg-opacity, 1))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-blue-500{--tw-gradient-from:#3b82f6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(59 130 246 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-blue-600{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgb(37 99 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgb(15 23 42 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-indigo-500{--tw-gradient-to:rgb(99 102 241 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #6366f1 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-indigo-600{--tw-gradient-to:rgb(79 70 229 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #4f46e5 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-indigo-950{--tw-gradient-to:rgb(30 27 75 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #1e1b4b var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-teal-600{--tw-gradient-to:rgb(13 148 136 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #0d9488 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-cyan-600{--tw-gradient-to:#0891b2 var(--tw-gradient-to-position)}.to-indigo-600{--tw-gradient-to:#4f46e5 var(--tw-gradient-to-position)}.to-sky-500{--tw-gradient-to:#0ea5e9 var(--tw-gradient-to-position)}.to-slate-900{--tw-gradient-to:#0f172a var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-16{padding-left:4rem;padding-right:4rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-7{padding-left:1.75rem;padding-right:1.75rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-28{padding-bottom:7rem}.pb-3{padding-bottom:0.75rem}.pt-1{padding-top:0.25rem}.pt-3{padding-top:0.75rem}.pt-6{padding-top:1.5rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-wider{letter-spacing:0.05em}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-blue-100{--tw-text-opacity:1;color:rgb(219 234 254 / var(--tw-text-opacity, 1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250 / var(--tw-text-opacity, 1))}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-blue-900{--tw-text-opacity:1;color:rgb(30 58 138 / var(--tw-text-opacity, 1))}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-indigo-950{--tw-text-opacity:1;color:rgb(30 27 75 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-yellow-300{--tw-text-opacity:1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.placeholder-slate-400::placeholder{--tw-placeholder-opacity:1;color:rgb(148 163 184 / var(--tw-placeholder-opacity, 1))}.shadow{--tw-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-blue-200{--tw-shadow-color:#bfdbfe;--tw-shadow:var(--tw-shadow-colored)}.shadow-blue-500\/25{--tw-shadow-color:rgb(59 130 246 / 0.25);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.ring-blue-600{--tw-ring-opacity:1;--tw-ring-color:rgb(37 99 235 / var(--tw-ring-opacity, 1))}.ring-offset-1{--tw-ring-offset-width:1px}.blur-xl{--tw-blur:blur(24px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-1000{transition-duration:1000ms}.duration-300{transition-duration:300ms}.selection\:bg-amber-200 *::selection{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.selection\:bg-amber-200::selection{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.hover\:bg-amber-600:hover{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.hover\:bg-amber-700:hover{--tw-bg-opacity:1;background-color:rgb(180 83 9 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/20:hover{background-color:rgb(255 255 255 / 0.2)}.hover\:from-blue-600:hover{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgb(37 99 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:from-blue-700:hover{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(29 78 216 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:from-emerald-600:hover{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-indigo-700:hover{--tw-gradient-to:#4338ca var(--tw-gradient-to-position)}.hover\:to-sky-600:hover{--tw-gradient-to:#0284c7 var(--tw-gradient-to-position)}.hover\:to-teal-700:hover{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.hover\:text-red-600:hover{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:shadow-blue-300:hover{--tw-shadow-color:#93c5fd;--tw-shadow:var(--tw-shadow-colored)}.focus\:border-emerald-400:focus{--tw-border-opacity:1;border-color:rgb(52 211 153 / var(--tw-border-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-blue-400:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(96 165 250 / var(--tw-ring-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:top-\[64px\]{top:64px}.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:inline{display:inline}.sm\:hidden{display:none}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:gap-2\.5{gap:0.625rem}.sm\:p-7{padding:1.75rem}.sm\:p-8{padding:2rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 768px){.md\:flex-row{flex-direction:row}.md\:justify-start{justify-content:flex-start}.md\:p-6{padding:1.5rem}.md\:text-left{text-align:left}.md\:text-2xl{font-size:1.5rem;line-height:2rem}.md\:text-sm{font-size:0.875rem;line-height:1.25rem}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 1024px){.lg\:block{display:block}.lg\:hidden{display:none}}</style></head>
+<body class="text-slate-800 antialiased pb-28 selection:bg-amber-200">
+
+  <!-- WATERMARK CORNER BADGE: TIẾNG ANH MS TUYẾT -->
+  <div class="corner-ribbon pointer-events-none hidden lg:block">
+    <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-extrabold text-xs py-1.5 px-16 text-center tracking-wider shadow-lg border-y border-white/30">
+      Tiếng Anh Ms Tuyết
+    </div>
+  </div>
+
+  <!-- Floating Mobile Brand Tag -->
+  <div class="fixed top-20 right-2 z-30 lg:hidden pointer-events-none">
+    <div class="bg-emerald-600/95 backdrop-blur text-white text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md border border-white/40 flex items-center gap-1">
+      <i data-lucide="sparkles" class="w-3 h-3 text-yellow-300"></i>
+      Tiếng Anh Ms Tuyết
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-blue-200 flex-shrink-0">
+          <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-sm sm:text-lg font-bold text-slate-900 leading-tight font-heading">Tiếng Anh 6 • Giữa Học Kỳ 1</h1>
+            <span class="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">ĐỀ 02</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">Trọn bộ 40 câu hỏi trắc nghiệm &amp; đọc hiểu</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher & Submit Action -->
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+        <!-- Mode Toggle Pill -->
+        <div id="modeSwitchContainer" class="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 gap-1">
+          <button type="button" id="btnModePractice" onclick="setQuizMode('practice')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-white text-blue-700 shadow-sm">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Luyện tập</span>
+          </button>
+          <button type="button" id="btnModeExam" onclick="setQuizMode('exam')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>Kiểm tra thật</span>
+          </button>
+        </div>
+
+        <!-- Teacher GitHub Push & Copy Link Button (Teacher Only) -->
+        
+
+        <button type="button" onclick="gradeQuiz()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-200 hover:shadow-blue-300 transition flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Nộp bài</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Real-time Progress Bar -->
+    <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div id="topProgressBar" class="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-sky-500 transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- Sticky Highlight Toolbar -->
+  <div class="sticky top-[58px] sm:top-[64px] z-30 bg-white/92 backdrop-blur-md border-b border-slate-200 shadow-sm py-2 px-4 transition-all overflow-x-auto">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3 text-sm min-w-max">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-700 flex items-center gap-1.5 text-xs sm:text-sm">
+          <i data-lucide="highlighter" class="w-4 h-4 text-amber-500"></i> Bút Highlight:
+        </span>
+        <button type="button" onclick="setHighlightColor('yellow')" id="hl-color-yellow" class="w-6 h-6 rounded-full bg-yellow-300 ring-2 ring-offset-1 ring-blue-600 scale-110 shadow-sm transition" title="Bút vàng"></button>
+        <button type="button" onclick="setHighlightColor('green')" id="hl-color-green" class="w-6 h-6 rounded-full bg-green-300 border border-transparent shadow-sm transition" title="Bút xanh lá"></button>
+        <button type="button" onclick="setHighlightColor('pink')" id="hl-color-pink" class="w-6 h-6 rounded-full bg-pink-300 border border-transparent shadow-sm transition" title="Bút hồng"></button>
+        <button type="button" onclick="setHighlightColor('blue')" id="hl-color-blue" class="w-6 h-6 rounded-full bg-sky-300 border border-transparent shadow-sm transition" title="Bút xanh dương"></button>
+        
+        <button type="button" onmousedown="event.preventDefault(); applyHighlightToSelection()" ontouchstart="event.preventDefault(); applyHighlightToSelection()" class="ml-2 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1">
+          <i data-lucide="paintbrush" class="w-3.5 h-3.5"></i> Bôi đoạn chọn
+        </button>
+        <button type="button" onclick="clearHighlights()" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border rounded-lg transition">
+          <i data-lucide="eraser" class="w-3.5 h-3.5"></i> Xóa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-8">
+    
+    <!-- Banner thương hiệu lớp học Tiếng Anh Ms. Tuyết -->
+    <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-sky-500 text-white rounded-3xl p-5 md:p-6 shadow-md relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4 border border-blue-300">
+      <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+      <div class="space-y-1 text-center md:text-left z-10">
+        <div class="inline-flex items-center gap-1.5 bg-amber-400/90 text-indigo-950 font-black text-[11px] px-3 py-0.5 rounded-full uppercase tracking-wider mb-1">
+          <i data-lucide="award" class="w-3.5 h-3.5"></i> Trung tâm &amp; Lớp Học Chất Lượng Cao
+        </div>
+        <h2 class="text-xl md:text-2xl font-black text-white font-heading">
+          LỚP HỌC TIẾNG ANH MS. TUYẾT
+        </h2>
+        <p class="text-xs md:text-sm text-blue-100 font-medium">
+          Chuyên đào tạo: <b>Tiếng Anh nền tảng 1-12</b>, Luyện thi Chuyển cấp, Ôn thi Đại Học &amp; Luyện thi chứng chỉ <b>VSTEP - TOEIC</b>.
+        </p>
+      </div>
+      <div class="flex items-center justify-center gap-2 shrink-0 z-10">
+        <div class="text-center px-3.5 py-2 bg-white/15 backdrop-blur-md rounded-2xl border border-white/20">
+          <span class="block text-amber-300 font-black text-xs uppercase">Cam kết</span>
+          <span class="text-xs font-semibold text-white">Vững kiến thức</span>
+        </div>
+        <div class="text-center px-3.5 py-2 bg-white/15 backdrop-blur-md rounded-2xl border border-white/20">
+          <span class="block text-amber-300 font-black text-xs uppercase">Mục tiêu</span>
+          <span class="text-xs font-semibold text-white">Điểm 9+ &amp; Đạt Target</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tiêu đề đề thi -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-inner">
+            <i data-lucide="book-open-check" class="w-5 h-5"></i>
+          </span>
+          <h2 id="current-test-title" class="text-lg md:text-xl font-bold text-blue-900 font-heading">
+            ĐỀ KIỂM TRA GIỮA HỌC KỲ I • ĐỀ 02 (GRADE 6)
+          </h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <div id="modeStatusPill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-xs font-bold text-blue-700 border border-blue-400/30">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Chế độ: Luyện tập
+          </div>
+        </div>
+      </div>
+      <p class="text-slate-500 text-xs md:text-sm mt-3" id="test-description">
+        Đề thi mô phỏng định dạng chuẩn, bao gồm <strong>40 câu hỏi</strong>: Ngữ pháp, Từ vựng, Biển báo giao tiếp, Đọc điền từ, Đọc hiểu và Bài tập Nghe (dạng Text). 
+      </p>
+
+      <!-- Student Name Input for Exam Mode -->
+      <div class="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <div class="flex items-center gap-2 text-xs font-bold text-blue-700 flex-shrink-0">
+          <i data-lucide="user-check" class="w-4 h-4"></i> Học sinh làm bài:
+        </div>
+        <input id="studentNameInput" type="text" placeholder="Nhập họ và tên của em (VD: Nguyễn Minh Anh - 6A1)..." class="w-full bg-white text-slate-900 placeholder-slate-400 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-400 outline-none">
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500">
+        <span id="answeredCounterBadge" class="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-500"></i> Đã làm: 0/40 câu
+        </span>
+        <span id="liveScoreBadge" class="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-bold border border-blue-200">
+          <i data-lucide="award" class="w-3.5 h-3.5"></i> Điểm hiện tại: 0.00 / 10
+        </span>
+      </div>
+    </div>
+
+    <!-- Exam Content Container -->
+    <div id="quizContainer" class="space-y-8"></div>
+
+    <!-- Submit Bottom Bar -->
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-800">
+      <div class="text-center md:text-left">
+        <div class="inline-block px-2.5 py-0.5 rounded bg-blue-500/20 text-blue-400 text-xs font-bold mb-2">
+          Biên soạn &amp; Giảng dạy: Tiếng Anh Ms Tuyết
+        </div>
+        <h4 class="text-xl font-bold flex items-center justify-center md:justify-start gap-2">
+          <i data-lucide="check-check" class="w-5 h-5 text-cyan-400"></i>
+          Hoàn thành bài làm?
+        </h4>
+        <p id="bottomModeNotice" class="text-slate-300 text-sm mt-1 max-w-xl">
+          Bấm "Nộp bài &amp; Chấm điểm" để hệ thống tổng kết điểm thang 10, hiển thị đáp án đúng/sai và lời giải chi tiết từng câu.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <button type="button" onclick="resetQuiz()" class="px-5 py-3 rounded-xl border border-slate-600 hover:bg-slate-800 font-semibold text-sm transition">
+          Làm lại từ đầu
+        </button>
+        <button type="button" onclick="gradeQuiz()" class="px-7 py-3 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-600 to-sky-500 hover:from-blue-600 hover:to-sky-600 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition transform active:scale-95 flex items-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Nộp bài &amp; Chấm điểm</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RESULT MODAL -->
+  <div id="resultModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl transform transition-all text-center relative border border-slate-100">
+      <div id="modalIconContainer" class="w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-inner transition-transform"></div>
+
+      <div class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-extrabold rounded-full mb-1">
+        Tiếng Anh Ms Tuyết • Kết quả làm bài
+      </div>
+      <h3 id="modalTitle" class="text-xl sm:text-2xl font-black text-slate-900">Kiểm Tra Giữa HK1 • Đề 02</h3>
+      <p id="modalStudentName" class="text-xs font-bold text-blue-700 mt-1 mb-4"></p>
+
+      <!-- Score Card -->
+      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-5">
+        <div class="flex justify-between items-center text-sm font-semibold text-slate-600 mb-1">
+          <span>Điểm số (Thang 10):</span>
+          <span id="modalScore10Text" class="text-3xl font-black text-blue-600">0.00 / 10</span>
+        </div>
+        <div class="flex justify-between items-center text-xs font-medium text-slate-500 mb-2">
+          <span>Số câu chính xác:</span>
+          <span id="modalScoreRawText" class="font-bold text-slate-700">0 / 40 câu</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+          <div id="modalProgressBar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-slate-500 mt-2 font-medium">
+          <span>Tỷ lệ hoàn thành đúng</span>
+          <span id="modalPercentText" class="font-bold text-blue-600">0%</span>
+        </div>
+      </div>
+
+      <p id="modalFeedback" class="text-sm font-medium text-slate-600 mb-6 leading-relaxed"></p>
+
+      <button type="button" onclick="closeModal()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition">
+        Xem Chi Tiết Từng Câu &amp; Lời Giải
+      </button>
+    </div>
+  </div>
+
+  <!-- SHARE & 1-CLICK GITHUB PUSH MODAL FOR MS TUYET -->
+  
+
+  <!-- Toast Notification -->
+  <div id="toastNotice" class="fixed bottom-16 right-4 z-50 hidden bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl border border-slate-700 items-center gap-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMessage">Đã sao chép!</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & 40-QUESTION DATABASE -->
+  <script>
+    const DEFAULT_GITHUB_OWNER = "ndsannn-source";
+    const DEFAULT_GITHUB_REPO = "destination-a2-quiz-progress-1";
+    const FILE_SLUG = "lop6-giuahk1-de2.html";
+
+    const INITIAL_RAW_HTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+    // 40 QUESTIONS DATABASE FOR GRADE 6 MIDTERM TEST - DE 02
+    const quizData = [
+      // PART 1: SENTENCE BUILDING (Questions 1 - 2)
+      {
+        partId: "p1",
+        partTitle: "Part 1. Sentence Building (Tạo câu từ từ gợi ý)",
+        partDesc: "Mark the letter A, B, C or D to indicate the sentence that is made from the given cues.",
+        questions: [
+          {
+            id: 1,
+            text: "Question 1. Linh / write / her diary / bedroom / now.",
+            options: [
+              { key: "A", text: "Linh is writting her diary in her bedroom now." },
+              { key: "B", text: "Linh writing her diary in her bedroom now." },
+              { key: "C", text: "Linh is writing her diary in her bedroom now." },
+              { key: "D", text: "Linh writes her diary in the bedroom now." }
+            ],
+            correct: "C",
+            translation: "Linh đang viết nhật ký trong phòng ngủ của cô ấy ngay bây giờ.",
+            explanation: "Dấu hiệu 'now' -> thì Hiện tại tiếp diễn (S + am/is/are + V-ing). Từ 'write' tận cùng bằng 'e' nên bỏ 'e' thêm '-ing' -> writing. Câu A sai chính tả 'writting'."
+          },
+          {
+            id: 2,
+            text: "Question 2. He / short black hair / brown eyes.",
+            options: [
+              { key: "A", text: "He has short black hair and brown eyes." },
+              { key: "B", text: "He had short black hair and brown eyes." },
+              { key: "C", text: "He is short black hair and brown eyes." },
+              { key: "D", text: "He have short black hair and brown eyes." }
+            ],
+            correct: "A",
+            translation: "Cậu ấy có mái tóc đen ngắn và đôi mắt màu nâu.",
+            explanation: "Để miêu tả sở hữu ngoại hình (có đặc điểm gì) ta dùng động từ 'have/has'. Chủ ngữ số ít 'He' -> dùng 'has'."
+          }
+        ]
+      },
+
+      // PART 2: SIGNS & NOTICES (Questions 3 - 4)
+      {
+        partId: "p2",
+        partTitle: "Part 2. Signs & Notices (Biển báo)",
+        partDesc: "Read the following sign or notice and choose the correct answer.",
+        questions: [
+          {
+            id: 3,
+            text: `Question 3. What does the sign mean?<br>
+              <div class="flex justify-center mt-3 mb-1">
+                <div class="w-36 h-48 border-2 border-slate-400 bg-white flex flex-col items-center justify-center p-2 rounded-lg">
+                  <svg viewBox="0 0 100 100" class="w-20 h-20 mb-2">
+                    <!-- Bin -->
+                    <polygon points="60,40 65,90 90,90 95,40" fill="none" stroke="#1e293b" stroke-width="4"/>
+                    <!-- Person -->
+                    <circle cx="45" cy="20" r="7" fill="#1e293b"/> <!-- Head -->
+                    <path d="M45,28 L35,50 L25,50" fill="none" stroke="#1e293b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/> <!-- Back Arm -->
+                    <path d="M45,28 L40,65 L25,85" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/> <!-- Body & Back Leg -->
+                    <path d="M40,55 L50,85" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/> <!-- Front Leg -->
+                    <path d="M45,28 L60,32 L75,35" fill="none" stroke="#1e293b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/> <!-- Front Arm -->
+                    <!-- Rubbish -->
+                    <polygon points="70,45 78,47 75,50 68,48" fill="#1e293b"/>
+                    <polygon points="68,55 76,57 73,60 66,58" fill="#1e293b"/>
+                    <polygon points="72,68 80,70 77,73 70,71" fill="#1e293b"/>
+                    <polygon points="68,80 76,82 73,85 66,83" fill="#1e293b"/>
+                  </svg>
+                  <div class="text-[11px] font-black text-center uppercase leading-tight text-slate-800">Place all<br>rubbish in<br>bins provided</div>
+                </div>
+              </div>`,
+            options: [
+              { key: "A", text: "Do not throw rubbish in the bins." },
+              { key: "B", text: "You must clean the bins." },
+              { key: "C", text: "You should put rubbish in the bin." },
+              { key: "D", text: "The school is always clean." }
+            ],
+            correct: "C",
+            translation: "Biển báo có nghĩa: Hãy bỏ tất cả rác vào thùng được cung cấp. = Bạn nên bỏ rác vào thùng rác (You should put rubbish in the bin).",
+            explanation: "Biển báo minh họa hình người bỏ rác vào thùng kèm dòng chữ 'Place all rubbish in bins provided' mang ý nghĩa khuyên/yêu cầu mọi người nên vứt rác đúng nơi quy định."
+          },
+          {
+            id: 4,
+            text: `Question 4. What does the sign say?<br>
+              <div class="flex justify-center mt-3 mb-1">
+                <div class="w-32 h-32 flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" class="w-full h-full">
+                    <!-- Red Circle -->
+                    <circle cx="50" cy="50" r="44" fill="white" stroke="#ef4444" stroke-width="8"/>
+                    <!-- Cigarette -->
+                    <rect x="25" y="60" width="40" height="8" fill="#334155"/>
+                    <rect x="65" y="60" width="8" height="8" fill="#cbd5e1"/>
+                    <rect x="75" y="60" width="4" height="8" fill="#cbd5e1"/>
+                    <!-- Smoke -->
+                    <path d="M70,55 C65,40 55,50 50,30 C45,10 60,15 65,25" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M78,55 C73,40 63,50 58,35 C53,20 68,25 73,35" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Red Slash -->
+                    <line x1="20" y1="20" x2="80" y2="80" stroke="#ef4444" stroke-width="8"/>
+                  </svg>
+                </div>
+              </div>`,
+            options: [
+              { key: "A", text: "Smoking is useful here." },
+              { key: "B", text: "You can't smoke here." },
+              { key: "C", text: "You must smoke here." },
+              { key: "D", text: "You smoke here." }
+            ],
+            correct: "B",
+            translation: "Biển báo điếu thuốc lá bị gạch chéo đỏ có nghĩa là: Bạn không được phép hút thuốc ở đây (You can't smoke here).",
+            explanation: "Biển cấm (vòng tròn đỏ có đường chéo) mang nghĩa không được phép làm gì đó ('can't' hoặc 'must not')."
+          }
+        ]
+      },
+
+      // PART 3: CLOZE TEXT 1 (Questions 5 - 8)
+      {
+        partId: "p3",
+        partTitle: "Part 3. Cloze Text (Đọc điền từ)",
+        partDesc: "Read the following announcement and choose the correct option for each blank.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-blue-50/70 border border-blue-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3 passage-box">
+            <div class="text-center pb-2 border-b border-blue-200">
+              <span class="font-extrabold uppercase tracking-wider text-blue-900 text-lg">THE SCHOOL SOCCER TEAM!</span>
+            </div>
+            <p>Do you like soccer? We <strong>(5) ________</strong> for new players right now! Come and play with us at the school field at 3 p.m. <strong>(6) ________</strong> Thursdays. You can find the soccer field <strong>(7) ________</strong> the gym and the playground.</p>
+            <p><strong>(8) ________</strong> soccer shoes and a water bottle. We will have lots of fun!</p>
+            <p>Contact us if you have any questions.<br>
+            Email: soccerteam@schoolmail.com<br>
+            Address: 123 School Street</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 5,
+            text: "Question 5. [Blank 5]",
+            options: [
+              { key: "A", text: "look" },
+              { key: "B", text: "looking" },
+              { key: "C", text: "looks" },
+              { key: "D", text: "are looking" }
+            ],
+            correct: "D",
+            translation: "Ngay lúc này chúng tôi đang tìm kiếm (are looking for) những thành viên mới!",
+            explanation: "Dấu hiệu 'right now' chỉ hành động đang diễn ra -> dùng thì Hiện tại tiếp diễn: S (We) + are + V-ing (looking)."
+          },
+          {
+            id: 6,
+            text: "Question 6. [Blank 6]",
+            options: [
+              { key: "A", text: "on" },
+              { key: "B", text: "in" },
+              { key: "C", text: "with" },
+              { key: "D", text: "at" }
+            ],
+            correct: "A",
+            translation: "...tại sân trường lúc 3 giờ chiều vào các ngày thứ Năm (on Thursdays).",
+            explanation: "Giới từ chỉ thời gian đi với các ngày trong tuần (thứ Hai, thứ Ba,...) luôn là 'on'."
+          },
+          {
+            id: 7,
+            text: "Question 7. [Blank 7]",
+            options: [
+              { key: "A", text: "behind" },
+              { key: "B", text: "next to" },
+              { key: "C", text: "under" },
+              { key: "D", text: "between" }
+            ],
+            correct: "D",
+            translation: "Bạn có thể tìm thấy sân bóng đá nằm ở giữa (between) nhà thể chất và sân chơi.",
+            explanation: "Cấu trúc chỉ vị trí: 'between A and B' (ở giữa vật A và vật B)."
+          },
+          {
+            id: 8,
+            text: "Question 8. [Blank 8]",
+            options: [
+              { key: "A", text: "Go on" },
+              { key: "B", text: "Wear on" },
+              { key: "C", text: "Take on" },
+              { key: "D", text: "Put on" }
+            ],
+            correct: "D",
+            translation: "Hãy mang/đi giày đá bóng và (mang theo) một bình nước.",
+            explanation: "Lưu ý: Đề gốc có sự nhầm lẫn về từ vựng (Câu chuẩn đáng lẽ phải dùng 'Bring'). Tuy nhiên, trong 4 đáp án cho sẵn, 'Put on' (mặc vào, đi vào) có thể tạm dùng hợp lý nhất đối với 'soccer shoes' (đi giày đá bóng)."
+          }
+        ]
+      },
+
+      // PART 4: SENTENCE TRANSFORMATION (Questions 9 - 10)
+      {
+        partId: "p4",
+        partTitle: "Part 4. Sentence Transformation (Viết lại câu)",
+        partDesc: "Choose the sentence that is closest in meaning to the original sentence.",
+        questions: [
+          {
+            id: 9,
+            text: "Question 9. The bike belongs to Nam.",
+            options: [
+              { key: "A", text: "It is Nams' bike." },
+              { key: "B", text: "The bike is Nam." },
+              { key: "C", text: "It is the bike Nam." },
+              { key: "D", text: "It is Nam's bike." }
+            ],
+            correct: "D",
+            translation: "Chiếc xe đạp thuộc về Nam. = Nó là chiếc xe đạp của Nam (It is Nam's bike).",
+            explanation: "'belong to Nam' chỉ sự sở hữu. Sử dụng sở hữu cách với tên riêng Nam -> Nam's + danh từ (Nam's bike)."
+          },
+          {
+            id: 10,
+            text: "Question 10. My school has twenty classrooms and a big playground.",
+            options: [
+              { key: "A", text: "There have twenty classrooms and a big playground in my school." },
+              { key: "B", text: "In my school is twenty classrooms and a big playground." },
+              { key: "C", text: "My school are twenty classrooms and a big playground." },
+              { key: "D", text: "There are twenty classrooms and a big playground in my school." }
+            ],
+            correct: "D",
+            translation: "Trường của mình có 20 phòng học và một sân chơi lớn. = Có 20 phòng học và một sân chơi lớn ở trong trường của mình.",
+            explanation: "Chuyển đổi cấu trúc 'Place + has/have + Noun' sang 'There is/are + Noun + in + Place'. Vì 'twenty classrooms' là số nhiều nên dùng 'There are'."
+          }
+        ]
+      },
+
+      // PART 5: GRAMMAR & VOCABULARY (Questions 11 - 18)
+      {
+        partId: "p5",
+        partTitle: "Part 5. Grammar & Vocabulary (Ngữ pháp & Từ vựng)",
+        partDesc: "Choose A, B, C or D to indicate the correct answer.",
+        questions: [
+          {
+            id: 11,
+            text: "Question 11. The ________ bags are on the table.",
+            options: [
+              { key: "A", text: "childrens's" },
+              { key: "B", text: "children" },
+              { key: "C", text: "childrens'" },
+              { key: "D", text: "children's" }
+            ],
+            correct: "D",
+            translation: "Những chiếc cặp của bọn trẻ (The children's bags) đang ở trên bàn.",
+            explanation: "'children' là danh từ số nhiều bất quy tắc (không tận cùng bằng s). Sở hữu cách của nó vẫn được tạo bằng cách thêm 's -> 'children's'."
+          },
+          {
+            id: 12,
+            text: "Question 12. My father ________ to work by motorbike.",
+            options: [
+              { key: "A", text: "goes often" },
+              { key: "B", text: "doesn't often goes" },
+              { key: "C", text: "doesn't often go" },
+              { key: "D", text: "often go" }
+            ],
+            correct: "C",
+            translation: "Bố của mình không thường đi làm (doesn't often go) bằng xe máy.",
+            explanation: "Chủ ngữ số ít 'My father'. Trạng từ 'often' đứng giữa trợ động từ phủ định 'doesn't' và động từ nguyên thể 'go' -> 'doesn't often go'."
+          },
+          {
+            id: 13,
+            text: "Question 13. Matt is really ________. He likes meeting new people.",
+            options: [
+              { key: "A", text: "friendly" },
+              { key: "B", text: "boring" },
+              { key: "C", text: "kind" },
+              { key: "D", text: "clever" }
+            ],
+            correct: "A",
+            translation: "Matt thực sự rất thân thiện (friendly). Cậu ấy thích gặp gỡ những người mới.",
+            explanation: "Thích gặp gỡ, giao tiếp với mọi người ('meeting new people') là nét tính cách thân thiện, cởi mở ('friendly')."
+          },
+          {
+            id: 14,
+            text: "Question 14. My brother studies at a/an ________ school because he only goes back home at the weekends.",
+            options: [
+              { key: "A", text: "secondary" },
+              { key: "B", text: "international" },
+              { key: "C", text: "private" },
+              { key: "D", text: "boarding" }
+            ],
+            correct: "D",
+            translation: "Anh trai mình học ở một trường nội trú (boarding school) vì anh ấy chỉ về nhà vào dịp cuối tuần.",
+            explanation: "Học sinh ở lại trường trong tuần và chỉ về nhà cuối tuần ('only goes back home at the weekends') là mô hình trường nội trú ('boarding school')."
+          },
+          {
+            id: 15,
+            text: "Question 15. There is a blackboard and a clock ________ the wall.",
+            options: [
+              { key: "A", text: "under" },
+              { key: "B", text: "in" },
+              { key: "C", text: "behind" },
+              { key: "D", text: "on" }
+            ],
+            correct: "D",
+            translation: "Có một cái bảng đen và một cái đồng hồ treo trên (on) tường.",
+            explanation: "Đồ vật được gắn, treo trên bề mặt phẳng (như tường) thì dùng giới từ 'on' (on the wall)."
+          },
+          {
+            id: 16,
+            text: "Question 16. We often call a large house in the countryside is a/an ________.",
+            options: [
+              { key: "A", text: "country house" },
+              { key: "B", text: "flat" },
+              { key: "C", text: "stilt house" },
+              { key: "D", text: "town house" }
+            ],
+            correct: "A",
+            translation: "Chúng ta thường gọi một ngôi nhà lớn ở vùng nông thôn là nhà ở nông thôn (country house).",
+            explanation: "Từ định nghĩa rõ ràng: 'a large house in the countryside' = 'country house'."
+          },
+          {
+            id: 17,
+            text: "Question 17. She ________ volleyball with her friends every weekend.",
+            options: [
+              { key: "A", text: "listens" },
+              { key: "B", text: "plays" },
+              { key: "C", text: "does" },
+              { key: "D", text: "studies" }
+            ],
+            correct: "B",
+            translation: "Cô ấy chơi (plays) bóng chuyền với bạn bè mỗi dịp cuối tuần.",
+            explanation: "Đi với các môn thể thao có bóng (volleyball, football) ta dùng động từ 'play'. Chủ ngữ 'She' -> 'plays'."
+          },
+          {
+            id: 18,
+            text: "Question 18. Tom: 'Let's go out for lunch.' - Jane: '________'",
+            options: [
+              { key: "A", text: "I'm not sure." },
+              { key: "B", text: "Great idea!" },
+              { key: "C", text: "Yes, please." },
+              { key: "D", text: "I don't like lunch." }
+            ],
+            correct: "B",
+            translation: "Tom: 'Chúng mình cùng ra ngoài ăn trưa nhé.' - Jane: 'Ý hay đấy!' (Great idea!).",
+            explanation: "Để hưởng ứng lời rủ rê bắt đầu bằng 'Let's...', cách đáp lại tự nhiên và tích cực nhất là 'Great idea!'."
+          }
+        ]
+      },
+
+      // PART 6: LISTENING (Questions 19 - 24)
+      {
+        partId: "p6",
+        partTitle: "Part 6. Listening Practice (Bài tập Nghe hiểu)",
+        partDesc: "Read the questions carefully and choose the correct answer (Based on the test script/answer key).",
+        questions: [
+          {
+            id: 19,
+            text: "Question 19. How old is Janet?",
+            options: [
+              { key: "A", text: "Ten years old" },
+              { key: "B", text: "Twelve years old" },
+              { key: "C", text: "Thirteen years old" },
+              { key: "D", text: "Eleven years old" }
+            ],
+            correct: "D",
+            translation: "Janet bao nhiêu tuổi? -> 11 tuổi (Theo đáp án của đề).",
+            explanation: "Dựa vào đáp án chuẩn (Answer Key) của đề kiểm tra, Janet 11 tuổi."
+          },
+          {
+            id: 20,
+            text: "Question 20. What year is Janet in at Palmer School?",
+            options: [
+              { key: "A", text: "Year 6" },
+              { key: "B", text: "Year 5" },
+              { key: "C", text: "Year 4" },
+              { key: "D", text: "Year 7" }
+            ],
+            correct: "D",
+            translation: "Janet học khối lớp mấy ở trường Palmer? -> Khối 7 (Year 7).",
+            explanation: "Theo đáp án chuẩn, Janet đang học khối 7 (Year 7)."
+          },
+          {
+            id: 21,
+            text: "Question 21. Who is Janet's favourite teacher?",
+            options: [
+              { key: "A", text: "Mrs. Smith" },
+              { key: "B", text: "Mr. Miller" },
+              { key: "C", text: "Mrs. Jones" },
+              { key: "D", text: "Mr. Brown" }
+            ],
+            correct: "A",
+            translation: "Giáo viên yêu thích nhất của Janet là ai? -> Cô Smith (Mrs. Smith).",
+            explanation: "Theo đáp án chuẩn của đề, đó là cô giáo Mrs. Smith."
+          },
+          {
+            id: 22,
+            text: "Question 22. What subject does Mrs. Smith teach?",
+            options: [
+              { key: "A", text: "Maths" },
+              { key: "B", text: "Biology" },
+              { key: "C", text: "Vietnamese" },
+              { key: "D", text: "English" }
+            ],
+            correct: "C",
+            translation: "Cô Smith dạy môn gì? -> Tiếng Việt (Vietnamese).",
+            explanation: "Dựa vào bảng đáp án chi tiết (Câu 22 - C)."
+          },
+          {
+            id: 23,
+            text: "Question 23. Where does Janet usually do her homework?",
+            options: [
+              { key: "A", text: "At home" },
+              { key: "B", text: "In the classroom" },
+              { key: "C", text: "At the park" },
+              { key: "D", text: "In the library" }
+            ],
+            correct: "D",
+            translation: "Janet thường làm bài tập về nhà ở đâu? -> Ở thư viện (In the library).",
+            explanation: "Theo bảng đáp án chi tiết của đề (Câu 23 - D)."
+          },
+          {
+            id: 24,
+            text: "Question 24. Why aren't the students wearing uniforms today?",
+            options: [
+              { key: "A", text: "They are taking an exam." },
+              { key: "B", text: "They are going to have a biology lesson on a farm." },
+              { key: "C", text: "They are having a holiday." },
+              { key: "D", text: "They are visiting the library." }
+            ],
+            correct: "B",
+            translation: "Tại sao hôm nay các học sinh không mặc đồng phục? -> Bởi vì họ chuẩn bị có một tiết học Sinh học ở trên nông trại.",
+            explanation: "Theo đáp án (Câu 24 - B). Việc đi học thực tế ở nông trại không yêu cầu mặc đồng phục."
+          }
+        ]
+      },
+
+      // PART 7: CLOZE TEXT 2 (Questions 25 - 30)
+      {
+        partId: "p7",
+        partTitle: "Part 7. Cloze Text (Đọc điền từ: Gia đình của Tom)",
+        partDesc: "Choose the correct option that best fits each blank.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3 passage-box">
+            <p>Hi! I'm Tom. My family and I <strong>(25) ________</strong> in a quiet town near London. We live in a small but comfortable house. It <strong>(26) ________</strong> a living room, a kitchen, three bedrooms, and two bathrooms. There's also a small garden behind the house.</p>
+            <p>Every morning, my father drives to his office, and my mother goes to the hospital because she's a nurse. My brother and I study at the <strong>(27) ________</strong> school, so we usually walk there together. My mother <strong>(28) ________</strong> in the hospital five days a week, and she <strong>(29) ________</strong> early to make breakfast for everyone.</p>
+            <p>In the evening, we have dinner, watch TV and talk about our day. I feel so lucky to live with my <strong>(30) ________</strong> family.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 25,
+            text: "Question 25. [Blank 25]",
+            options: [
+              { key: "A", text: "is living" },
+              { key: "B", text: "live" },
+              { key: "C", text: "are living" },
+              { key: "D", text: "lives" }
+            ],
+            correct: "B",
+            translation: "Gia đình mình và mình sống (live) ở một thị trấn yên tĩnh gần London.",
+            explanation: "Mô tả một sự thật/nơi ở cố định -> thì Hiện tại đơn. Chủ ngữ 'My family and I' (tương đương We) là số nhiều -> động từ nguyên mẫu 'live'."
+          },
+          {
+            id: 26,
+            text: "Question 26. [Blank 26]",
+            options: [
+              { key: "A", text: "has" },
+              { key: "B", text: "is having" },
+              { key: "C", text: "have" },
+              { key: "D", text: "is" }
+            ],
+            correct: "A",
+            translation: "Ngôi nhà có (has) một phòng khách, một bếp, 3 phòng ngủ...",
+            explanation: "Chủ ngữ 'It' chỉ ngôi nhà (số ít) -> Động từ sở hữu là 'has'."
+          },
+          {
+            id: 27,
+            text: "Question 27. [Blank 27]",
+            options: [
+              { key: "A", text: "far" },
+              { key: "B", text: "like" },
+              { key: "C", text: "same" },
+              { key: "D", text: "different" }
+            ],
+            correct: "C",
+            translation: "Mình và anh trai học cùng một trường (at the same school), nên chúng mình thường đi bộ cùng nhau.",
+            explanation: "Việc 'thường đi bộ cùng nhau đến trường' chứng tỏ 2 anh em học CÙNG một trường -> 'same'."
+          },
+          {
+            id: 28,
+            text: "Question 28. [Blank 28]",
+            options: [
+              { key: "A", text: "works" },
+              { key: "B", text: "don't work" },
+              { key: "C", text: "doesn't work" },
+              { key: "D", text: "work" }
+            ],
+            correct: "A",
+            translation: "Mẹ mình làm việc (works) ở bệnh viện 5 ngày một tuần...",
+            explanation: "Thói quen thường xuyên ở hiện tại (five days a week), chủ ngữ số ít 'My mother' -> động từ thêm 's': 'works'."
+          },
+          {
+            id: 29,
+            text: "Question 29. [Blank 29]",
+            options: [
+              { key: "A", text: "gets up" },
+              { key: "B", text: "sits up" },
+              { key: "C", text: "takes up" },
+              { key: "D", text: "stands up" }
+            ],
+            correct: "A",
+            translation: "...và mẹ thức dậy (gets up) sớm để làm bữa sáng cho cả nhà.",
+            explanation: "Thức dậy sớm để nấu ăn sáng -> Cụm động từ 'get up' (thức dậy)."
+          },
+          {
+            id: 30,
+            text: "Question 30. [Blank 30]",
+            options: [
+              { key: "A", text: "boring" },
+              { key: "B", text: "interesting" },
+              { key: "C", text: "wonderful" },
+              { key: "D", text: "exciting" }
+            ],
+            correct: "C",
+            translation: "Mình cảm thấy thật may mắn khi được sống cùng gia đình tuyệt vời (wonderful) của mình.",
+            explanation: "Cảm giác 'lucky' (may mắn) đi liền với những tính từ tích cực và tràn đầy tình cảm như 'wonderful' (tuyệt vời)."
+          }
+        ]
+      },
+
+      // PART 8: READING COMPREHENSION (Questions 31 - 36)
+      {
+        partId: "p8",
+        partTitle: "Part 8. Reading Comprehension (Đọc hiểu văn bản)",
+        partDesc: "Read the passage and choose the correct answer.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-3 passage-box">
+            <p>I love my house. It is next to a beautiful garden, and there is a small swimming pool at the back of the house. My house has two floors. On the ground floor, there is a living room, a kitchen, a dining room, and a bathroom. On the first floor, there are three bedrooms, a bathroom, and a balcony. My bedroom is blue and white. There is a small bed, a desk, a bookshelf, and a TV. There is a big picture of my favorite football team on the wall. I love my bedroom, but I also like the balcony because it is large, so I can grow some flowers and sometimes read books there.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 31,
+            text: "Question 31. What is the text mainly about?",
+            options: [
+              { key: "A", text: "The author's school" },
+              { key: "B", text: "The author's family" },
+              { key: "C", text: "The author's garden" },
+              { key: "D", text: "The author's house" }
+            ],
+            correct: "D",
+            translation: "Đoạn văn chủ yếu nói về điều gì? -> Ngôi nhà của tác giả.",
+            explanation: "Toàn bộ đoạn văn miêu tả về vị trí, các tầng, các phòng và phòng ngủ trong ngôi nhà của người viết. Ngay câu mở đầu: 'I love my house'."
+          },
+          {
+            id: 32,
+            text: "Question 32. How many rooms are there on the ground floor?",
+            options: [
+              { key: "A", text: "3" },
+              { key: "B", text: "5" },
+              { key: "C", text: "4" },
+              { key: "D", text: "6" }
+            ],
+            correct: "C",
+            translation: "Có bao nhiêu phòng ở tầng trệt? -> Có 4 phòng.",
+            explanation: "Dẫn chứng: 'On the ground floor, there is a living room, a kitchen, a dining room, and a bathroom' -> Tổng cộng 4 phòng."
+          },
+          {
+            id: 33,
+            text: "Question 33. The word 'it' in the text refers to ________",
+            options: [
+              { key: "A", text: "books" },
+              { key: "B", text: "the balcony" },
+              { key: "C", text: "my bedroom" },
+              { key: "D", text: "flowers" }
+            ],
+            correct: "B",
+            translation: "Từ 'it' trong văn bản ám chỉ điều gì? -> Ám chỉ ban công (the balcony).",
+            explanation: "Câu văn: '...but I also like the balcony because IT is large' ('it' thay thế cho 'the balcony' vừa nhắc trước đó)."
+          },
+          {
+            id: 34,
+            text: "Question 34. The word 'small' in the text is OPPOSITE in meaning to ________",
+            options: [
+              { key: "A", text: "large" },
+              { key: "B", text: "short" },
+              { key: "C", text: "long" },
+              { key: "D", text: "curly" }
+            ],
+            correct: "A",
+            translation: "Từ 'small' (nhỏ) TRÁI NGHĨA với từ nào? -> large (lớn).",
+            explanation: "'small' (nhỏ bé) >< 'large' (to lớn, rộng lớn)."
+          },
+          {
+            id: 35,
+            text: "Question 35. The phrase 'at the back of' in the text is CLOSEST in meaning to ________",
+            options: [
+              { key: "A", text: "next to" },
+              { key: "B", text: "under" },
+              { key: "C", text: "behind" },
+              { key: "D", text: "in front of" }
+            ],
+            correct: "C",
+            translation: "Cụm từ 'at the back of' (ở phía đằng sau) ĐỒNG NGHĨA nhất với từ nào? -> behind (đằng sau).",
+            explanation: "'at the back of' (ở phía sau) đồng nghĩa với giới từ 'behind'."
+          },
+          {
+            id: 36,
+            text: "Question 36. Which of the following is NOT TRUE in the text?",
+            options: [
+              { key: "A", text: "There is a picture of a football team on the wall." },
+              { key: "B", text: "The house has two floors." },
+              { key: "C", text: "The balcony is large." },
+              { key: "D", text: "There is a swimming pool in front of the house." }
+            ],
+            correct: "D",
+            translation: "Điều nào sau đây là KHÔNG ĐÚNG? -> Có một hồ bơi ở phía trước ngôi nhà.",
+            explanation: "Trong bài viết: 'there is a small swimming pool AT THE BACK OF the house' (ở phía sau nhà). Vì vậy nói hồ bơi ở phía trước ('in front of') là SAI."
+          }
+        ]
+      },
+
+      // PART 9: PRONUNCIATION 2 (Questions 37 - 40)
+      {
+        partId: "p9",
+        partTitle: "Part 9. Pronunciation (Ngữ âm mở rộng)",
+        partDesc: "Choose the word whose underlined part differs from the other three in pronunciation.",
+        questions: [
+          {
+            id: 37,
+            text: "Question 37. Choose the word whose underlined part differs from the other three in pronunciation:",
+            options: [
+              { key: "A", text: "map<u>s</u>" },
+              { key: "B", text: "toilet<u>s</u>" },
+              { key: "C", text: "clock<u>s</u>" },
+              { key: "D", text: "bowl<u>s</u>" }
+            ],
+            correct: "D",
+            translation: "A. maps /mæps/ | B. toilets /ˈtɔɪləts/ | C. clocks /klɒks/ | D. bowls /bəʊlz/.",
+            explanation: "Đuôi -s trong bowls đọc là /z/ do kết thúc bằng âm hữu thanh /l/. Đuôi -s trong maps, toilets, clocks đều đọc là /s/ do kết thúc bằng âm vô thanh (/p/, /t/, /k/)."
+          },
+          {
+            id: 38,
+            text: "Question 38. Choose the word whose underlined part differs from the other three in pronunciation:",
+            options: [
+              { key: "A", text: "ch<u>e</u>st" },
+              { key: "B", text: "pr<u>e</u>tty" },
+              { key: "C", text: "h<u>e</u>lpful" },
+              { key: "D", text: "cl<u>e</u>ver" }
+            ],
+            correct: "B",
+            translation: "A. chest /tʃest/ | B. pretty /ˈprɪti/ | C. helpful /ˈhelpfl/ | D. clever /ˈklevə(r)/.",
+            explanation: "Chữ 'e' trong từ 'pretty' được phát âm đặc biệt là /ɪ/ (âm i ngắn). Trong các từ còn lại, chữ 'e' đều phát âm là /e/."
+          },
+          {
+            id: 39,
+            text: "Question 39. Choose the word whose underlined part differs from the other three in pronunciation:",
+            options: [
+              { key: "A", text: "m<u>u</u>sic" },
+              { key: "B", text: "st<u>u</u>dy" },
+              { key: "C", text: "s<u>u</u>n" },
+              { key: "D", text: "s<u>u</u>bject" }
+            ],
+            correct: "A",
+            translation: "A. music /ˈmjuːzɪk/ | B. study /ˈstʌdi/ | C. sun /sʌn/ | D. subject /ˈsʌbdʒɪkt/.",
+            explanation: "Chữ 'u' trong 'music' phát âm là /juː/. Ở 3 từ còn lại (study, sun, subject), chữ 'u' đều phát âm là /ʌ/."
+          },
+          {
+            id: 40,
+            text: "Question 40. Choose the word whose underlined part differs from the other three in pronunciation:",
+            options: [
+              { key: "A", text: "y<u>ou</u>ng" },
+              { key: "B", text: "sh<u>ou</u>lder" },
+              { key: "C", text: "c<u>ou</u>ntry" },
+              { key: "D", text: "c<u>ou</u>sin" }
+            ],
+            correct: "B",
+            translation: "A. young /jʌŋ/ | B. shoulder /ˈʃəʊldə(r)/ | C. country /ˈkʌntri/ | D. cousin /ˈkʌzn/.",
+            explanation: "Cụm 'ou' trong 'shoulder' phát âm là nguyên âm đôi /əʊ/. Trong young, country, cousin, 'ou' đều phát âm là /ʌ/."
+          }
+        ]
+      }
+    ];
+
+    // App State
+    const userAnswers = {};
+    let isGraded = false;
+    let quizMode = "practice";
+    let isModeLockedByUrl = false;
+
+    function getTotalQuestions() {
+      let count = 0;
+      quizData.forEach(sec => { count += sec.questions.length; });
+      return count;
+    }
+
+    function initModeFromUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const m = params.get('mode');
+        if (m === 'exam') {
+          quizMode = 'exam';
+          isModeLockedByUrl = true;
+        } else if (m === 'practice') {
+          quizMode = 'practice';
+        }
+      } catch (e) {}
+      updateModeUI();
+    }
+
+    function setQuizMode(mode) {
+      if (isModeLockedByUrl) {
+        showToast("Đề đang ở chế độ Kiểm tra lấy điểm thật (đã khóa chuyển đổi)!");
+        return;
+      }
+      if (quizMode === mode) return;
+      quizMode = mode;
+      isGraded = false;
+      updateModeUI();
+      refreshAllQuestionsVisualState();
+      updateProgress();
+      showToast(mode === 'exam'
+        ? "Đã bật chế độ Kiểm tra thật: Ẩn đáp án cho đến khi bấm Nộp bài!"
+        : "Đã bật chế độ Luyện tập: Hiện đáp án & lời giải ngay khi chọn!");
+    }
+
+    function updateModeUI() {
+      const btnPractice = document.getElementById('btnModePractice');
+      const btnExam = document.getElementById('btnModeExam');
+      const pill = document.getElementById('modeStatusPill');
+      const liveScoreBadge = document.getElementById('liveScoreBadge');
+      const modeSwitchContainer = document.getElementById('modeSwitchContainer');
+      const btnTeacherShares = document.querySelectorAll('.teacher-only');
+
+      if (isModeLockedByUrl) {
+        if (modeSwitchContainer) modeSwitchContainer.classList.add('hidden');
+        btnTeacherShares.forEach(el => el.classList.add('hidden'));
+      }
+
+      if (quizMode === 'exam') {
+        if (btnExam) btnExam.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-amber-500 text-white shadow-sm";
+        if (btnPractice) btnPractice.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+        if (pill) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-xs font-bold text-amber-700 border border-amber-300";
+          pill.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i> Chế độ: Kiểm tra lấy điểm thật (Ẩn đáp án đến khi Nộp bài)`;
+        }
+        if (liveScoreBadge && !isGraded) {
+          liveScoreBadge.className = "flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg font-bold border border-amber-300";
+        }
+      } else {
+        if (btnPractice) btnPractice.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-white text-blue-700 shadow-sm";
+        if (btnExam) btnExam.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+        if (pill) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-xs font-bold text-blue-700 border border-blue-300";
+          pill.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Chế độ: Luyện tập (Hiện đáp án ngay)`;
+        }
+        if (liveScoreBadge) {
+          liveScoreBadge.className = "flex items-center gap-1.5 bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-bold border border-blue-200";
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      let html = '';
+
+      quizData.forEach((section, sIdx) => {
+        html += `
+          <section id="part-${section.partId}" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200/80 transition-all hover:shadow-md scroll-mt-28">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">Mục ${sIdx + 1}/${quizData.length}</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 hidden sm:inline-block">Tiếng Anh Ms Tuyết</span>
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 mt-2 font-heading">${section.partTitle}</h3>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">${section.partDesc}</p>
+            </div>
+
+            ${section.passage ? section.passage : ''}
+
+            <div class="space-y-6 mt-5">
+        `;
+
+        section.questions.forEach((q) => {
+          html += `
+            <div id="qBox-${q.id}" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 transition-all">
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="font-bold text-slate-900 text-sm sm:text-base leading-relaxed">
+                  ${q.text}
+                </div>
+                <span id="badge-${q.id}" class="hidden flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full"></span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          `;
+
+          q.options.forEach((opt) => {
+            html += `
+              <div id="opt-${q.id}-${opt.key}" onclick="selectOption(${q.id}, '${opt.key}')" class="option-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+                <span class="w-7 h-7 rounded-lg bg-white border border-slate-300 font-bold text-xs flex items-center justify-center text-slate-700 flex-shrink-0 shadow-sm">
+                  ${opt.key}
+                </span>
+                <span class="text-sm text-slate-800 font-medium leading-normal">${opt.text}</span>
+              </div>
+            `;
+          });
+
+          html += `
+              </div>
+
+              <div id="exp-${q.id}" class="hidden mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm space-y-1.5">
+                <div class="font-bold text-blue-950 flex items-center gap-1.5">
+                  <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                  <span>Đáp án đúng: <span class="text-emerald-700 font-black">${q.correct}</span></span>
+                </div>
+                <p class="text-slate-700 leading-relaxed"><strong class="text-slate-800">Dịch nghĩa:</strong> ${q.translation}</p>
+                <p class="text-slate-600 leading-relaxed"><strong class="text-slate-800">Giải thích chi tiết:</strong> ${q.explanation}</p>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </section>
+        `;
+      });
+
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function applyQuestionVisualState(q) {
+      const userKey = userAnswers[q.id];
+      const box = document.getElementById(`qBox-${q.id}`);
+      const badge = document.getElementById(`badge-${q.id}`);
+      const exp = document.getElementById(`exp-${q.id}`);
+      if (!box || !badge || !exp) return;
+
+      box.classList.remove('q-correct', 'q-wrong', 'q-answered-exam');
+      badge.className = "hidden flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full";
+      exp.classList.add('hidden');
+
+      q.options.forEach(opt => {
+        const el = document.getElementById(`opt-${q.id}-${opt.key}`);
+        if (el) el.classList.remove('selected', 'opt-correct', 'opt-wrong-selected');
+      });
+
+      if (!userKey && !isGraded) return;
+
+      if (quizMode === 'exam' && !isGraded) {
+        if (userKey) {
+          box.classList.add('q-answered-exam');
+          badge.classList.remove('hidden');
+          badge.classList.add('bg-blue-100', 'text-blue-800');
+          badge.innerHTML = `Đã chọn ${userKey}`;
+          const selEl = document.getElementById(`opt-${q.id}-${userKey}`);
+          if (selEl) selEl.classList.add('selected');
+        }
+        return;
+      }
+
+      const isCorrect = userKey === q.correct;
+
+      box.classList.add(isCorrect ? 'q-correct' : 'q-wrong');
+      badge.classList.remove('hidden');
+      if (isCorrect) {
+        badge.classList.add('bg-emerald-100', 'text-emerald-800');
+        badge.innerHTML = `✓ Chính xác`;
+      } else if (userKey) {
+        badge.classList.add('bg-rose-100', 'text-rose-800');
+        badge.innerHTML = `✗ Sai (Đ/a: ${q.correct})`;
+      } else {
+        badge.classList.add('bg-rose-100', 'text-rose-800');
+        badge.innerHTML = `Chưa làm (Đ/a: ${q.correct})`;
+      }
+
+      q.options.forEach(opt => {
+        const el = document.getElementById(`opt-${q.id}-${opt.key}`);
+        if (!el) return;
+        if (opt.key === q.correct) {
+          el.classList.add('opt-correct');
+        } else if (opt.key === userKey && !isCorrect) {
+          el.classList.add('opt-wrong-selected');
+        }
+      });
+
+      exp.classList.remove('hidden');
+    }
+
+    function refreshAllQuestionsVisualState() {
+      quizData.forEach(sec => {
+        sec.questions.forEach(q => applyQuestionVisualState(q));
+      });
+      lucide.createIcons();
+    }
+
+    function selectOption(qId, key) {
+      if (quizMode === 'exam' && isGraded) {
+        showToast("Bài kiểm tra đã nộp! Bấm 'Làm lại từ đầu' nếu muốn làm lại.");
+        return;
+      }
+      const q = findQuestion(qId);
+      if (!q) return;
+
+      userAnswers[qId] = key;
+      applyQuestionVisualState(q);
+      updateProgress();
+      lucide.createIcons();
+      
+      if (quizMode === 'practice' && key === q.correct) {
+        const el = document.getElementById(`opt-${qId}-${key}`);
+        if (el && typeof confetti === 'function') {
+          const rect = el.getBoundingClientRect();
+          const x = (rect.left + rect.width / 2) / window.innerWidth;
+          const y = (rect.top + rect.height / 2) / window.innerHeight;
+          confetti({ particleCount: 25, spread: 50, origin: { x, y: Math.max(0, Math.min(1, y)) }, colors: ['#22c55e', '#3b82f6', '#f59e0b'] });
+        }
+      }
+    }
+
+    function findQuestion(qId) {
+      for (const sec of quizData) {
+        for (const q of sec.questions) {
+          if (q.id === qId) return q;
+        }
+      }
+      return null;
+    }
+
+    function updateProgress() {
+      const answeredCount = Object.keys(userAnswers).length;
+      const total = getTotalQuestions();
+      const percent = Math.round((answeredCount / total) * 100);
+
+      let liveCorrectCount = 0;
+      for (const qId in userAnswers) {
+        const q = findQuestion(parseInt(qId, 10));
+        if (q && userAnswers[qId] === q.correct) {
+          liveCorrectCount++;
+        }
+      }
+      const liveScore10 = ((liveCorrectCount / total) * 10).toFixed(2);
+
+      document.getElementById('topProgressBar').style.width = `${percent}%`;
+      const badge = document.getElementById('answeredCounterBadge');
+      if (badge) {
+        badge.innerHTML = `<i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-500"></i> Đã làm: ${answeredCount}/${total} câu`;
+      }
+      const scoreBadge = document.getElementById('liveScoreBadge');
+      if (scoreBadge) {
+        if (quizMode === 'exam' && !isGraded) {
+          scoreBadge.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i> Điểm: Ẩn cho đến khi Nộp bài`;
+        } else {
+          scoreBadge.innerHTML = `<i data-lucide="award" class="w-3.5 h-3.5"></i> Điểm: ${liveScore10}/10 (${liveCorrectCount}/${total} câu đúng)`;
+        }
+      }
+      lucide.createIcons();
+    }
+
+    // Highlighter System
+    let selectedHighlightColor = 'yellow';
+    function setHighlightColor(color) {
+      selectedHighlightColor = color;
+      const colors = ['yellow', 'green', 'pink', 'blue'];
+      colors.forEach(c => {
+        const btn = document.getElementById(`hl-color-${c}`);
+        if (btn) {
+          if (c === color) {
+            btn.className = `w-6 h-6 rounded-full bg-${getBgColor(c)} ring-2 ring-offset-1 ring-blue-600 scale-110 shadow-sm transition`;
+          } else {
+            btn.className = `w-6 h-6 rounded-full bg-${getBgColor(c)} border border-transparent shadow-sm transition`;
+          }
+        }
+      });
+    }
+
+    function getBgColor(c) {
+      if (c === 'yellow') return 'yellow-300';
+      if (c === 'green') return 'green-300';
+      if (c === 'pink') return 'pink-300';
+      if (c === 'blue') return 'sky-300';
+    }
+
+    function applyHighlightToSelection() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount || selection.isCollapsed) {
+        showToast("Vui lòng bôi đen một đoạn chữ trước khi nhấn nút!");
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      const span = document.createElement("span");
+      span.className = `hl-${selectedHighlightColor}`;
+      try {
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+        selection.removeAllRanges();
+      } catch (e) {
+        showToast("Không thể bôi qua nhiều khối cùng lúc. Hãy chọn trong cùng 1 câu nhé!");
+      }
+    }
+
+    function clearHighlights() {
+      const highlightedElements = document.querySelectorAll('.hl-yellow, .hl-green, .hl-pink, .hl-blue');
+      if (highlightedElements.length === 0) {
+        showToast("Không có phần văn bản nào được highlight.");
+        return;
+      }
+      highlightedElements.forEach(el => {
+        const parent = el.parentNode;
+        while (el.firstChild) {
+          parent.insertBefore(el.firstChild, el);
+        }
+        parent.removeChild(el);
+      });
+      showToast("Đã xóa sạch tất cả màu highlight!");
+    }
+
+    // Grade and Show Score
+    function gradeQuiz() {
+      let correctCount = 0;
+      const total = getTotalQuestions();
+
+      isGraded = true;
+      quizData.forEach(sec => {
+        sec.questions.forEach(q => {
+          if (userAnswers[q.id] === q.correct) correctCount++;
+          applyQuestionVisualState(q);
+        });
+      });
+
+      updateProgress();
+
+      const score10 = ((correctCount / total) * 10).toFixed(2);
+      const percent = Math.round((correctCount / total) * 100);
+
+      const studentName = (document.getElementById('studentNameInput')?.value || '').trim();
+      const studentNameEl = document.getElementById('modalStudentName');
+      if (studentNameEl) {
+        studentNameEl.innerText = studentName ? `Học sinh: ${studentName}` : '';
+      }
+
+      document.getElementById('modalScore10Text').innerText = `${score10} / 10`;
+      document.getElementById('modalScoreRawText').innerText = `${correctCount} / ${total} câu`;
+      document.getElementById('modalPercentText').innerText = `${percent}%`;
+      document.getElementById('modalProgressBar').style.width = `${percent}%`;
+
+      const iconBox = document.getElementById('modalIconContainer');
+      const feedback = document.getElementById('modalFeedback');
+
+      if (percent >= 85) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-emerald-100 text-emerald-600 border border-emerald-200";
+        iconBox.innerHTML = "🏆";
+        feedback.innerText = `Xuất sắc! Em đạt ${score10}/10 điểm (${correctCount}/${total} câu). Em đã nắm rất vững kiến thức để sẵn sàng cho bài thi Giữa HK1! (Lớp Tiếng Anh Ms Tuyết)`;
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 100, spread: 75, origin: { y: 0.6 } });
+        }
+      } else if (percent >= 65) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-blue-100 text-blue-600 border border-blue-200";
+        iconBox.innerHTML = "🌟";
+        feedback.innerText = `Làm tốt lắm! Em đạt ${score10}/10 điểm (${correctCount}/${total} câu). Hãy xem lại lời giải chi tiết của các câu sai để nắm chắc kiến thức hơn trước khi thi Giữa kỳ nhé!`;
+      } else {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-amber-100 text-amber-600 border border-amber-200";
+        iconBox.innerHTML = "💡";
+        feedback.innerText = `Em đạt ${score10}/10 điểm (${correctCount}/${total} câu). Đừng nản lòng nhé, hãy đọc kỹ phần dịch nghĩa và giải thích chi tiết phía dưới từng câu để ôn lại bài cùng Ms Tuyết!`;
+      }
+
+      document.getElementById('resultModal').classList.remove('hidden');
+      document.getElementById('resultModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeModal() {
+      document.getElementById('resultModal').classList.add('hidden');
+      document.getElementById('resultModal').classList.remove('flex');
+    }
+
+    function resetQuiz() {
+      for (const k in userAnswers) delete userAnswers[k];
+      isGraded = false;
+      renderQuiz();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Share Modal, 1-Click GitHub Push & Copy Helpers
+    function getGithubConfig() {
+      const owner = (document.getElementById('ghOwnerInput')?.value || DEFAULT_GITHUB_OWNER).trim();
+      const repo = (document.getElementById('ghRepoInput')?.value || DEFAULT_GITHUB_REPO).trim();
+      const slug = (document.getElementById('ghFileNameInput')?.value || FILE_SLUG).trim();
+      return { owner, repo, slug };
+    }
+
+    function updateShareLinksFromFilename() {
+      const { owner, repo, slug } = getGithubConfig();
+      const baseUrl = `https://${owner}.github.io/${repo}/`;
+      const cleanUrl = slug === 'index.html' ? baseUrl : `${baseUrl}${slug}`;
+      document.getElementById('inputSharePractice').value = cleanUrl;
+      document.getElementById('inputShareExam').value = `${cleanUrl}?mode=exam`;
+      const ownerDisp = document.getElementById('ghOwnerDisplay');
+      if (ownerDisp) ownerDisp.innerText = `${owner}/${repo}`;
+      const manualLink = document.getElementById('ghManualUploadLink');
+      if (manualLink) manualLink.href = `https://github.com/${owner}/${repo}/upload/main`;
+    }
+
+    function openShareModal() {
+      try {
+        const savedToken = localStorage.getItem('ms_tuyet_gh_token');
+        if (savedToken) document.getElementById('ghTokenInput').value = savedToken;
+        const savedOwner = localStorage.getItem('ms_tuyet_gh_owner');
+        if (savedOwner) document.getElementById('ghOwnerInput').value = savedOwner;
+        const savedRepo = localStorage.getItem('ms_tuyet_gh_repo');
+        if (savedRepo) document.getElementById('ghRepoInput').value = savedRepo;
+      } catch (e) {}
+      updateShareLinksFromFilename();
+      document.getElementById('shareModal').classList.remove('hidden');
+      document.getElementById('shareModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeShareModal() {
+      document.getElementById('shareModal').classList.add('hidden');
+      document.getElementById('shareModal').classList.remove('flex');
+    }
+
+    function getStudentHtml() {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(INITIAL_RAW_HTML, 'text/html');
+      const teacherElements = doc.querySelectorAll('.teacher-only');
+      teacherElements.forEach(el => el.remove());
+      return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+    }
+
+    function encodeUtf8Base64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
+      return btoa(binary);
+    }
+
+    async function pushToGitHubNow() {
+      const tokenInput = document.getElementById('ghTokenInput');
+      const statusBox = document.getElementById('ghPushStatusBox');
+      const btn = document.getElementById('btnPushGithubNow');
+
+      const token = (tokenInput?.value || '').trim();
+      const { owner, repo, slug } = getGithubConfig();
+
+      if (!token) {
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+        statusBox.innerHTML = "⚠️ Cô vui lòng dán mã GitHub Personal Access Token của tài khoản <strong>" + owner + "</strong> vào ô bên trên (chỉ cần nhập 1 lần đầu tiên)!";
+        statusBox.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        localStorage.setItem('ms_tuyet_gh_token', token);
+        localStorage.setItem('ms_tuyet_gh_owner', owner);
+        localStorage.setItem('ms_tuyet_gh_repo', repo);
+      } catch (e) {}
+
+      btn.disabled = true;
+      const oldBtnHtml = btn.innerHTML;
+      btn.innerHTML = `<span>Đang đẩy lên GitHub...</span>`;
+      statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-blue-500/20 text-blue-200 border border-blue-400/30";
+      statusBox.innerText = `⏳ Đang kiểm tra kho ${owner}/${repo} và tải lên tệp ${slug}...`;
+      statusBox.classList.remove('hidden');
+
+      const headers = {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      };
+
+      try {
+        const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
+        const repoCheck = await fetch(repoUrl, { method: "GET", headers });
+        if (repoCheck.status === 404) {
+          statusBox.innerText = `⏳ Chưa có kho "${repo}" trên tài khoản ${owner}. Đang tự động khởi tạo kho mới...`;
+          const createRepoRes = await fetch("https://api.github.com/user/repos", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              name: repo,
+              description: "Hệ thống Bài Tập Tương Tác - Tiếng Anh Ms Tuyết",
+              public: true,
+              auto_init: true
+            })
+          });
+          if (!createRepoRes.ok) {
+            const errRepo = await createRepoRes.json().catch(() => ({}));
+            throw new Error(errRepo.message || `Không thể tạo kho ${repo} (HTTP ${createRepoRes.status})`);
+          }
+        }
+
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(slug)}`;
+        let existingSha = null;
+        const getRes = await fetch(apiUrl, { method: "GET", headers });
+        if (getRes.ok) {
+          const fileData = await getRes.json();
+          existingSha = fileData.sha;
+        }
+
+        const bodyPayload = {
+          message: `Đăng đề kiểm tra giữa kỳ 1: ${slug} (Tiếng Anh Ms Tuyết)`,
+          content: encodeUtf8Base64(getStudentHtml())
+        };
+        if (existingSha) {
+          bodyPayload.sha = existingSha;
+        }
+
+        const putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(bodyPayload)
+        });
+
+        if (!putRes.ok) {
+          const errJson = await putRes.json().catch(() => ({}));
+          throw new Error(errJson.message || `Lỗi HTTP ${putRes.status}`);
+        }
+
+        await fetch(`https://api.github.com/repos/${owner}/${repo}/pages`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ source: { branch: "main", path: "/" } })
+        }).catch(() => {});
+
+        updateShareLinksFromFilename();
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/40";
+        statusBox.innerHTML = `✅ Đã đẩy thành công tệp <strong>${slug}</strong> lên kho <strong>${owner}/${repo}</strong>! Link bên dưới sẽ sẵn sàng sau 30–60 giây. Cô bấm "Sao chép" để gửi học sinh nhé!`;
+        showToast("Đã đẩy đề kiểm tra lên GitHub thành công!");
+      } catch (err) {
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+        statusBox.innerHTML = `❌ Không thể đẩy tự động: ${err.message}. Cô hãy kiểm tra lại mã Token (cần tích quyền "repo") hoặc bấm "Tải file .html" để kéo vào GitHub nhé.`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldBtnHtml;
+        lucide.createIcons();
+      }
+    }
+
+    function downloadCleanHtmlFile() {
+      const { slug } = getGithubConfig();
+      const blob = new Blob([getStudentHtml()], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = slug;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Đã tải xuống tệp ${slug}!`);
+    }
+
+    function copyTextFromInput(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input) return;
+
+      input.focus();
+      input.select();
+      input.setSelectionRange(0, 99999);
+
+      let copied = false;
+      try {
+        copied = document.execCommand('copy');
+      } catch (err) {
+        copied = false;
+      }
+
+      if (!copied) {
+        try {
+          const tempTextArea = document.createElement('textarea');
+          tempTextArea.value = input.value;
+          tempTextArea.style.position = 'fixed';
+          tempTextArea.style.left = '-9999px';
+          tempTextArea.style.top = '0';
+          document.body.appendChild(tempTextArea);
+          tempTextArea.focus();
+          tempTextArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempTextArea);
+        } catch (fallbackErr) {
+          console.warn('Copy fallback error:', fallbackErr);
+        }
+      }
+
+      if (btn) {
+        const oldText = btn.innerText;
+        btn.innerText = "✓ Đã chép";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      }
+      showToast("Đã sao chép đường link gửi học sinh!");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotice');
+      const msgEl = document.getElementById('toastMessage');
+      if (!toast || !msgEl) return;
+      msgEl.innerText = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3000);
+    }
+
+    window.onload = function() {
+      renderQuiz();
+      initModeFromUrl();
+      updateProgress();
+    };
+  </script></body></html>
