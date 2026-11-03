@@ -1,0 +1,2997 @@
+<!DOCTYPE html>
+<html lang="vi"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMDA5MDc1MjUzNDM1MTM3ODc2MyIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzgzOTNiZWIyMmRkNjY1NzFfbG9wNi1vbnRhcC1naXVhaGsxLmh0bWwtMjY4In0sImV4cCI6MTc5MzY3OTIyNSwiaWF0IjoxNzkzNjc1NjI1LCJhbGciOiJSUzI1NiJ9.V-AK34spoBVW3vL8cY7cgB8ldoDP9bFeSFh1zKAX_74VzKd3S2PlY9juLNI32chNl-wiUkKHYrtiXUxef-e4G1UyKfI4LahhJX7FOJTclNF0XwBG5WKAKjpBunmKNAVpe4cTJOP_DxYvGL__1o6WLqy46UsnkXMSIcWBO8L2KdDpYzVJJGD7scNv-uTtubQHWFYWl0-lvk9_NSZG8Yfj-DI8VBcKxTHJJ7mI2ODMJwfslvpVjRPZnspXNfmDqwOKPTKj2QOs_PMVYUOLF0A07i_3crcqyxPgNrI5PBZ3Wf2UUbBEAPjWPePTf6GOA9v3JL8-_fjJtaVodZEOADSpgQ","c_8393beb22dd66571_lop6-ontap-giuahk1.html-268")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đề cương Ôn tập Giữa HK1 - Tiếng Anh 6 Global Success | Tiếng Anh Ms Tuyết</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Quicksand:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+  
+  <!-- Icons & Effects -->
+  <script src="https://unpkg.com/lucide@latest" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%);
+      min-height: 100vh;
+    }
+    
+    h1, h2, h3, .font-heading {
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    /* Highlighter styles */
+    .hl-yellow { background-color: #fef08a !important; color: #854d0e; border-radius: 3px; padding: 1px 3px; }
+    .hl-green  { background-color: #bbf7d0 !important; color: #166534; border-radius: 3px; padding: 1px 3px; }
+    .hl-pink   { background-color: #fbcfe8 !important; color: #9d174d; border-radius: 3px; padding: 1px 3px; }
+    .hl-blue   { background-color: #bae6fd !important; color: #1e3a8a; border-radius: 3px; padding: 1px 3px; }
+
+    /* Interactive Radio Card */
+    .option-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .option-card:hover {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+    .option-card.selected {
+      border-color: #2563eb !important;
+      background-color: #dbeafe !important;
+      box-shadow: 0 0 0 1.5px #2563eb;
+      font-weight: 600;
+    }
+
+    /* Grading Feedback States */
+    .q-correct {
+      border-color: #10b981 !important;
+      background-color: #f0fdf4 !important;
+    }
+    .q-wrong {
+      border-color: #ef4444 !important;
+      background-color: #fef2f2 !important;
+    }
+    .q-answered-exam {
+      border-color: #3b82f6 !important;
+      background-color: #f8fafc !important;
+    }
+    .opt-correct {
+      background-color: #dcfce7 !important;
+      border-color: #10b981 !important;
+      color: #14532d !important;
+      font-weight: 700;
+    }
+    .opt-wrong-selected {
+      background-color: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #7f1d1d !important;
+      text-decoration: line-through;
+    }
+
+    /* Corner Ribbon Badge */
+    .corner-ribbon {
+      position: fixed;
+      top: 24px;
+      right: -55px;
+      transform: rotate(45deg);
+      z-index: 60;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .passage-box {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.-bottom-8{bottom:-2rem}.-right-8{right:-2rem}.bottom-16{bottom:4rem}.right-2{right:0.5rem}.right-4{right:1rem}.top-0{top:0px}.top-20{top:5rem}.top-\[58px\]{top:58px}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-8{margin-top:2rem;margin-bottom:2rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.ml-2{margin-left:0.5rem}.mt-1{margin-top:0.25rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-1\.5{height:0.375rem}.h-10{height:2.5rem}.h-20{height:5rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-40{height:10rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-full{height:100%}.w-10{width:2.5rem}.w-20{width:5rem}.w-3{width:0.75rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-40{width:10rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-full{width:100%}.min-w-max{min-width:max-content}.max-w-4xl{max-width:56rem}.max-w-5xl{max-width:64rem}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.flex-shrink-0{flex-shrink:0}.shrink-0{flex-shrink:0}.scale-110{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-y{border-top-width:1px;border-bottom-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-100{--tw-border-opacity:1;border-color:rgb(254 243 199 / var(--tw-border-opacity, 1))}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-blue-300{--tw-border-opacity:1;border-color:rgb(147 197 253 / var(--tw-border-opacity, 1))}.border-blue-400\/30{border-color:rgb(96 165 250 / 0.3)}.border-emerald-100{--tw-border-opacity:1;border-color:rgb(209 250 229 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/80{border-color:rgb(226 232 240 / 0.8)}.border-slate-600{--tw-border-opacity:1;border-color:rgb(71 85 105 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.border-white\/20{border-color:rgb(255 255 255 / 0.2)}.border-white\/30{border-color:rgb(255 255 255 / 0.3)}.border-white\/40{border-color:rgb(255 255 255 / 0.4)}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-amber-400\/90{background-color:rgb(251 191 36 / 0.9)}.bg-amber-50\/60{background-color:rgb(255 251 235 / 0.6)}.bg-amber-50\/80{background-color:rgb(255 251 235 / 0.8)}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-amber-600{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-50\/60{background-color:rgb(239 246 255 / 0.6)}.bg-blue-50\/70{background-color:rgb(239 246 255 / 0.7)}.bg-blue-500\/20{background-color:rgb(59 130 246 / 0.2)}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-emerald-50\/70{background-color:rgb(236 253 245 / 0.7)}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-emerald-600\/95{background-color:rgb(5 150 105 / 0.95)}.bg-green-300{--tw-bg-opacity:1;background-color:rgb(134 239 172 / var(--tw-bg-opacity, 1))}.bg-pink-300{--tw-bg-opacity:1;background-color:rgb(249 168 212 / var(--tw-bg-opacity, 1))}.bg-sky-300{--tw-bg-opacity:1;background-color:rgb(125 211 252 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/10{background-color:rgb(255 255 255 / 0.1)}.bg-white\/15{background-color:rgb(255 255 255 / 0.15)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-yellow-300{--tw-bg-opacity:1;background-color:rgb(253 224 71 / var(--tw-bg-opacity, 1))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-blue-500{--tw-gradient-from:#3b82f6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(59 130 246 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-blue-600{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgb(37 99 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgb(15 23 42 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-indigo-500{--tw-gradient-to:rgb(99 102 241 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #6366f1 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-indigo-600{--tw-gradient-to:rgb(79 70 229 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #4f46e5 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-indigo-950{--tw-gradient-to:rgb(30 27 75 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #1e1b4b var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-teal-600{--tw-gradient-to:rgb(13 148 136 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #0d9488 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-cyan-600{--tw-gradient-to:#0891b2 var(--tw-gradient-to-position)}.to-indigo-600{--tw-gradient-to:#4f46e5 var(--tw-gradient-to-position)}.to-sky-500{--tw-gradient-to:#0ea5e9 var(--tw-gradient-to-position)}.to-slate-900{--tw-gradient-to:#0f172a var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-16{padding-left:4rem;padding-right:4rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-7{padding-left:1.75rem;padding-right:1.75rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-28{padding-bottom:7rem}.pb-3{padding-bottom:0.75rem}.pt-1{padding-top:0.25rem}.pt-3{padding-top:0.75rem}.pt-6{padding-top:1.5rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-wider{letter-spacing:0.05em}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-amber-950{--tw-text-opacity:1;color:rgb(69 26 3 / var(--tw-text-opacity, 1))}.text-blue-100{--tw-text-opacity:1;color:rgb(219 234 254 / var(--tw-text-opacity, 1))}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250 / var(--tw-text-opacity, 1))}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-blue-800{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-blue-900{--tw-text-opacity:1;color:rgb(30 58 138 / var(--tw-text-opacity, 1))}.text-blue-950{--tw-text-opacity:1;color:rgb(23 37 84 / var(--tw-text-opacity, 1))}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-cyan-400{--tw-text-opacity:1;color:rgb(34 211 238 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-indigo-950{--tw-text-opacity:1;color:rgb(30 27 75 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-yellow-300{--tw-text-opacity:1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.placeholder-slate-400::placeholder{--tw-placeholder-opacity:1;color:rgb(148 163 184 / var(--tw-placeholder-opacity, 1))}.shadow{--tw-shadow:0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-inner{--tw-shadow:inset 0 2px 4px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:inset 0 2px 4px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-blue-200{--tw-shadow-color:#bfdbfe;--tw-shadow:var(--tw-shadow-colored)}.shadow-blue-500\/25{--tw-shadow-color:rgb(59 130 246 / 0.25);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.ring-2{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.ring-blue-600{--tw-ring-opacity:1;--tw-ring-color:rgb(37 99 235 / var(--tw-ring-opacity, 1))}.ring-offset-1{--tw-ring-offset-width:1px}.blur-xl{--tw-blur:blur(24px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-1000{transition-duration:1000ms}.duration-300{transition-duration:300ms}.selection\:bg-amber-200 *::selection{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.selection\:bg-amber-200::selection{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.hover\:bg-amber-600:hover{--tw-bg-opacity:1;background-color:rgb(217 119 6 / var(--tw-bg-opacity, 1))}.hover\:bg-amber-700:hover{--tw-bg-opacity:1;background-color:rgb(180 83 9 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-50:hover{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-red-50:hover{--tw-bg-opacity:1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-800:hover{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/20:hover{background-color:rgb(255 255 255 / 0.2)}.hover\:from-blue-600:hover{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgb(37 99 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:from-blue-700:hover{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(29 78 216 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:from-emerald-600:hover{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-indigo-700:hover{--tw-gradient-to:#4338ca var(--tw-gradient-to-position)}.hover\:to-sky-600:hover{--tw-gradient-to:#0284c7 var(--tw-gradient-to-position)}.hover\:to-teal-700:hover{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.hover\:text-blue-700:hover{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.hover\:text-red-600:hover{--tw-text-opacity:1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:shadow-blue-300:hover{--tw-shadow-color:#93c5fd;--tw-shadow:var(--tw-shadow-colored)}.focus\:border-emerald-400:focus{--tw-border-opacity:1;border-color:rgb(52 211 153 / var(--tw-border-opacity, 1))}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-blue-400:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(96 165 250 / var(--tw-ring-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:top-\[64px\]{top:64px}.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:inline{display:inline}.sm\:hidden{display:none}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:gap-2\.5{gap:0.625rem}.sm\:p-7{padding:1.75rem}.sm\:p-8{padding:2rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 768px){.md\:inline{display:inline}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:justify-start{justify-content:flex-start}.md\:p-6{padding:1.5rem}.md\:text-left{text-align:left}.md\:text-2xl{font-size:1.5rem;line-height:2rem}.md\:text-sm{font-size:0.875rem;line-height:1.25rem}.md\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 1024px){.lg\:block{display:block}.lg\:hidden{display:none}}</style></head>
+<body class="text-slate-800 antialiased pb-28 selection:bg-amber-200">
+
+  <!-- WATERMARK CORNER BADGE: TIẾNG ANH MS TUYẾT -->
+  <div class="corner-ribbon pointer-events-none hidden lg:block">
+    <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-extrabold text-xs py-1.5 px-16 text-center tracking-wider shadow-lg border-y border-white/30">
+      Tiếng Anh Ms Tuyết
+    </div>
+  </div>
+
+  <!-- Floating Mobile Brand Tag -->
+  <div class="fixed top-20 right-2 z-30 lg:hidden pointer-events-none">
+    <div class="bg-emerald-600/95 backdrop-blur text-white text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md border border-white/40 flex items-center gap-1">
+      <i data-lucide="sparkles" class="w-3 h-3 text-yellow-300"></i>
+      Tiếng Anh Ms Tuyết
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-blue-200 flex-shrink-0">
+          <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-sm sm:text-lg font-bold text-slate-900 leading-tight font-heading">Tiếng Anh 6 • Ôn tập Giữa HK1</h1>
+            <span class="text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">Units 1–3</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">Trọn bộ 88 câu trắc nghiệm &amp; đọc hiểu - viết câu</p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher & Submit Action -->
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+        <!-- Mode Toggle Pill -->
+        <div id="modeSwitchContainer" class="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 gap-1">
+          <button type="button" id="btnModePractice" onclick="setQuizMode('practice')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-white text-blue-700 shadow-sm">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Luyện tập</span>
+          </button>
+          <button type="button" id="btnModeExam" onclick="setQuizMode('exam')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>Kiểm tra thật</span>
+          </button>
+        </div>
+
+        <!-- Teacher GitHub Push & Copy Link Button (Teacher Only) -->
+        
+
+        <button type="button" onclick="gradeQuiz()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-blue-200 hover:shadow-blue-300 transition flex items-center gap-1.5 active:scale-95">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>Nộp bài</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Real-time Progress Bar -->
+    <div class="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div id="topProgressBar" class="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-sky-500 transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </header>
+
+  <!-- Sticky Highlight Toolbar -->
+  <div class="sticky top-[58px] sm:top-[64px] z-30 bg-white/92 backdrop-blur-md border-b border-slate-200 shadow-sm py-2 px-4 transition-all overflow-x-auto">
+    <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3 text-sm min-w-max">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-700 flex items-center gap-1.5 text-xs sm:text-sm">
+          <i data-lucide="highlighter" class="w-4 h-4 text-amber-500"></i> Bút Highlight:
+        </span>
+        <button type="button" onclick="setHighlightColor('yellow')" id="hl-color-yellow" class="w-6 h-6 rounded-full bg-yellow-300 ring-2 ring-offset-1 ring-blue-600 scale-110 shadow-sm transition" title="Bút vàng"></button>
+        <button type="button" onclick="setHighlightColor('green')" id="hl-color-green" class="w-6 h-6 rounded-full bg-green-300 border border-transparent shadow-sm transition" title="Bút xanh lá"></button>
+        <button type="button" onclick="setHighlightColor('pink')" id="hl-color-pink" class="w-6 h-6 rounded-full bg-pink-300 border border-transparent shadow-sm transition" title="Bút hồng"></button>
+        <button type="button" onclick="setHighlightColor('blue')" id="hl-color-blue" class="w-6 h-6 rounded-full bg-sky-300 border border-transparent shadow-sm transition" title="Bút xanh dương"></button>
+        
+        <button type="button" onmousedown="event.preventDefault(); applyHighlightToSelection()" ontouchstart="event.preventDefault(); applyHighlightToSelection()" class="ml-2 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1">
+          <i data-lucide="paintbrush" class="w-3.5 h-3.5"></i> Bôi đoạn chọn
+        </button>
+        <button type="button" onclick="clearHighlights()" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border rounded-lg transition">
+          <i data-lucide="eraser" class="w-3.5 h-3.5"></i> Xóa
+        </button>
+      </div>
+
+      <!-- Quick Part Jump Buttons -->
+      <div class="flex items-center gap-1.5 text-xs">
+        <span class="text-slate-400 font-semibold hidden md:inline">Chuyển nhanh:</span>
+        <a href="#part-p1" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold transition">I. Phonetics</a>
+        <a href="#part-p2" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold transition">II. Grammar</a>
+        <a href="#part-p4" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold transition">III. Reading</a>
+        <a href="#part-p8" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold transition">IV. Writing</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-4xl mx-auto px-4 pt-6 space-y-8">
+    
+    <!-- Banner thương hiệu lớp học Tiếng Anh Ms. Tuyết -->
+    <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-sky-500 text-white rounded-3xl p-5 md:p-6 shadow-md relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4 border border-blue-300">
+      <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+      <div class="space-y-1 text-center md:text-left z-10">
+        <div class="inline-flex items-center gap-1.5 bg-amber-400/90 text-indigo-950 font-black text-[11px] px-3 py-0.5 rounded-full uppercase tracking-wider mb-1">
+          <i data-lucide="award" class="w-3.5 h-3.5"></i> Trung tâm &amp; Lớp Học Chất Lượng Cao
+        </div>
+        <h2 class="text-xl md:text-2xl font-black text-white font-heading">
+          LỚP HỌC TIẾNG ANH MS. TUYẾT
+        </h2>
+        <p class="text-xs md:text-sm text-blue-100 font-medium">
+          Chuyên đào tạo: <b>Tiếng Anh nền tảng 1-12</b>, Luyện thi Chuyển cấp, Ôn thi Đại Học &amp; Luyện thi chứng chỉ <b>VSTEP - TOEIC</b>.
+        </p>
+      </div>
+      <div class="flex items-center justify-center gap-2 shrink-0 z-10">
+        <div class="text-center px-3.5 py-2 bg-white/15 backdrop-blur-md rounded-2xl border border-white/20">
+          <span class="block text-amber-300 font-black text-xs uppercase">Cam kết</span>
+          <span class="text-xs font-semibold text-white">Vững kiến thức</span>
+        </div>
+        <div class="text-center px-3.5 py-2 bg-white/15 backdrop-blur-md rounded-2xl border border-white/20">
+          <span class="block text-amber-300 font-black text-xs uppercase">Mục tiêu</span>
+          <span class="text-xs font-semibold text-white">Điểm 9+ &amp; Đạt Target</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tóm tắt lý thuyết trọng tâm Units 1 - 3 -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-blue-200">
+      <div class="flex items-center gap-2 text-blue-900 font-bold text-sm sm:text-base mb-3 font-heading">
+        <i data-lucide="sparkles" class="w-5 h-5 text-amber-500"></i>
+        <span>TÓM TẮT TRỌNG TÂM ÔN TẬP GIỮA HỌC KỲ 1 (UNITS 1 – 3)</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs sm:text-sm">
+        <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-100 space-y-1">
+          <div class="font-bold text-blue-800">A. VOCABULARY (Từ vựng Unit 1 – Unit 3):</div>
+          <p class="text-slate-700">• <b>Unit 1 (My New School):</b> Đồ dùng &amp; hoạt động học tập; cụm động từ <i>play / do / have / study + Noun</i>.</p>
+          <p class="text-slate-700">• <b>Unit 2 (My House):</b> Các kiểu nhà (apartment, villa, stilt house, town house), các phòng &amp; đồ nội thất.</p>
+          <p class="text-slate-700">• <b>Unit 3 (My Friends):</b> Bộ phận cơ thể, ngoại hình (tall, slim, blonde hair) &amp; tính cách (hard-working, shy, creative, clever, kind...).</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100 space-y-1">
+          <div class="font-bold text-emerald-800">B. GRAMMAR POINTS (Ngữ pháp trọng tâm):</div>
+          <p class="text-slate-700">• <b>Hiện tại đơn (Present Simple)</b> &amp; <b>Trạng từ chỉ tần suất</b> (always, usually, often, sometimes, rarely, never).</p>
+          <p class="text-slate-700">• <b>Sở hữu cách (Possessive case):</b> <i>Danh từ + 's</i> (VD: <i>Linda's brother, my father's car</i>).</p>
+          <p class="text-slate-700">• <b>Giới từ chỉ nơi chốn:</b> <i>in, on, under, in front of, behind, next to, between</i>.</p>
+          <p class="text-slate-700">• <b>Hiện tại tiếp diễn (Present Continuous):</b> <i>S + am/is/are + V-ing</i>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tiêu đề đề thi -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold shadow-inner">
+            <i data-lucide="book-open-check" class="w-5 h-5"></i>
+          </span>
+          <h2 id="current-test-title" class="text-lg md:text-xl font-bold text-blue-900 font-heading">
+            REVISION FOR THE FIRST MIDTERM TEST • GRADE 6
+          </h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <div id="modeStatusPill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-xs font-bold text-blue-700 border border-blue-400/30">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Chế độ: Luyện tập
+          </div>
+        </div>
+      </div>
+      <p class="text-slate-500 text-xs md:text-sm mt-3" id="test-description">
+        Đề cương tổng hợp đầy đủ <strong>88 câu hỏi tương tác</strong> (gồm 5 câu Ngữ âm, 50 câu Từ vựng - Ngữ pháp - Tìm lỗi sai, 20 câu Đọc hiểu 4 đoạn văn, 13 câu Viết lại câu &amp; Đặt câu hỏi) kèm 2 bài viết đoạn văn mẫu.
+      </p>
+
+      <!-- Student Name Input for Exam Mode -->
+      <div class="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <div class="flex items-center gap-2 text-xs font-bold text-blue-700 flex-shrink-0">
+          <i data-lucide="user-check" class="w-4 h-4"></i> Học sinh làm bài:
+        </div>
+        <input id="studentNameInput" type="text" placeholder="Nhập họ và tên của em (VD: Nguyễn Minh Anh - 6A1)..." class="w-full bg-white text-slate-900 placeholder-slate-400 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-400 outline-none">
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-medium text-slate-500">
+        <span id="answeredCounterBadge" class="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-500"></i> Đã làm: 0/88 câu
+        </span>
+        <span id="liveScoreBadge" class="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-bold border border-blue-200">
+          <i data-lucide="award" class="w-3.5 h-3.5"></i> Điểm hiện tại: 0.00 / 10
+        </span>
+      </div>
+    </div>
+
+    <!-- Exam Content Container -->
+    <div id="quizContainer" class="space-y-8"></div>
+
+    <!-- Phần Gợi ý 2 chủ đề Viết đoạn văn (Writing Topics 14 & 15) -->
+    <section class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-amber-200 space-y-4">
+      <div class="border-b border-amber-100 pb-3 flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-lg">Writing Topics (50 words)</span>
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 mt-2 font-heading">Chủ đề Luyện viết Đoạn văn (Câu 14 &amp; 15 phần Writing)</h3>
+        </div>
+        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Bài mẫu tham khảo • Ms. Tuyết</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+        <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-2">
+          <div class="font-bold text-amber-950">Topic 14: Write a description of your house or flat ( khoảng 50 từ - gồm địa chỉ, loại nhà, các phòng, đồ đạc):</div>
+          <p class="text-slate-700 leading-relaxed italic bg-white p-3 rounded-xl border border-amber-100">
+            "I live with my family in a lovely town house on Nguyen Trai Street. There are six rooms in my house: a living room, a kitchen, three bedrooms, and a bathroom. My favourite room is my bedroom because it has a comfortable bed, a desk, and a big bookshelf."
+          </p>
+          <p class="text-slate-500 text-xs"><b>Dịch nghĩa:</b> Em sống cùng gia đình trong một ngôi nhà phố xinh xắn trên đường Nguyễn Trãi. Có 6 phòng trong nhà: 1 phòng khách, 1 phòng bếp, 3 phòng ngủ và 1 phòng tắm. Phòng yêu thích nhất của em là phòng ngủ vì ở đó có chiếc giường êm ái, bàn học và giá sách lớn.</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-2">
+          <div class="font-bold text-blue-950">Topic 15: Write a paragraph to describe one of your best friends (khoảng 50 từ - gồm tên, ngoại hình, tính cách):</div>
+          <p class="text-slate-700 leading-relaxed italic bg-white p-3 rounded-xl border border-blue-100">
+            "My best friend is Minh, and he is my classmate. He is twelve years old. Minh is tall and slim with short black hair and bright brown eyes. He is very kind, clever, and hard-working. He always helps me with difficult math exercises. I really love spending time with him."
+          </p>
+          <p class="text-slate-500 text-xs"><b>Dịch nghĩa:</b> Bạn thân nhất của em là Minh, học cùng lớp với em. Cậu ấy 12 tuổi. Minh cao và mảnh khảnh với mái tóc đen ngắn và đôi mắt nâu sáng. Cậu ấy rất tốt bụng, thông minh và chăm chỉ. Cậu ấy luôn giúp em giải những bài Toán khó. Em rất thích dành thời gian bên cậu ấy.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Submit Bottom Bar -->
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-800">
+      <div class="text-center md:text-left">
+        <div class="inline-block px-2.5 py-0.5 rounded bg-blue-500/20 text-blue-400 text-xs font-bold mb-2">
+          Biên soạn &amp; Giảng dạy: Tiếng Anh Ms Tuyết
+        </div>
+        <h4 class="text-xl font-bold flex items-center justify-center md:justify-start gap-2">
+          <i data-lucide="check-check" class="w-5 h-5 text-cyan-400"></i>
+          Hoàn thành Đề cương Ôn tập Giữa HK1?
+        </h4>
+        <p id="bottomModeNotice" class="text-slate-300 text-sm mt-1 max-w-xl">
+          Bấm "Nộp bài &amp; Chấm điểm" để hệ thống tổng kết điểm thang 10 trên tổng số 88 câu, hiển thị đáp án đúng/sai và lời giải chi tiết từng câu.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <button type="button" onclick="resetQuiz()" class="px-5 py-3 rounded-xl border border-slate-600 hover:bg-slate-800 font-semibold text-sm transition">
+          Làm lại từ đầu
+        </button>
+        <button type="button" onclick="gradeQuiz()" class="px-7 py-3 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-600 to-sky-500 hover:from-blue-600 hover:to-sky-600 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition transform active:scale-95 flex items-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Nộp bài &amp; Chấm điểm</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RESULT MODAL -->
+  <div id="resultModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl transform transition-all text-center relative border border-slate-100">
+      <div id="modalIconContainer" class="w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-inner transition-transform"></div>
+
+      <div class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-extrabold rounded-full mb-1">
+        Tiếng Anh Ms Tuyết • Kết quả ôn tập
+      </div>
+      <h3 id="modalTitle" class="text-xl sm:text-2xl font-black text-slate-900">Đề cương Giữa HK1 • Tiếng Anh 6</h3>
+      <p id="modalStudentName" class="text-xs font-bold text-blue-700 mt-1 mb-4"></p>
+
+      <!-- Score Card -->
+      <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-5">
+        <div class="flex justify-between items-center text-sm font-semibold text-slate-600 mb-1">
+          <span>Điểm số (Thang 10):</span>
+          <span id="modalScore10Text" class="text-3xl font-black text-blue-600">0.00 / 10</span>
+        </div>
+        <div class="flex justify-between items-center text-xs font-medium text-slate-500 mb-2">
+          <span>Số câu chính xác:</span>
+          <span id="modalScoreRawText" class="font-bold text-slate-700">0 / 88 câu</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+          <div id="modalProgressBar" class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-slate-500 mt-2 font-medium">
+          <span>Tỷ lệ hoàn thành đúng</span>
+          <span id="modalPercentText" class="font-bold text-blue-600">0%</span>
+        </div>
+      </div>
+
+      <p id="modalFeedback" class="text-sm font-medium text-slate-600 mb-6 leading-relaxed"></p>
+
+      <button type="button" onclick="closeModal()" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition">
+        Xem Chi Tiết Từng Câu &amp; Lời Giải
+      </button>
+    </div>
+  </div>
+
+  <!-- SHARE & 1-CLICK GITHUB PUSH MODAL FOR MS TUYET -->
+  
+
+  <!-- Toast Notification -->
+  <div id="toastNotice" class="fixed bottom-16 right-4 z-50 hidden bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-2xl shadow-xl border border-slate-700 items-center gap-2">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+    <span id="toastMessage">Đã sao chép!</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & 88-QUESTION DATABASE -->
+  <script>
+    const DEFAULT_GITHUB_OWNER = "ndsannn-source";
+    const DEFAULT_GITHUB_REPO = "destination-a2-quiz-progress-1";
+    const FILE_SLUG = "lop6-ontap-giuahk1.html";
+
+    // Capture pristine HTML at initial load so teacher can push or download a clean student copy
+    const INITIAL_RAW_HTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+    // 88 QUESTIONS DATABASE FOR GRADE 6 FIRST MIDTERM REVISION
+    const quizData = [
+      // PART I: PHONETICS (Questions 1 - 5)
+      {
+        partId: "p1",
+        partTitle: "I. PHONETICS (Ngữ âm • 5 câu)",
+        partDesc: "Choose the word whose underlined part is pronounced differently from the others.",
+        questions: [
+          {
+            id: 1,
+            text: "Câu I.1. Choose the word whose underlined part is pronounced differently:",
+            options: [
+              { key: "A", text: "sm<u>ar</u>t" },
+              { key: "B", text: "st<u>u</u>dy" },
+              { key: "C", text: "f<u>a</u>ther" },
+              { key: "D", text: "<u>ar</u>t" }
+            ],
+            correct: "B",
+            translation: "A. smart /smɑːt/ (thông minh) | B. study /ˈstʌdi/ (học tập) | C. father /ˈfɑːðə(r)/ (bố) | D. art /ɑːt/ (mỹ thuật).",
+            explanation: "Phần gạch chân ở đáp án B (study) phát âm là âm ngắn /ʌ/, trong khi ở các từ smart, father, art đều phát âm là nguyên âm dài /ɑː/."
+          },
+          {
+            id: 2,
+            text: "Câu I.2. Choose the word whose underlined part is pronounced differently:",
+            options: [
+              { key: "A", text: "l<u>u</u>nch" },
+              { key: "B", text: "f<u>u</u>n" },
+              { key: "C", text: "j<u>u</u>do" },
+              { key: "D", text: "s<u>u</u>n" }
+            ],
+            correct: "C",
+            translation: "A. lunch /lʌntʃ/ (bữa trưa) | B. fun /fʌn/ (niềm vui) | C. judo /ˈdʒuːdəʊ/ (võ judo) | D. sun /sʌn/ (mặt trời).",
+            explanation: "Chữ 'u' trong 'judo' phát âm là /uː/, còn trong lunch, fun, sun đều phát âm là /ʌ/."
+          },
+          {
+            id: 3,
+            text: "Câu I.3. Choose the word whose underlined part is pronounced differently:",
+            options: [
+              { key: "A", text: "cl<u>a</u>ss" },
+              { key: "B", text: "l<u>ar</u>ge" },
+              { key: "C", text: "c<u>ar</u>" },
+              { key: "D", text: "gr<u>a</u>pe" }
+            ],
+            correct: "D",
+            translation: "A. class /klɑːs/ (lớp học) | B. large /lɑːdʒ/ (rộng lớn) | C. car /kɑː(r)/ (ô tô) | D. grape /ɡreɪp/ (quả nho).",
+            explanation: "Phần gạch chân trong 'grape' phát âm là nguyên âm đôi /eɪ/, còn trong class, large, car đều phát âm là /ɑː/."
+          },
+          {
+            id: 4,
+            text: "Câu I.4. Choose the word whose underlined part is pronounced differently:",
+            options: [
+              { key: "A", text: "book<u>s</u>" },
+              { key: "B", text: "plan<u>s</u>" },
+              { key: "C", text: "table<u>s</u>" },
+              { key: "D", text: "chair<u>s</u>" }
+            ],
+            correct: "A",
+            translation: "A. books /bʊks/ | B. plans /plænz/ | C. tables /ˈteɪblz/ | D. chairs /tʃeəz/.",
+            explanation: "Quy tắc phát âm đuôi -s: 'books' kết thúc bằng phụ âm vô thanh /k/ nên đuôi -s phát âm là /s/. Các từ plans, tables, chairs kết thúc bằng âm hữu thanh nên đuôi -s phát âm là /z/."
+          },
+          {
+            id: 5,
+            text: "Câu I.5. Choose the word whose underlined part is pronounced differently:",
+            options: [
+              { key: "A", text: "pen<u>s</u>" },
+              { key: "B", text: "flat<u>s</u>" },
+              { key: "C", text: "sink<u>s</u>" },
+              { key: "D", text: "lamp<u>s</u>" }
+            ],
+            correct: "A",
+            translation: "A. pens /penz/ | B. flats /flæts/ | C. sinks /sɪŋks/ | D. lamps /læmps/.",
+            explanation: "'pens' kết thúc bằng âm hữu thanh /n/ nên đuôi -s phát âm là /z/. Các từ flats (/t/), sinks (/k/), lamps (/p/) kết thúc bằng phụ âm vô thanh nên đuôi -s phát âm là /s/."
+          }
+        ]
+      },
+
+      // PART II.A: GRAMMAR & VOCABULARY (Questions 6 - 51 -> II.1 to II.46)
+      {
+        partId: "p2",
+        partTitle: "II. GRAMMAR & VOCABULARY (Từ vựng & Ngữ pháp • 46 câu)",
+        partDesc: "Choose the best answer A, B, C or D to complete each sentence.",
+        questions: [
+          {
+            id: 6,
+            text: "Câu II.1. I have a new ________, but I don't wear it every day.",
+            options: [
+              { key: "A", text: "pencil case" },
+              { key: "B", text: "notebook" },
+              { key: "C", text: "bicycle" },
+              { key: "D", text: "uniform" }
+            ],
+            correct: "D",
+            translation: "Mình có một bộ đồng phục (uniform) mới, nhưng mình không mặc nó mỗi ngày.",
+            explanation: "Động từ 'wear' (mặc, đội) đi với trang phục -> 'uniform' (đồng phục)."
+          },
+          {
+            id: 7,
+            text: "Câu II.2. You can borrow books from the school ________.",
+            options: [
+              { key: "A", text: "yard" },
+              { key: "B", text: "canteen" },
+              { key: "C", text: "library" },
+              { key: "D", text: "garden" }
+            ],
+            correct: "C",
+            translation: "Bạn có thể mượn sách từ thư viện (library) của trường.",
+            explanation: "Nơi mượn sách ('borrow books') ở trường là 'library' (thư viện)."
+          },
+          {
+            id: 8,
+            text: "Câu II.3. My pencil is not sharp any more. I need a pencil ________.",
+            options: [
+              { key: "A", text: "sharpener" },
+              { key: "B", text: "case" },
+              { key: "C", text: "eraser" },
+              { key: "D", text: "head" }
+            ],
+            correct: "A",
+            translation: "Bút chì của mình không còn nhọn nữa. Mình cần một cái gọt bút chì (pencil sharpener).",
+            explanation: "'pencil sharpener' là cái gọt bút chì (dùng khi bút chì bị cùn 'not sharp')."
+          },
+          {
+            id: 9,
+            text: "Câu II.4. My brother ________ to school every day.",
+            options: [
+              { key: "A", text: "walk" },
+              { key: "B", text: "walks" },
+              { key: "C", text: "is walking" },
+              { key: "D", text: "walking" }
+            ],
+            correct: "B",
+            translation: "Anh trai mình đi bộ đến trường mỗi ngày.",
+            explanation: "Dấu hiệu 'every day' (thói quen ở hiện tại đơn) + chủ ngữ ngôi thứ 3 số ít 'My brother' -> Động từ thêm 's': 'walks'."
+          },
+          {
+            id: 10,
+            text: "Câu II.5. Alex studies in an ________ school. She learns English with English-speaking teachers.",
+            options: [
+              { key: "A", text: "international" },
+              { key: "B", text: "boarding" },
+              { key: "C", text: "secondary" },
+              { key: "D", text: "high" }
+            ],
+            correct: "A",
+            translation: "Alex học ở một trường quốc tế (international school). Bạn ấy học tiếng Anh với các giáo viên bản ngữ.",
+            explanation: "Trước danh từ có mạo từ 'an' (đứng trước nguyên âm) và học với giáo viên nói tiếng Anh -> 'international' (quốc tế)."
+          },
+          {
+            id: 11,
+            text: "Câu II.6. I enjoy studying ________ because I like numbers.",
+            options: [
+              { key: "A", text: "English" },
+              { key: "B", text: "History" },
+              { key: "C", text: "Biology" },
+              { key: "D", text: "Maths" }
+            ],
+            correct: "D",
+            translation: "Mình thích học môn Toán (Maths) bởi vì mình thích những con số.",
+            explanation: "Thích những con số ('like numbers') tương ứng với môn Toán ('Maths')."
+          },
+          {
+            id: 12,
+            text: "Câu II.7. What do you usually do ________ break time?",
+            options: [
+              { key: "A", text: "at" },
+              { key: "B", text: "in" },
+              { key: "C", text: "on" },
+              { key: "D", text: "for" }
+            ],
+            correct: "A",
+            translation: "Bạn thường làm gì vào giờ ra chơi (at break time)?",
+            explanation: "Cụm giới từ cố định: 'at break time' = vào giờ giải lao / giờ ra chơi."
+          },
+          {
+            id: 13,
+            text: "Câu II.8. Linda and Tom ________ to school every day.",
+            options: [
+              { key: "A", text: "go" },
+              { key: "B", text: "goes" },
+              { key: "C", text: "are going" },
+              { key: "D", text: "going" }
+            ],
+            correct: "A",
+            translation: "Linda và Tom đi học mỗi ngày.",
+            explanation: "Dấu hiệu 'every day' (Hiện tại đơn) + chủ ngữ số nhiều 'Linda and Tom' -> Động từ giữ nguyên thể 'go'."
+          },
+          {
+            id: 14,
+            text: "Câu II.9. In the afternoon, we learn to draw, plant trees and play ________.",
+            options: [
+              { key: "A", text: "yoga" },
+              { key: "B", text: "karate" },
+              { key: "C", text: "table tennis" },
+              { key: "D", text: "swimming" }
+            ],
+            correct: "C",
+            translation: "Vào buổi chiều, chúng mình học vẽ, trồng cây và chơi bóng bàn (play table tennis).",
+            explanation: "Động từ 'play' đi với các môn thể thao có bóng/đối kháng: 'play table tennis' (chơi bóng bàn). Yoga và karate đi với 'do', swimming đi với 'go'."
+          },
+          {
+            id: 15,
+            text: "Câu II.10. This is my ________.",
+            options: [
+              { key: "A", text: "car's father" },
+              { key: "B", text: "father's car" },
+              { key: "C", text: "fathers car" },
+              { key: "D", text: "father's" }
+            ],
+            correct: "B",
+            translation: "Đây là chiếc ô tô của bố mình (my father's car).",
+            explanation: "Sở hữu cách: Người sở hữu + 's + Vật thuộc sở hữu -> 'father's car'."
+          },
+          {
+            id: 16,
+            text: "Câu II.11. Mr. Trung ________ them math.",
+            options: [
+              { key: "A", text: "teach" },
+              { key: "B", text: "teaches" },
+              { key: "C", text: "do" },
+              { key: "D", text: "does" }
+            ],
+            correct: "B",
+            translation: "Thầy Trung dạy Toán cho họ.",
+            explanation: "Chủ ngữ ngôi thứ 3 số ít 'Mr. Trung' + động từ 'teach' tận cùng bằng '-ch' nên thêm '-es' -> 'teaches'."
+          },
+          {
+            id: 17,
+            text: "Câu II.12. ________ she ________ French?",
+            options: [
+              { key: "A", text: "Do / speak" },
+              { key: "B", text: "Does / speak" },
+              { key: "C", text: "Does / speaks" },
+              { key: "D", text: "Is / speak" }
+            ],
+            correct: "B",
+            translation: "Cô ấy có nói tiếng Pháp không?",
+            explanation: "Câu hỏi Hiện tại đơn với chủ ngữ 'she': dùng trợ động từ 'Does' ở đầu câu và động từ chính đưa về nguyên mẫu 'speak'."
+          },
+          {
+            id: 18,
+            text: "Câu II.13. There ________ a living room, a kitchen, two bathrooms and two bedrooms in my house.",
+            options: [
+              { key: "A", text: "is" },
+              { key: "B", text: "are" },
+              { key: "C", text: "was" },
+              { key: "D", text: "being" }
+            ],
+            correct: "A",
+            translation: "Có một phòng khách, một nhà bếp, hai phòng tắm và hai phòng ngủ trong ngôi nhà của mình.",
+            explanation: "Trong câu liệt kê bắt đầu bằng 'There...', động từ to be chia theo danh từ đứng ngay sát sau nó: 'a living room' (danh từ số ít) -> dùng 'There is'."
+          },
+          {
+            id: 19,
+            text: "Câu II.14. Her mother ________ films in the evening.",
+            options: [
+              { key: "A", text: "often watch" },
+              { key: "B", text: "watch often" },
+              { key: "C", text: "often watches" },
+              { key: "D", text: "watches often" }
+            ],
+            correct: "C",
+            translation: "Mẹ của cô ấy thường xem phim vào buổi tối.",
+            explanation: "Trạng từ chỉ tần suất 'often' đứng TRƯỚC động từ thường; chủ ngữ 'Her mother' số ít nên 'watch' thêm '-es' -> 'often watches'."
+          },
+          {
+            id: 20,
+            text: "Câu II.15. What ________ do in your free time?",
+            options: [
+              { key: "A", text: "you do usually" },
+              { key: "B", text: "do you usually" },
+              { key: "C", text: "does you usually" },
+              { key: "D", text: "usually do you" }
+            ],
+            correct: "B",
+            translation: "Bạn thường làm gì vào thời gian rảnh?",
+            explanation: "Cấu trúc câu hỏi Hiện tại đơn với trạng từ chỉ tần suất: Wh-word + do/does + S + Adv (usually) + V? -> 'What do you usually do...'."
+          },
+          {
+            id: 21,
+            text: "Câu II.16. Every morning Thai ________ up at 6 o'clock.",
+            options: [
+              { key: "A", text: "gets" },
+              { key: "B", text: "get" },
+              { key: "C", text: "is getting" },
+              { key: "D", text: "got" }
+            ],
+            correct: "A",
+            translation: "Mỗi buổi sáng Thái thức dậy lúc 6 giờ.",
+            explanation: "Dấu hiệu 'Every morning' (Hiện tại đơn) + chủ ngữ số ít 'Thai' -> 'gets'."
+          },
+          {
+            id: 22,
+            text: "Câu II.17. Do you ________ Indian food, Paula?",
+            options: [
+              { key: "A", text: "likes" },
+              { key: "B", text: "liking" },
+              { key: "C", text: "liked" },
+              { key: "D", text: "like" }
+            ],
+            correct: "D",
+            translation: "Bạn có thích món ăn Ấn Độ không, Paula?",
+            explanation: "Sau trợ động từ 'Do you...' cần động từ nguyên thể không chia -> 'like'."
+          },
+          {
+            id: 23,
+            text: "Câu II.18. My school ________ a big library.",
+            options: [
+              { key: "A", text: "have" },
+              { key: "B", text: "has" },
+              { key: "C", text: "had" },
+              { key: "D", text: "having" }
+            ],
+            correct: "B",
+            translation: "Trường của mình có một thư viện lớn.",
+            explanation: "Chủ ngữ số ít 'My school' ở thì Hiện tại đơn đi với động từ 'has'."
+          },
+          {
+            id: 24,
+            text: "Câu II.19. David is ________ brother.",
+            options: [
+              { key: "A", text: "Linda" },
+              { key: "B", text: "Linda'" },
+              { key: "C", text: "Linda's" },
+              { key: "D", text: "Linda of" }
+            ],
+            correct: "C",
+            translation: "David là anh/em trai của Linda (Linda's brother).",
+            explanation: "Sở hữu cách với tên riêng: 'Linda's brother'."
+          },
+          {
+            id: 25,
+            text: "Câu II.20. ________ she your sister?",
+            options: [
+              { key: "A", text: "Is" },
+              { key: "B", text: "Are" },
+              { key: "C", text: "Do" },
+              { key: "D", text: "Does" }
+            ],
+            correct: "A",
+            translation: "Cô ấy có phải là chị/em gái của bạn không?",
+            explanation: "Trong câu không có động từ thường mà là cụm danh từ 'your sister', chủ ngữ 'she' nên dùng to be 'Is'."
+          },
+          {
+            id: 26,
+            text: "Câu II.21. In the living room, the table is ________ the sofa and the TV.",
+            options: [
+              { key: "A", text: "on" },
+              { key: "B", text: "next to" },
+              { key: "C", text: "under" },
+              { key: "D", text: "between" }
+            ],
+            correct: "D",
+            translation: "Trong phòng khách, cái bàn nằm ở giữa (between) ghế sô-pha và ti-vi.",
+            explanation: "Cấu trúc giới từ chỉ vị trí: 'between A and B' (ở giữa A và B)."
+          },
+          {
+            id: 27,
+            text: "Câu II.22. We study many ________ - maths, science, English, etc.",
+            options: [
+              { key: "A", text: "exercises" },
+              { key: "B", text: "grades" },
+              { key: "C", text: "subjects" },
+              { key: "D", text: "units" }
+            ],
+            correct: "C",
+            translation: "Chúng mình học nhiều môn học (subjects) - Toán, Khoa học, Tiếng Anh, v.v.",
+            explanation: "Maths, science, English là tên các môn học ở trường ('subjects')."
+          },
+          {
+            id: 28,
+            text: "Câu II.23. I ________ football, but my brother ________ badminton.",
+            options: [
+              { key: "A", text: "likes - like" },
+              { key: "B", text: "like - likes" },
+              { key: "C", text: "am like - is like" },
+              { key: "D", text: "like - is likes" }
+            ],
+            correct: "B",
+            translation: "Mình thích bóng đá, nhưng anh trai mình lại thích cầu lông.",
+            explanation: "Chủ ngữ 'I' đi với động từ nguyên mẫu 'like'; chủ ngữ số ít 'my brother' đi với 'likes'."
+          },
+          {
+            id: 29,
+            text: "Câu II.24. Where are your children? - They ________ TV in the living room now.",
+            options: [
+              { key: "A", text: "is watching" },
+              { key: "B", text: "watches" },
+              { key: "C", text: "are watching" },
+              { key: "D", text: "watch" }
+            ],
+            correct: "C",
+            translation: "Các con của bạn đâu rồi? - Chúng đang xem TV ở trong phòng khách ngay bây giờ.",
+            explanation: "Dấu hiệu 'now' (ngay lúc này) -> Thì Hiện tại tiếp diễn. Chủ ngữ 'They' đi với 'are watching'."
+          },
+          {
+            id: 30,
+            text: "Câu II.25. Be quiet! Nam ________ in the room.",
+            options: [
+              { key: "A", text: "to sleep" },
+              { key: "B", text: "sleeps" },
+              { key: "C", text: "sleep" },
+              { key: "D", text: "is sleeping" }
+            ],
+            correct: "D",
+            translation: "Hãy giữ trật tự! Bạn Nam đang ngủ ở trong phòng.",
+            explanation: "Câu mệnh lệnh 'Be quiet!' báo hiệu hành động đang diễn ra -> Hiện tại tiếp diễn: 'Nam is sleeping'."
+          },
+          {
+            id: 31,
+            text: "Câu II.26. Paul ________ late for work.",
+            options: [
+              { key: "A", text: "are always" },
+              { key: "B", text: "is always" },
+              { key: "C", text: "always is" },
+              { key: "D", text: "always are" }
+            ],
+            correct: "B",
+            translation: "Paul luôn luôn đi làm muộn.",
+            explanation: "Quy tắc vị trí trạng từ tần suất: Đứng SAU động từ to be (am/is/are). Chủ ngữ 'Paul' số ít -> 'is always'."
+          },
+          {
+            id: 32,
+            text: "Câu II.27. My grandpa's ________ is in a tall building.",
+            options: [
+              { key: "A", text: "apartment" },
+              { key: "B", text: "villa" },
+              { key: "C", text: "town house" },
+              { key: "D", text: "stilt house" }
+            ],
+            correct: "A",
+            translation: "Căn hộ chung cư (apartment) của ông mình nằm trong một tòa nhà cao tầng.",
+            explanation: "Loại nhà nằm ở bên trong một tòa nhà cao tầng ('in a tall building') là 'apartment' (căn hộ chung cư)."
+          },
+          {
+            id: 33,
+            text: "Câu II.28. Tom is opening the ________ to get some food.",
+            options: [
+              { key: "A", text: "wardrobe" },
+              { key: "B", text: "fridge" },
+              { key: "C", text: "chest of drawers" },
+              { key: "D", text: "dishwasher" }
+            ],
+            correct: "B",
+            translation: "Tom đang mở tủ lạnh (fridge) để lấy một ít thức ăn.",
+            explanation: "Đồ dùng để bảo quản và lấy thức ăn ('get some food') là 'fridge' (tủ lạnh). Wardrobe/chest of drawers đựng quần áo, dishwasher là máy rửa bát."
+          },
+          {
+            id: 34,
+            text: "Câu II.29. Her mum is cooking lunch ________ the kitchen at the moment.",
+            options: [
+              { key: "A", text: "in" },
+              { key: "B", text: "in front of" },
+              { key: "C", text: "on" },
+              { key: "D", text: "behind" }
+            ],
+            correct: "A",
+            translation: "Mẹ của cô ấy đang nấu bữa trưa ở trong bếp (in the kitchen) ngay lúc này.",
+            explanation: "Dùng giới từ 'in' cho không gian bên trong một căn phòng: 'in the kitchen'."
+          },
+          {
+            id: 35,
+            text: "Câu II.30. I can't watch TV because my brother is standing ________ me.",
+            options: [
+              { key: "A", text: "on" },
+              { key: "B", text: "in front of" },
+              { key: "C", text: "behind" },
+              { key: "D", text: "under" }
+            ],
+            correct: "B",
+            translation: "Mình không thể xem TV được vì anh trai đang đứng ngay phía trước mặt (in front of) mình.",
+            explanation: "Đứng chắn ở phía trước mặt làm che khuất tầm nhìn TV -> dùng 'in front of'."
+          },
+          {
+            id: 36,
+            text: "Câu II.31. His ________ shoes are nice and expensive.",
+            options: [
+              { key: "A", text: "sisters" },
+              { key: "B", text: "sister'" },
+              { key: "C", text: "sister's" },
+              { key: "D", text: "sister" }
+            ],
+            correct: "C",
+            translation: "Đôi giày của chị gái anh ấy (His sister's shoes) rất đẹp và đắt tiền.",
+            explanation: "Sở hữu cách của danh từ số ít 'sister' -> 'sister's shoes'."
+          },
+          {
+            id: 37,
+            text: "Câu II.32. There ________ two bathrooms in ________ house.",
+            options: [
+              { key: "A", text: "are / Peter" },
+              { key: "B", text: "is / Peter's" },
+              { key: "C", text: "are / Peter's" },
+              { key: "D", text: "is / Peter" }
+            ],
+            correct: "C",
+            translation: "Có hai phòng tắm trong ngôi nhà của Peter.",
+            explanation: "'two bathrooms' là danh từ số nhiều nên đi với 'There are'; nhà của Peter dùng sở hữu cách 'Peter's house'."
+          },
+          {
+            id: 38,
+            text: "Câu II.33. Tom is really ________. He always does his homework after dinner every day.",
+            options: [
+              { key: "A", text: "hard-working" },
+              { key: "B", text: "shy" },
+              { key: "C", text: "confident" },
+              { key: "D", text: "active" }
+            ],
+            correct: "A",
+            translation: "Tom thực sự rất chăm chỉ (hard-working). Cậu ấy luôn làm bài tập về nhà sau bữa tối mỗi ngày.",
+            explanation: "Luôn làm bài tập đầy đủ mỗi ngày là biểu hiện của tính cách chăm chỉ ('hard-working')."
+          },
+          {
+            id: 39,
+            text: "Câu II.34. Trang is very ________. She rarely talks to her classmates.",
+            options: [
+              { key: "A", text: "hard-working" },
+              { key: "B", text: "confident" },
+              { key: "C", text: "shy" },
+              { key: "D", text: "friendly" }
+            ],
+            correct: "C",
+            translation: "Trang rất nhút nhát (shy). Bạn ấy hiếm khi nói chuyện với các bạn cùng lớp.",
+            explanation: "'rarely talks to her classmates' (hiếm khi trò chuyện với bạn cùng lớp) cho thấy Trang rụt rè, nhút nhát ('shy')."
+          },
+          {
+            id: 40,
+            text: "Câu II.35. That girl can use coffee to paint beautiful pictures. She is so ________.",
+            options: [
+              { key: "A", text: "funny" },
+              { key: "B", text: "creative" },
+              { key: "C", text: "kind" },
+              { key: "D", text: "friendly" }
+            ],
+            correct: "B",
+            translation: "Cô gái đó có thể dùng cà phê để vẽ những bức tranh tuyệt đẹp. Cô ấy thật sáng tạo (creative).",
+            explanation: "Biết dùng nguyên liệu độc đáo (cà phê) để vẽ tranh đẹp thể hiện tính sáng tạo ('creative')."
+          },
+          {
+            id: 41,
+            text: "Câu II.36. Jose finishes difficult math questions in a short time. He is ________.",
+            options: [
+              { key: "A", text: "funny" },
+              { key: "B", text: "kind" },
+              { key: "C", text: "caring" },
+              { key: "D", text: "clever" }
+            ],
+            correct: "D",
+            translation: "Jose giải xong những câu Toán khó trong thời gian ngắn. Cậu ấy rất thông minh (clever).",
+            explanation: "Giải nhanh các bài Toán khó ('finishes difficult math questions in a short time') chứng tỏ rất thông minh ('clever')."
+          },
+          {
+            id: 42,
+            text: "Câu II.37. Kim is very ________. She pays attention to what she's doing.",
+            options: [
+              { key: "A", text: "careful" },
+              { key: "B", text: "caring" },
+              { key: "C", text: "confident" },
+              { key: "D", text: "clever" }
+            ],
+            correct: "A",
+            translation: "Kim rất cẩn thận (careful). Bạn ấy luôn chú tâm vào những việc mình đang làm.",
+            explanation: "'pays attention to what she's doing' (chú ý kỹ vào việc đang làm) là định nghĩa của 'careful' (cẩn thận)."
+          },
+          {
+            id: 43,
+            text: "Câu II.38. David and his friends ________ table tennis right now.",
+            options: [
+              { key: "A", text: "are playing" },
+              { key: "B", text: "play" },
+              { key: "C", text: "plays" },
+              { key: "D", text: "is playing" }
+            ],
+            correct: "A",
+            translation: "David và các bạn của cậu ấy đang chơi bóng bàn ngay lúc này.",
+            explanation: "Dấu hiệu 'right now' (Hiện tại tiếp diễn) + chủ ngữ số nhiều 'David and his friends' -> 'are playing'."
+          },
+          {
+            id: 44,
+            text: "Câu II.39. They ________ brown eyes and black hair.",
+            options: [
+              { key: "A", text: "are" },
+              { key: "B", text: "has" },
+              { key: "C", text: "have" },
+              { key: "D", text: "is" }
+            ],
+            correct: "C",
+            translation: "Họ có đôi mắt màu nâu và mái tóc màu đen.",
+            explanation: "Miêu tả sở hữu bộ phận cơ thể với chủ ngữ số nhiều 'They' -> dùng động từ 'have'."
+          },
+          {
+            id: 45,
+            text: "Câu II.40. Is Taylor doing her homework now? - ________",
+            options: [
+              { key: "A", text: "No, she doesn't." },
+              { key: "B", text: "No, she is." },
+              { key: "C", text: "Yes, she is." },
+              { key: "D", text: "Yes, she does." }
+            ],
+            correct: "C",
+            translation: "Bây giờ Taylor có đang làm bài tập về nhà không? - Có, cô ấy đang làm (Yes, she is).",
+            explanation: "Câu hỏi Yes/No bắt đầu bằng 'Is she...?' thì trả lời ngắn là 'Yes, she is.' hoặc 'No, she isn't.'."
+          },
+          {
+            id: 46,
+            text: "Câu II.41. What time ________ your English class ________?",
+            options: [
+              { key: "A", text: "do / start" },
+              { key: "B", text: "does / start" },
+              { key: "C", text: "are / start" },
+              { key: "D", text: "are / starting" }
+            ],
+            correct: "B",
+            translation: "Lớp học tiếng Anh của bạn bắt đầu lúc mấy giờ?",
+            explanation: "Hỏi lịch trình với chủ ngữ số ít 'your English class' -> Dùng trợ động từ 'does' + động từ nguyên thể 'start'."
+          },
+          {
+            id: 47,
+            text: "Câu II.42. Listen! The baby ________ in the bedroom.",
+            options: [
+              { key: "A", text: "cries" },
+              { key: "B", text: "is crying" },
+              { key: "C", text: "are crying" },
+              { key: "D", text: "cry" }
+            ],
+            correct: "B",
+            translation: "Hãy lắng nghe kìa! Em bé đang khóc ở trong phòng ngủ.",
+            explanation: "Dấu hiệu 'Listen!' + chủ ngữ số ít 'The baby' -> Hiện tại tiếp diễn: 'is crying'."
+          },
+          {
+            id: 48,
+            text: "Câu II.43. Look! It ________ now.",
+            options: [
+              { key: "A", text: "rains" },
+              { key: "B", text: "raining" },
+              { key: "C", text: "is rain" },
+              { key: "D", text: "is raining" }
+            ],
+            correct: "D",
+            translation: "Nhìn kìa! Bây giờ trời đang mưa.",
+            explanation: "Dấu hiệu 'Look!' và 'now' -> Hiện tại tiếp diễn với chủ ngữ 'It': 'is raining'."
+          },
+          {
+            id: 49,
+            text: "Câu II.44. - How about going to the cinema after school? - ________",
+            options: [
+              { key: "A", text: "Great idea." },
+              { key: "B", text: "Thank you." },
+              { key: "C", text: "Not at all." },
+              { key: "D", text: "Nice to meet you." }
+            ],
+            correct: "A",
+            translation: "- Sau giờ học chúng mình đi xem phim nhé? - Ý kiến tuyệt vời đấy (Great idea).",
+            explanation: "Để hưởng ứng lời rủ/gợi ý 'How about + V-ing?', ta đáp 'Great idea.' (Ý hay đấy!)."
+          },
+          {
+            id: 50,
+            text: "Câu II.45. What does your sister look like?",
+            options: [
+              { key: "A", text: "She's tall with blonde hair." },
+              { key: "B", text: "She is very clever." },
+              { key: "C", text: "She's twelve years old." },
+              { key: "D", text: "She's a student." }
+            ],
+            correct: "A",
+            translation: "Chị gái của bạn trông như thế nào? - Chị ấy cao với mái tóc vàng hoe.",
+            explanation: "Câu hỏi 'What does sb look like?' hỏi về NGOẠI HÌNH -> Chọn A ('She's tall with blonde hair.')."
+          },
+          {
+            id: 51,
+            text: "Câu II.46. What is your best friend like?",
+            options: [
+              { key: "A", text: "He's very handsome." },
+              { key: "B", text: "He's kind and friendly." },
+              { key: "C", text: "He's reading books." },
+              { key: "D", text: "He can sing well." }
+            ],
+            correct: "B",
+            translation: "Người bạn thân nhất của bạn là người có tính cách như thế nào? - Cậu ấy tốt bụng và thân thiện.",
+            explanation: "Câu hỏi 'What is sb like?' hỏi về TÍNH CÁCH (Personality) -> Chọn B ('He's kind and friendly.')."
+          }
+        ]
+      },
+
+      // PART II.B: ERROR IDENTIFICATION (Questions 52 - 55 -> II.47 to II.50)
+      {
+        partId: "p3",
+        partTitle: "II (tiếp). ERROR IDENTIFICATION (Tìm lỗi sai • Câu 47 – 50)",
+        partDesc: "Choose the underlined part that needs correction in each of the following sentences.",
+        questions: [
+          {
+            id: 52,
+            text: "Câu II.47. He <u>is</u> (A) a <u>big</u> (B) nose and <u>long</u> (C) <u>legs</u> (D).",
+            options: [
+              { key: "A", text: "is (sửa thành: has)" },
+              { key: "B", text: "big" },
+              { key: "C", text: "long" },
+              { key: "D", text: "legs" }
+            ],
+            correct: "A",
+            translation: "Cậu ấy có một chiếc mũi to và đôi chân dài.",
+            explanation: "Khi miêu tả ai đó 'có' bộ phận cơ thể nào (a big nose and long legs), phải dùng động từ 'has' chứ không dùng 'is'. Sửa: is -> has."
+          },
+          {
+            id: 53,
+            text: "Câu II.48. She <u>doesn't</u> (A) very <u>tall</u> (B), <u>she's</u> (C) very friendly and <u>clever</u> (D).",
+            options: [
+              { key: "A", text: "doesn't (sửa thành: isn't)" },
+              { key: "B", text: "tall" },
+              { key: "C", text: "she's" },
+              { key: "D", text: "clever" }
+            ],
+            correct: "A",
+            translation: "Cô ấy không cao lắm, cô ấy rất thân thiện và thông minh.",
+            explanation: "Trước tính từ 'very tall' phải dùng động từ to be phủ định là 'isn't' (không dùng trợ động từ doesn't). Sửa: doesn't -> isn't."
+          },
+          {
+            id: 54,
+            text: "Câu II.49. The <u>student</u> (A) <u>favourite</u> (B) <u>subject</u> (C) is <u>science</u> (D).",
+            options: [
+              { key: "A", text: "student (sửa thành: student's / students')" },
+              { key: "B", text: "favourite" },
+              { key: "C", text: "subject" },
+              { key: "D", text: "science" }
+            ],
+            correct: "A",
+            translation: "Môn học yêu thích của người học sinh đó là môn Khoa học.",
+            explanation: "Thiếu sở hữu cách ('s) ở danh từ chỉ người sở hữu. Sửa: student -> student's."
+          },
+          {
+            id: 55,
+            text: "Câu II.50. He <u>has always</u> (A) <u>English</u> (B) lesson <u>on</u> (C) Monday <u>afternoon</u> (D).",
+            options: [
+              { key: "A", text: "has always (sửa thành: always has)" },
+              { key: "B", text: "English" },
+              { key: "C", text: "on" },
+              { key: "D", text: "afternoon" }
+            ],
+            correct: "A",
+            translation: "Cậu ấy luôn có tiết học tiếng Anh vào chiều thứ Hai.",
+            explanation: "Trạng từ tần suất 'always' phải đứng TRƯỚC động từ thường 'has'. Sửa: has always -> always has."
+          }
+        ]
+      },
+
+      // PART III.A: READING A - CLOZE (Questions 56 - 60)
+      {
+        partId: "p4",
+        partTitle: "III. READING • Passage A (Đọc điền từ • 5 câu)",
+        partDesc: "Read the passage carefully and choose the correct answer for each blank (1 - 5).",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-2.5 passage-box">
+            <div class="font-extrabold text-blue-900 text-xs uppercase tracking-wider border-b border-blue-200 pb-1.5">PASSAGE A: SPORTSPEOPLE</div>
+            <p>• Vicky Gates is a professional football player. She has <strong>(1) ________</strong> hair and blue eyes. She has long legs and very strong arms. Vicky <strong>(2) ________</strong> an American.</p>
+            <p>• Anita Mather is a professional sportswoman. She <strong>(3) ________</strong> basketball. She has very long legs.</p>
+            <p>• Joana Smith is an international <strong>(4) ________</strong>. She has short, blonde hair and green eyes. She's short but she has very big shoulders. She's a British.</p>
+            <p>• Jo Kelly is an athlete. She has long dark hair and blue <strong>(5) ________</strong>. She has long legs. Jo is from Nigeria.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 56,
+            text: "Câu III.A.1. Choose the best word for blank (1): 'She has ________ hair and blue eyes.'",
+            options: [
+              { key: "A", text: "big" },
+              { key: "B", text: "straight" },
+              { key: "C", text: "round" },
+              { key: "D", text: "strong" }
+            ],
+            correct: "B",
+            translation: "Cô ấy có mái tóc thẳng (straight hair) và đôi mắt xanh.",
+            explanation: "Tính từ dùng để miêu tả kiểu tóc ('hair') là 'straight' (tóc thẳng). Big, round dùng cho mắt/khuôn mặt; strong dùng cho tay/cơ thể."
+          },
+          {
+            id: 57,
+            text: "Câu III.A.2. Choose the best word for blank (2): 'Vicky ________ an American.'",
+            options: [
+              { key: "A", text: "is" },
+              { key: "B", text: "are" },
+              { key: "C", text: "do" },
+              { key: "D", text: "does" }
+            ],
+            correct: "A",
+            translation: "Vicky là một người Mỹ.",
+            explanation: "Chủ ngữ số ít 'Vicky' cần động từ to be 'is' để giới thiệu quốc tịch ('is an American')."
+          },
+          {
+            id: 58,
+            text: "Câu III.A.3. Choose the best word for blank (3): 'She ________ basketball.'",
+            options: [
+              { key: "A", text: "has" },
+              { key: "B", text: "studies" },
+              { key: "C", text: "plays" },
+              { key: "D", text: "does" }
+            ],
+            correct: "C",
+            translation: "Cô ấy chơi bóng rổ (plays basketball).",
+            explanation: "Môn bóng rổ ('basketball') đi với động từ 'play' -> 'She plays basketball'."
+          },
+          {
+            id: 59,
+            text: "Câu III.A.4. Choose the best word for blank (4): 'Joana Smith is an international ________.'",
+            options: [
+              { key: "A", text: "swimmer" },
+              { key: "B", text: "swim" },
+              { key: "C", text: "swimming" },
+              { key: "D", text: "swims" }
+            ],
+            correct: "A",
+            translation: "Joana Smith là một vận động viên bơi lội (swimmer) quốc tế.",
+            explanation: "Sau 'an international' cần một danh từ chỉ người/nghề nghiệp: 'swimmer' (vận động viên bơi lội)."
+          },
+          {
+            id: 60,
+            text: "Câu III.A.5. Choose the best word for blank (5): 'She has long dark hair and blue ________.'",
+            options: [
+              { key: "A", text: "shoulder" },
+              { key: "B", text: "nose" },
+              { key: "C", text: "arms" },
+              { key: "D", text: "eyes" }
+            ],
+            correct: "D",
+            translation: "Cô ấy có mái tóc dài sẫm màu và đôi mắt màu xanh (blue eyes).",
+            explanation: "Tính từ chỉ màu xanh dương ('blue') dùng để miêu tả màu mắt: 'blue eyes'."
+          }
+        ]
+      },
+
+      // PART III.B: READING B - DAISY (Questions 61 - 65)
+      {
+        partId: "p5",
+        partTitle: "III. READING • Passage B (Đọc hiểu về bạn mới Daisy • 5 câu)",
+        partDesc: "Read the passage about Daisy carefully and choose the correct answer for each question.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-2.5 passage-box">
+            <div class="font-extrabold text-indigo-900 text-xs uppercase tracking-wider border-b border-slate-200 pb-1.5">PASSAGE B: OUR NEW CLASSMATE DAISY</div>
+            <p>There is a new friend in our class. Her name is Daisy. She is tall with curly, blonde hair. She has big blue eyes. I like her charming smile very much.</p>
+            <p>Although she is a newcomer, she makes friends with other students easily because she is friendly, easy-going, and sociable. Most of the classmates like her. During the lessons, Daisy rarely talks when the teacher explains something. In class, she is hard-working and does all exercises. When we work in groups, she is helpful and active. She always makes everything exciting.</p>
+            <p>Daisy's house is far away from school, so she stays in the campus. After class, she takes part in a sports club of the school. She is sporty and can play volleyball well.</p>
+            <p>She enjoys reading books, going out with friends, listening to music, and hiking. She tells me she would like to become a tour guide and she also wants to travel to many other places in the world.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 61,
+            text: "Câu III.B.1. What does Daisy look like?",
+            options: [
+              { key: "A", text: "She is tall with straight blonde hair." },
+              { key: "B", text: "She is tall and she has blue eyes." },
+              { key: "C", text: "She is short with curly blonde hair." },
+              { key: "D", text: "She is short and she has brown eyes." }
+            ],
+            correct: "B",
+            translation: "Daisy có ngoại hình như thế nào? -> Cô ấy cao và có đôi mắt màu xanh.",
+            explanation: "Đoạn 1 nêu rõ: 'She is tall with curly, blonde hair. She has big blue eyes.' -> Đáp án B đúng."
+          },
+          {
+            id: 62,
+            text: "Câu III.B.2. Why does she make friends with other students easily?",
+            options: [
+              { key: "A", text: "Because she is talkative." },
+              { key: "B", text: "Because she is funny and clever." },
+              { key: "C", text: "Because she is unfriendly and shy." },
+              { key: "D", text: "Because she is friendly, easy-going, and sociable." }
+            ],
+            correct: "D",
+            translation: "Tại sao bạn ấy dễ dàng kết bạn với các học sinh khác? -> Bởi vì bạn ấy thân thiện, dễ tính và hòa đồng.",
+            explanation: "Đoạn 2 câu đầu: '...she makes friends with other students easily because she is friendly, easy-going, and sociable.'"
+          },
+          {
+            id: 63,
+            text: "Câu III.B.3. When working in groups, Daisy ________.",
+            options: [
+              { key: "A", text: "is hard-working and does all exercises" },
+              { key: "B", text: "does all exercises and makes everything exciting" },
+              { key: "C", text: "is helpful and active" },
+              { key: "D", text: "is helpful but she rarely talks" }
+            ],
+            correct: "C",
+            translation: "Khi làm việc nhóm, Daisy là người hay giúp đỡ và năng nổ (is helpful and active).",
+            explanation: "Dẫn chứng đoạn 2: 'When we work in groups, she is helpful and active.'"
+          },
+          {
+            id: 64,
+            text: "Câu III.B.4. Daisy is NOT interested in ________.",
+            options: [
+              { key: "A", text: "playing football" },
+              { key: "B", text: "listening to music" },
+              { key: "C", text: "reading books" },
+              { key: "D", text: "going out with friends" }
+            ],
+            correct: "A",
+            translation: "Daisy KHÔNG quan tâm/thích hoạt động nào sau đây? -> Chơi bóng đá (playing football).",
+            explanation: "Đoạn 3 & 4 cho biết Daisy chơi bóng chuyền ('play volleyball well'), thích đọc sách, đi chơi với bạn, nghe nhạc và đi bộ đường dài (hiking), không hề nhắc tới 'playing football'."
+          },
+          {
+            id: 65,
+            text: "Câu III.B.5. Which of the following statements is NOT true about Daisy?",
+            options: [
+              { key: "A", text: "During the lessons, she talks when the teacher explains something." },
+              { key: "B", text: "She joins the school sports club after class." },
+              { key: "C", text: "She stays in the campus because her house is far away from school." },
+              { key: "D", text: "She wants to become a tour guide and travel to many places." }
+            ],
+            correct: "A",
+            translation: "Phát biểu nào sau đây KHÔNG ĐÚNG về Daisy? -> Trong giờ học, bạn ấy nói chuyện khi giáo viên giảng bài.",
+            explanation: "Trong đoạn 2 ghi rõ: 'During the lessons, Daisy rarely talks when the teacher explains something' (hiếm khi nói chuyện), nên câu A là SAI."
+          }
+        ]
+      },
+
+      // PART III.C: READING C - NAM'S HOUSE (Questions 66 - 70)
+      {
+        partId: "p6",
+        partTitle: "III. READING • Passage C (Đọc hiểu về Ngôi nhà của Nam • 5 câu)",
+        partDesc: "Read the passage 'Nam's House' carefully and choose the correct answer.",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-2.5 passage-box">
+            <div class="font-extrabold text-emerald-900 text-xs uppercase tracking-wider border-b border-emerald-200 pb-1.5">PASSAGE C: NAM'S HOUSE</div>
+            <p>Nam lives in a small but cozy house. It has two floors and a lovely garden. On the first floor, there is a living room, a kitchen, and a dining room. The living room has a comfortable sofa and a television. His family often watches movies together in the evening there.</p>
+            <p>The kitchen is Nam's favorite place. His mother cooks delicious meals there. They have a big table in the dining room where they eat together every evening.</p>
+            <p>On the second floor, there are three bedrooms. His room is blue, and he has a bed, a desk, and a bookshelf full of his favorite books. His sister's room is pink and has lots of toys. His parents' bedroom is big and has a nice view of the garden.</p>
+            <p>In the garden, they have many flowers and a small vegetable patch. Nam loves to play outside, especially in the summer. Sometimes, his friends come over, and they play games in the garden. Nam feels very happy in his house. It is not big, but it is warm and full of love.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 66,
+            text: "Câu III.C.1. How many floors does the house have?",
+            options: [
+              { key: "A", text: "One" },
+              { key: "B", text: "Two" },
+              { key: "C", text: "Three" },
+              { key: "D", text: "Four" }
+            ],
+            correct: "B",
+            translation: "Ngôi nhà của Nam có mấy tầng? -> Hai tầng (Two).",
+            explanation: "Câu thứ 2 đoạn 1: 'It has two floors and a lovely garden.'"
+          },
+          {
+            id: 67,
+            text: "Câu III.C.2. Why is the kitchen Nam's favorite place?",
+            options: [
+              { key: "A", text: "Because it is where they watch movies." },
+              { key: "B", text: "Because their mother cooks delicious meals there." },
+              { key: "C", text: "Because it has a big table." },
+              { key: "D", text: "Because it is the largest room." }
+            ],
+            correct: "B",
+            translation: "Tại sao phòng bếp lại là nơi yêu thích nhất của Nam? -> Bởi vì mẹ nấu những bữa ăn ngon ở đó.",
+            explanation: "Đoạn 2: 'The kitchen is Nam's favorite place. His mother cooks delicious meals there.'"
+          },
+          {
+            id: 68,
+            text: "Câu III.C.3. What does Nam's family often do in the living room?",
+            options: [
+              { key: "A", text: "Watch movies" },
+              { key: "B", text: "Eat dinner" },
+              { key: "C", text: "Play games" },
+              { key: "D", text: "Study" }
+            ],
+            correct: "A",
+            translation: "Gia đình Nam thường làm gì ở phòng khách? -> Xem phim (Watch movies).",
+            explanation: "Cuối đoạn 1: 'His family often watches movies together in the evening there.'"
+          },
+          {
+            id: 69,
+            text: "Câu III.C.4. Which statement is true about the room of Nam's sister?",
+            options: [
+              { key: "A", text: "It has a bookshelf full of books." },
+              { key: "B", text: "It is bigger than the author's room." },
+              { key: "C", text: "It has lots of toys." },
+              { key: "D", text: "It is painted blue." }
+            ],
+            correct: "C",
+            translation: "Câu nào đúng về phòng của em/chị gái Nam? -> Phòng có rất nhiều đồ chơi (It has lots of toys).",
+            explanation: "Đoạn 3: 'His sister's room is pink and has lots of toys.'"
+          },
+          {
+            id: 70,
+            text: "Câu III.C.5. Where does Nam play with his friends?",
+            options: [
+              { key: "A", text: "In the living room" },
+              { key: "B", text: "In the kitchen" },
+              { key: "C", text: "In the bedroom" },
+              { key: "D", text: "In the garden" }
+            ],
+            correct: "D",
+            translation: "Nam chơi cùng các bạn của mình ở đâu? -> Ở trong vườn (In the garden).",
+            explanation: "Đoạn 4: 'Sometimes, his friends come over, and they play games in the garden.'"
+          }
+        ]
+      },
+
+      // PART III.D: READING D - TRUE / FALSE (Questions 71 - 75)
+      {
+        partId: "p7",
+        partTitle: "III. READING • Passage D (Đọc xác định Đúng/Sai - True/False • 5 câu)",
+        partDesc: "Read the text 'My New School' carefully, then decide if each statement is True (T) or False (F).",
+        passage: `
+          <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/60 border border-amber-200 text-slate-800 text-sm sm:text-base leading-relaxed space-y-2.5 passage-box">
+            <div class="font-extrabold text-amber-900 text-xs uppercase tracking-wider border-b border-amber-200 pb-1.5">PASSAGE D: MY NEW SCHOOL (BY TOM)</div>
+            <p>Hello, my name is Tom. I recently started at a new school, and I am very excited! My new school is much bigger than my old one. It has three floors and a large playground where we can play during break time. There are many classrooms, a science lab, a library, and a computer room.</p>
+            <p>The teachers at my new school are very friendly and helpful. They encourage us to ask questions and help us when we don't understand something. I have made some new friends already, and we enjoy studying together.</p>
+            <p>Every day, we have different subjects, such as Math, English, Science, and Art. I especially love Art class because we get to be creative and express ourselves. There are also sports teams that I can join, like basketball and soccer.</p>
+            <p>I feel happy at my new school, and I look forward to learning new things and making more friends.</p>
+          </div>
+        `,
+        questions: [
+          {
+            id: 71,
+            text: "Câu III.D.1. Tom is excited when studying at a new school.",
+            options: [
+              { key: "A", text: "True (Đúng)" },
+              { key: "B", text: "False (Sai)" }
+            ],
+            correct: "A",
+            translation: "Tom rất hào hứng khi học ở ngôi trường mới. -> Đúng (True).",
+            explanation: "Câu đầu tiên của bài: 'I recently started at a new school, and I am very excited!' -> True."
+          },
+          {
+            id: 72,
+            text: "Câu III.D.2. The new school is smaller than the old school.",
+            options: [
+              { key: "A", text: "True (Đúng)" },
+              { key: "B", text: "False (Sai)" }
+            ],
+            correct: "B",
+            translation: "Trường mới nhỏ hơn trường cũ. -> Sai (False).",
+            explanation: "Trong bài viết: 'My new school is much bigger than my old one' (lớn hơn nhiều chứ không phải nhỏ hơn) -> False."
+          },
+          {
+            id: 73,
+            text: "Câu III.D.3. There are two floors in the new school.",
+            options: [
+              { key: "A", text: "True (Đúng)" },
+              { key: "B", text: "False (Sai)" }
+            ],
+            correct: "B",
+            translation: "Có 2 tầng ở trường mới. -> Sai (False).",
+            explanation: "Trong bài viết: 'It has three floors' (trường có 3 tầng chứ không phải 2 tầng) -> False."
+          },
+          {
+            id: 74,
+            text: "Câu III.D.4. The teachers at the new school are unfriendly.",
+            options: [
+              { key: "A", text: "True (Đúng)" },
+              { key: "B", text: "False (Sai)" }
+            ],
+            correct: "B",
+            translation: "Các thầy cô giáo ở trường mới không thân thiện. -> Sai (False).",
+            explanation: "Đoạn 2: 'The teachers at my new school are very friendly and helpful' (rất thân thiện và hay giúp đỡ) -> False."
+          },
+          {
+            id: 75,
+            text: "Câu III.D.5. Tom's favourite subject is Art.",
+            options: [
+              { key: "A", text: "True (Đúng)" },
+              { key: "B", text: "False (Sai)" }
+            ],
+            correct: "A",
+            translation: "Môn học yêu thích của Tom là Mỹ thuật (Art). -> Đúng (True).",
+            explanation: "Đoạn 3: 'I especially love Art class because we get to be creative and express ourselves.' -> True."
+          }
+        ]
+      },
+
+      // PART IV: WRITING (Questions 76 - 88 -> IV.1 to IV.13)
+      {
+        partId: "p8",
+        partTitle: "IV. WRITING (Sắp xếp từ, Đặt câu hỏi & Viết lại câu • 13 câu)",
+        partDesc: "Chọn câu hoàn chỉnh đúng ngữ pháp nhất cho các bài tập sắp xếp từ, đặt câu hỏi cho từ gạch chân và viết lại câu tương đương.",
+        questions: [
+          {
+            id: 76,
+            text: "Câu IV.1. [Sắp xếp từ thành câu] subjects / and geography. / favourite / My / English / are /",
+            options: [
+              { key: "A", text: "My favourite subjects are English and geography." },
+              { key: "B", text: "My subjects favourite are English and geography." },
+              { key: "C", text: "My favourite are subjects English and geography." },
+              { key: "D", text: "English and geography my favourite subjects are." }
+            ],
+            correct: "A",
+            translation: "Các môn học yêu thích của mình là Tiếng Anh và Địa lý.",
+            explanation: "Cấu trúc: My favourite subjects (chủ ngữ số nhiều) + are + English and geography."
+          },
+          {
+            id: 77,
+            text: "Câu IV.2. [Sắp xếp từ thành câu] rooms / How many / in / are / your / there / house? /",
+            options: [
+              { key: "A", text: "How many rooms there are in your house?" },
+              { key: "B", text: "How many rooms are there in your house?" },
+              { key: "C", text: "How many are there rooms in your house?" },
+              { key: "D", text: "How many in your house are there rooms?" }
+            ],
+            correct: "B",
+            translation: "Có bao nhiêu phòng ở trong ngôi nhà của bạn?",
+            explanation: "Cấu trúc hỏi số lượng: 'How many + danh từ số nhiều (rooms) + are there + in your house?'."
+          },
+          {
+            id: 78,
+            text: "Câu IV.3. [Sắp xếp từ thành câu] Louis / does / yoga / in the morning. / often /",
+            options: [
+              { key: "A", text: "Louis does often yoga in the morning." },
+              { key: "B", text: "Louis often does yoga in the morning." },
+              { key: "C", text: "Often Louis does yoga in the morning." },
+              { key: "D", text: "Louis does yoga often in the morning." }
+            ],
+            correct: "B",
+            translation: "Louis thường tập yoga vào buổi sáng.",
+            explanation: "Trạng từ chỉ tần suất 'often' đứng trước động từ thường 'does': 'Louis often does yoga in the morning.'."
+          },
+          {
+            id: 79,
+            text: "Câu IV.4. [Sắp xếp từ thành câu] uniforms / our / wearing / are / We / present. / at /",
+            options: [
+              { key: "A", text: "We are wearing our uniforms at present." },
+              { key: "B", text: "We wearing are our uniforms at present." },
+              { key: "C", text: "We are our uniforms wearing at present." },
+              { key: "D", text: "At present we wearing are our uniforms." }
+            ],
+            correct: "A",
+            translation: "Hiện tại chúng mình đang mặc đồng phục.",
+            explanation: "Thì Hiện tại tiếp diễn với 'at present' (ngay lúc này): 'We are wearing our uniforms at present.'."
+          },
+          {
+            id: 80,
+            text: "Câu IV.5. [Đặt câu hỏi cho phần gạch chân] The table is <u>in front of the sofa</u>.",
+            options: [
+              { key: "A", text: "What is the table?" },
+              { key: "B", text: "Where is the table?" },
+              { key: "C", text: "Where are the table?" },
+              { key: "D", text: "Who is in front of the sofa?" }
+            ],
+            correct: "B",
+            translation: "Cái bàn ở phía trước ghế sô-pha. -> Cái bàn ở đâu? (Where is the table?)",
+            explanation: "Phần gạch chân 'in front of the sofa' chỉ vị trí/nơi chốn nên dùng từ để hỏi 'Where': 'Where is the table?'."
+          },
+          {
+            id: 81,
+            text: "Câu IV.6. [Đặt câu hỏi cho phần gạch chân] Tom lives <u>in a country house</u>.",
+            options: [
+              { key: "A", text: "Where do Tom live?" },
+              { key: "B", text: "Where does Tom lives?" },
+              { key: "C", text: "Where does Tom live?" },
+              { key: "D", text: "What does Tom live?" }
+            ],
+            correct: "C",
+            translation: "Tom sống trong một ngôi nhà ở nông thôn. -> Tom sống ở đâu? (Where does Tom live?)",
+            explanation: "Phần gạch chân 'in a country house' chỉ nơi chốn -> Dùng 'Where' + trợ động từ 'does' + chủ ngữ 'Tom' + động từ nguyên mẫu 'live'."
+          },
+          {
+            id: 82,
+            text: "Câu IV.7. [Đặt câu hỏi cho phần gạch chân] He is <u>clever and kind</u>.",
+            options: [
+              { key: "A", text: "What does he look like?" },
+              { key: "B", text: "What is he like?" },
+              { key: "C", text: "How is he?" },
+              { key: "D", text: "Who is clever and kind?" }
+            ],
+            correct: "B",
+            translation: "Cậu ấy thông minh và tốt bụng. -> Tính cách của cậu ấy như thế nào? (What is he like?)",
+            explanation: "'clever and kind' là tính từ chỉ TÍNH CÁCH -> Mẫu câu hỏi tính cách là: 'What + be + S + like?' -> 'What is he like?'."
+          },
+          {
+            id: 83,
+            text: "Câu IV.8. [Đặt câu hỏi cho phần gạch chân] Linda is <u>tall with blonde hair</u>.",
+            options: [
+              { key: "A", text: "What is Linda like?" },
+              { key: "B", text: "What does Linda look like?" },
+              { key: "C", text: "What do Linda look like?" },
+              { key: "D", text: "How does Linda look like?" }
+            ],
+            correct: "B",
+            translation: "Linda cao và có mái tóc vàng. -> Ngoại hình của Linda trông như thế nào? (What does Linda look like?)",
+            explanation: "'tall with blonde hair' miêu tả NGOẠI HÌNH -> Mẫu câu hỏi ngoại hình là: 'What + do/does + S + look like?' -> 'What does Linda look like?'."
+          },
+          {
+            id: 84,
+            text: "Câu IV.9. [Đặt câu hỏi cho phần gạch chân] There are <u>six</u> rooms in my house.",
+            options: [
+              { key: "A", text: "How many rooms are there in your house?" },
+              { key: "B", text: "How much rooms are there in your house?" },
+              { key: "C", text: "How many room are there in your house?" },
+              { key: "D", text: "Where are six rooms in your house?" }
+            ],
+            correct: "A",
+            translation: "Có 6 phòng trong ngôi nhà của mình. -> Có bao nhiêu phòng trong ngôi nhà của bạn?",
+            explanation: "Phần gạch chân là số lượng 'six' trước danh từ đếm được số nhiều 'rooms' -> Hỏi bằng 'How many rooms are there in your house?'."
+          },
+          {
+            id: 85,
+            text: "Câu IV.10. [Viết lại câu giữ nguyên nghĩa] The table is in front of the sofa. → The sofa ________.",
+            options: [
+              { key: "A", text: "The sofa is behind the table." },
+              { key: "B", text: "The sofa is under the table." },
+              { key: "C", text: "The sofa is between the table." },
+              { key: "D", text: "The sofa is in front of the table." }
+            ],
+            correct: "A",
+            translation: "Cái bàn ở phía trước ghế sô-pha. → Ghế sô-pha ở phía sau cái bàn (The sofa is behind the table).",
+            explanation: "Ngược lại với 'in front of' (ở phía trước) là 'behind' (ở phía sau): A is in front of B ⇔ B is behind A."
+          },
+          {
+            id: 86,
+            text: "Câu IV.11. [Viết lại câu giữ nguyên nghĩa] My new school has many students. → There are ________.",
+            options: [
+              { key: "A", text: "There are many students in my new school." },
+              { key: "B", text: "There are has many students in my new school." },
+              { key: "C", text: "There are many student in my new school." },
+              { key: "D", text: "There are my new school has many students." }
+            ],
+            correct: "A",
+            translation: "Trường mới của mình có nhiều học sinh. → Có nhiều học sinh ở trong trường mới của mình.",
+            explanation: "Chuyển đổi cấu trúc sở hữu sang tồn tại: 'Place + has + N(số nhiều)' ⇔ 'There are + N(số nhiều) + in + Place'."
+          },
+          {
+            id: 87,
+            text: "Câu IV.12. [Viết lại câu giữ nguyên nghĩa] I like science most. → My ________.",
+            options: [
+              { key: "A", text: "My favourite subject is science." },
+              { key: "B", text: "My like subject is science." },
+              { key: "C", text: "My subject favourite is science." },
+              { key: "D", text: "My favourite science is subject." }
+            ],
+            correct: "A",
+            translation: "Mình thích môn Khoa học nhất. → Môn học yêu thích nhất của mình là môn Khoa học.",
+            explanation: "'I like [môn học] most / best' tương đương với 'My favourite subject is [môn học]'."
+          },
+          {
+            id: 88,
+            text: "Câu IV.13. [Viết lại câu giữ nguyên nghĩa] How about having a picnic at the park this weekend? → Let's ________.",
+            options: [
+              { key: "A", text: "Let's having a picnic at the park this weekend." },
+              { key: "B", text: "Let's to have a picnic at the park this weekend." },
+              { key: "C", text: "Let's have a picnic at the park this weekend." },
+              { key: "D", text: "Let's has a picnic at the park this weekend." }
+            ],
+            correct: "C",
+            translation: "Cuối tuần này chúng mình đi dã ngoại ở công viên nhé? → Chúng mình hãy đi dã ngoại ở công viên vào cuối tuần này nhé!",
+            explanation: "Cấu trúc câu đề nghị: 'How about + V-ing?' ⇔ 'Let's + V(nguyên thể)!'. Do đó: 'Let's have a picnic at the park this weekend.'."
+          }
+        ]
+      }
+    ];
+
+    // App State
+    const userAnswers = {};
+    let isGraded = false;
+    let quizMode = "practice";
+    let isModeLockedByUrl = false;
+
+    function getTotalQuestions() {
+      let count = 0;
+      quizData.forEach(sec => { count += sec.questions.length; });
+      return count;
+    }
+
+    function initModeFromUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const m = params.get('mode');
+        if (m === 'exam') {
+          quizMode = 'exam';
+          isModeLockedByUrl = true;
+        } else if (m === 'practice') {
+          quizMode = 'practice';
+        }
+      } catch (e) {}
+      updateModeUI();
+    }
+
+    function setQuizMode(mode) {
+      if (isModeLockedByUrl) {
+        showToast("Đề đang ở chế độ Kiểm tra lấy điểm thật (đã khóa chuyển đổi)!");
+        return;
+      }
+      if (quizMode === mode) return;
+      quizMode = mode;
+      isGraded = false;
+      updateModeUI();
+      refreshAllQuestionsVisualState();
+      updateProgress();
+      showToast(mode === 'exam'
+        ? "Đã bật chế độ Kiểm tra thật: Ẩn đáp án cho đến khi bấm Nộp bài!"
+        : "Đã bật chế độ Luyện tập: Hiện đáp án & lời giải ngay khi chọn!");
+    }
+
+    function updateModeUI() {
+      const btnPractice = document.getElementById('btnModePractice');
+      const btnExam = document.getElementById('btnModeExam');
+      const pill = document.getElementById('modeStatusPill');
+      const liveScoreBadge = document.getElementById('liveScoreBadge');
+      const modeSwitchContainer = document.getElementById('modeSwitchContainer');
+      const btnTeacherShares = document.querySelectorAll('.teacher-only');
+
+      if (isModeLockedByUrl) {
+        if (modeSwitchContainer) modeSwitchContainer.classList.add('hidden');
+        btnTeacherShares.forEach(el => el.classList.add('hidden'));
+      }
+
+      if (quizMode === 'exam') {
+        if (btnExam) btnExam.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-amber-500 text-white shadow-sm";
+        if (btnPractice) btnPractice.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+        if (pill) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-xs font-bold text-amber-700 border border-amber-300";
+          pill.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i> Chế độ: Kiểm tra lấy điểm thật (Ẩn đáp án đến khi Nộp bài)`;
+        }
+        if (liveScoreBadge && !isGraded) {
+          liveScoreBadge.className = "flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg font-bold border border-amber-300";
+        }
+      } else {
+        if (btnPractice) btnPractice.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 bg-white text-blue-700 shadow-sm";
+        if (btnExam) btnExam.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 text-slate-600 hover:text-slate-900";
+        if (pill) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-xs font-bold text-blue-700 border border-blue-300";
+          pill.innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Chế độ: Luyện tập (Hiện đáp án ngay)`;
+        }
+        if (liveScoreBadge) {
+          liveScoreBadge.className = "flex items-center gap-1.5 bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg font-bold border border-blue-200";
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      let html = '';
+
+      quizData.forEach((section, sIdx) => {
+        html += `
+          <section id="part-${section.partId}" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-slate-200/80 transition-all hover:shadow-md scroll-mt-28">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">Mục ${sIdx + 1}/${quizData.length}</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 hidden sm:inline-block">Tiếng Anh Ms Tuyết</span>
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 mt-2 font-heading">${section.partTitle}</h3>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">${section.partDesc}</p>
+            </div>
+
+            ${section.passage ? section.passage : ''}
+
+            <div class="space-y-6 mt-5">
+        `;
+
+        section.questions.forEach((q) => {
+          html += `
+            <div id="qBox-${q.id}" class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 transition-all">
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="font-bold text-slate-900 text-sm sm:text-base leading-relaxed">
+                  ${q.text}
+                </div>
+                <span id="badge-${q.id}" class="hidden flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full"></span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          `;
+
+          q.options.forEach((opt) => {
+            html += `
+              <div id="opt-${q.id}-${opt.key}" onclick="selectOption(${q.id}, '${opt.key}')" class="option-card flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+                <span class="w-7 h-7 rounded-lg bg-white border border-slate-300 font-bold text-xs flex items-center justify-center text-slate-700 flex-shrink-0 shadow-sm">
+                  ${opt.key}
+                </span>
+                <span class="text-sm text-slate-800 font-medium leading-normal">${opt.text}</span>
+              </div>
+            `;
+          });
+
+          html += `
+              </div>
+
+              <div id="exp-${q.id}" class="hidden mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm space-y-1.5">
+                <div class="font-bold text-blue-950 flex items-center gap-1.5">
+                  <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                  <span>Đáp án đúng: <span class="text-emerald-700 font-black">${q.correct}</span></span>
+                </div>
+                <p class="text-slate-700 leading-relaxed"><strong class="text-slate-800">Dịch nghĩa:</strong> ${q.translation}</p>
+                <p class="text-slate-600 leading-relaxed"><strong class="text-slate-800">Giải thích chi tiết:</strong> ${q.explanation}</p>
+              </div>
+            </div>
+          `;
+        });
+
+        html += `
+            </div>
+          </section>
+        `;
+      });
+
+      container.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function applyQuestionVisualState(q) {
+      const userKey = userAnswers[q.id];
+      const box = document.getElementById(`qBox-${q.id}`);
+      const badge = document.getElementById(`badge-${q.id}`);
+      const exp = document.getElementById(`exp-${q.id}`);
+      if (!box || !badge || !exp) return;
+
+      box.classList.remove('q-correct', 'q-wrong', 'q-answered-exam');
+      badge.className = "hidden flex-shrink-0 text-[11px] font-bold px-2.5 py-0.5 rounded-full";
+      exp.classList.add('hidden');
+
+      q.options.forEach(opt => {
+        const el = document.getElementById(`opt-${q.id}-${opt.key}`);
+        if (el) el.classList.remove('selected', 'opt-correct', 'opt-wrong-selected');
+      });
+
+      if (!userKey && !isGraded) return;
+
+      if (quizMode === 'exam' && !isGraded) {
+        if (userKey) {
+          box.classList.add('q-answered-exam');
+          badge.classList.remove('hidden');
+          badge.classList.add('bg-blue-100', 'text-blue-800');
+          badge.innerHTML = `Đã chọn ${userKey}`;
+          const selEl = document.getElementById(`opt-${q.id}-${userKey}`);
+          if (selEl) selEl.classList.add('selected');
+        }
+        return;
+      }
+
+      const isCorrect = userKey === q.correct;
+
+      box.classList.add(isCorrect ? 'q-correct' : 'q-wrong');
+      badge.classList.remove('hidden');
+      if (isCorrect) {
+        badge.classList.add('bg-emerald-100', 'text-emerald-800');
+        badge.innerHTML = `✓ Chính xác`;
+      } else if (userKey) {
+        badge.classList.add('bg-rose-100', 'text-rose-800');
+        badge.innerHTML = `✗ Sai (Đ/a: ${q.correct})`;
+      } else {
+        badge.classList.add('bg-rose-100', 'text-rose-800');
+        badge.innerHTML = `Chưa làm (Đ/a: ${q.correct})`;
+      }
+
+      q.options.forEach(opt => {
+        const el = document.getElementById(`opt-${q.id}-${opt.key}`);
+        if (!el) return;
+        if (opt.key === q.correct) {
+          el.classList.add('opt-correct');
+        } else if (opt.key === userKey && !isCorrect) {
+          el.classList.add('opt-wrong-selected');
+        }
+      });
+
+      exp.classList.remove('hidden');
+    }
+
+    function refreshAllQuestionsVisualState() {
+      quizData.forEach(sec => {
+        sec.questions.forEach(q => applyQuestionVisualState(q));
+      });
+      lucide.createIcons();
+    }
+
+    function selectOption(qId, key) {
+      if (quizMode === 'exam' && isGraded) {
+        showToast("Bài kiểm tra đã nộp! Bấm 'Làm lại từ đầu' nếu muốn làm lại.");
+        return;
+      }
+      const q = findQuestion(qId);
+      if (!q) return;
+
+      userAnswers[qId] = key;
+      applyQuestionVisualState(q);
+      updateProgress();
+      lucide.createIcons();
+      
+      if (quizMode === 'practice' && key === q.correct) {
+        const el = document.getElementById(`opt-${qId}-${key}`);
+        if (el && typeof confetti === 'function') {
+          const rect = el.getBoundingClientRect();
+          const x = (rect.left + rect.width / 2) / window.innerWidth;
+          const y = (rect.top + rect.height / 2) / window.innerHeight;
+          confetti({ particleCount: 25, spread: 50, origin: { x, y: Math.max(0, Math.min(1, y)) }, colors: ['#22c55e', '#3b82f6', '#f59e0b'] });
+        }
+      }
+    }
+
+    function findQuestion(qId) {
+      for (const sec of quizData) {
+        for (const q of sec.questions) {
+          if (q.id === qId) return q;
+        }
+      }
+      return null;
+    }
+
+    function updateProgress() {
+      const answeredCount = Object.keys(userAnswers).length;
+      const total = getTotalQuestions();
+      const percent = Math.round((answeredCount / total) * 100);
+
+      let liveCorrectCount = 0;
+      for (const qId in userAnswers) {
+        const q = findQuestion(parseInt(qId, 10));
+        if (q && userAnswers[qId] === q.correct) {
+          liveCorrectCount++;
+        }
+      }
+      const liveScore10 = ((liveCorrectCount / total) * 10).toFixed(2);
+
+      document.getElementById('topProgressBar').style.width = `${percent}%`;
+      const badge = document.getElementById('answeredCounterBadge');
+      if (badge) {
+        badge.innerHTML = `<i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-500"></i> Đã làm: ${answeredCount}/${total} câu`;
+      }
+      const scoreBadge = document.getElementById('liveScoreBadge');
+      if (scoreBadge) {
+        if (quizMode === 'exam' && !isGraded) {
+          scoreBadge.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i> Điểm: Ẩn cho đến khi Nộp bài`;
+        } else {
+          scoreBadge.innerHTML = `<i data-lucide="award" class="w-3.5 h-3.5"></i> Điểm: ${liveScore10}/10 (${liveCorrectCount}/${total} câu đúng)`;
+        }
+      }
+      lucide.createIcons();
+    }
+
+    // Highlighter System
+    let selectedHighlightColor = 'yellow';
+    function setHighlightColor(color) {
+      selectedHighlightColor = color;
+      const colors = ['yellow', 'green', 'pink', 'blue'];
+      colors.forEach(c => {
+        const btn = document.getElementById(`hl-color-${c}`);
+        if (btn) {
+          if (c === color) {
+            btn.className = `w-6 h-6 rounded-full bg-${getBgColor(c)} ring-2 ring-offset-1 ring-blue-600 scale-110 shadow-sm transition`;
+          } else {
+            btn.className = `w-6 h-6 rounded-full bg-${getBgColor(c)} border border-transparent shadow-sm transition`;
+          }
+        }
+      });
+    }
+
+    function getBgColor(c) {
+      if (c === 'yellow') return 'yellow-300';
+      if (c === 'green') return 'green-300';
+      if (c === 'pink') return 'pink-300';
+      if (c === 'blue') return 'sky-300';
+    }
+
+    function applyHighlightToSelection() {
+      const selection = window.getSelection();
+      if (!selection.rangeCount || selection.isCollapsed) {
+        showToast("Vui lòng bôi đen một đoạn chữ trước khi nhấn nút!");
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      const span = document.createElement("span");
+      span.className = `hl-${selectedHighlightColor}`;
+      try {
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+        selection.removeAllRanges();
+      } catch (e) {
+        showToast("Không thể bôi qua nhiều khối cùng lúc. Hãy chọn trong cùng 1 câu nhé!");
+      }
+    }
+
+    function clearHighlights() {
+      const highlightedElements = document.querySelectorAll('.hl-yellow, .hl-green, .hl-pink, .hl-blue');
+      if (highlightedElements.length === 0) {
+        showToast("Không có phần văn bản nào được highlight.");
+        return;
+      }
+      highlightedElements.forEach(el => {
+        const parent = el.parentNode;
+        while (el.firstChild) {
+          parent.insertBefore(el.firstChild, el);
+        }
+        parent.removeChild(el);
+      });
+      showToast("Đã xóa sạch tất cả màu highlight!");
+    }
+
+    // Grade and Show Score
+    function gradeQuiz() {
+      let correctCount = 0;
+      const total = getTotalQuestions();
+
+      isGraded = true;
+      quizData.forEach(sec => {
+        sec.questions.forEach(q => {
+          if (userAnswers[q.id] === q.correct) correctCount++;
+          applyQuestionVisualState(q);
+        });
+      });
+
+      updateProgress();
+
+      const score10 = ((correctCount / total) * 10).toFixed(2);
+      const percent = Math.round((correctCount / total) * 100);
+
+      const studentName = (document.getElementById('studentNameInput')?.value || '').trim();
+      const studentNameEl = document.getElementById('modalStudentName');
+      if (studentNameEl) {
+        studentNameEl.innerText = studentName ? `Học sinh: ${studentName}` : '';
+      }
+
+      document.getElementById('modalScore10Text').innerText = `${score10} / 10`;
+      document.getElementById('modalScoreRawText').innerText = `${correctCount} / ${total} câu`;
+      document.getElementById('modalPercentText').innerText = `${percent}%`;
+      document.getElementById('modalProgressBar').style.width = `${percent}%`;
+
+      const iconBox = document.getElementById('modalIconContainer');
+      const feedback = document.getElementById('modalFeedback');
+
+      if (percent >= 85) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-emerald-100 text-emerald-600 border border-emerald-200";
+        iconBox.innerHTML = "🏆";
+        feedback.innerText = `Xuất sắc! Em đạt ${score10}/10 điểm (${correctCount}/${total} câu). Em đã nắm rất vững kiến thức từ Unit 1 đến Unit 3 để sẵn sàng đạt điểm 9-10 kỳ thi Giữa HK1! (Lớp Tiếng Anh Ms Tuyết)`;
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 100, spread: 75, origin: { y: 0.6 } });
+        }
+      } else if (percent >= 65) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-blue-100 text-blue-600 border border-blue-200";
+        iconBox.innerHTML = "🌟";
+        feedback.innerText = `Làm tốt lắm! Em đạt ${score10}/10 điểm (${correctCount}/${total} câu). Hãy xem lại lời giải chi tiết của các câu sai để nắm chắc kiến thức hơn trước khi thi Giữa kỳ nhé!`;
+      } else {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-3xl flex items-center justify-center text-4xl shadow-lg bg-amber-100 text-amber-600 border border-amber-200";
+        iconBox.innerHTML = "💡";
+        feedback.innerText = `Em đạt ${score10}/10 điểm (${correctCount}/${total} câu). Đừng nản lòng nhé, hãy đọc kỹ phần dịch nghĩa và giải thích chi tiết phía dưới từng câu để ôn lại bài cùng Ms Tuyết!`;
+      }
+
+      document.getElementById('resultModal').classList.remove('hidden');
+      document.getElementById('resultModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeModal() {
+      document.getElementById('resultModal').classList.add('hidden');
+      document.getElementById('resultModal').classList.remove('flex');
+    }
+
+    function resetQuiz() {
+      for (const k in userAnswers) delete userAnswers[k];
+      isGraded = false;
+      renderQuiz();
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Share Modal, 1-Click GitHub Push & Copy Helpers
+    function getGithubConfig() {
+      const owner = (document.getElementById('ghOwnerInput')?.value || DEFAULT_GITHUB_OWNER).trim();
+      const repo = (document.getElementById('ghRepoInput')?.value || DEFAULT_GITHUB_REPO).trim();
+      const slug = (document.getElementById('ghFileNameInput')?.value || FILE_SLUG).trim();
+      return { owner, repo, slug };
+    }
+
+    function updateShareLinksFromFilename() {
+      const { owner, repo, slug } = getGithubConfig();
+      const baseUrl = `https://${owner}.github.io/${repo}/`;
+      const cleanUrl = slug === 'index.html' ? baseUrl : `${baseUrl}${slug}`;
+      document.getElementById('inputSharePractice').value = cleanUrl;
+      document.getElementById('inputShareExam').value = `${cleanUrl}?mode=exam`;
+      const ownerDisp = document.getElementById('ghOwnerDisplay');
+      if (ownerDisp) ownerDisp.innerText = `${owner}/${repo}`;
+      const manualLink = document.getElementById('ghManualUploadLink');
+      if (manualLink) manualLink.href = `https://github.com/${owner}/${repo}/upload/main`;
+    }
+
+    function openShareModal() {
+      try {
+        const savedToken = localStorage.getItem('ms_tuyet_gh_token');
+        if (savedToken) document.getElementById('ghTokenInput').value = savedToken;
+        const savedOwner = localStorage.getItem('ms_tuyet_gh_owner');
+        if (savedOwner) document.getElementById('ghOwnerInput').value = savedOwner;
+        const savedRepo = localStorage.getItem('ms_tuyet_gh_repo');
+        if (savedRepo) document.getElementById('ghRepoInput').value = savedRepo;
+      } catch (e) {}
+      updateShareLinksFromFilename();
+      document.getElementById('shareModal').classList.remove('hidden');
+      document.getElementById('shareModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeShareModal() {
+      document.getElementById('shareModal').classList.add('hidden');
+      document.getElementById('shareModal').classList.remove('flex');
+    }
+
+    // Process HTML to remove teacher-only UI before pushing or downloading
+    function getStudentHtml() {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(INITIAL_RAW_HTML, 'text/html');
+      const teacherElements = doc.querySelectorAll('.teacher-only');
+      teacherElements.forEach(el => el.remove());
+      return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+    }
+
+    function encodeUtf8Base64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
+      return btoa(binary);
+    }
+
+    async function pushToGitHubNow() {
+      const tokenInput = document.getElementById('ghTokenInput');
+      const statusBox = document.getElementById('ghPushStatusBox');
+      const btn = document.getElementById('btnPushGithubNow');
+
+      const token = (tokenInput?.value || '').trim();
+      const { owner, repo, slug } = getGithubConfig();
+
+      if (!token) {
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+        statusBox.innerHTML = "⚠️ Cô vui lòng dán mã GitHub Personal Access Token của tài khoản <strong>" + owner + "</strong> vào ô bên trên (chỉ cần nhập 1 lần đầu tiên)!";
+        statusBox.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        localStorage.setItem('ms_tuyet_gh_token', token);
+        localStorage.setItem('ms_tuyet_gh_owner', owner);
+        localStorage.setItem('ms_tuyet_gh_repo', repo);
+      } catch (e) {}
+
+      btn.disabled = true;
+      const oldBtnHtml = btn.innerHTML;
+      btn.innerHTML = `<span>Đang đẩy lên GitHub...</span>`;
+      statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-blue-500/20 text-blue-200 border border-blue-400/30";
+      statusBox.innerText = `⏳ Đang kiểm tra kho ${owner}/${repo} và tải lên tệp ${slug}...`;
+      statusBox.classList.remove('hidden');
+
+      const headers = {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      };
+
+      try {
+        const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
+        const repoCheck = await fetch(repoUrl, { method: "GET", headers });
+        if (repoCheck.status === 404) {
+          statusBox.innerText = `⏳ Chưa có kho "${repo}" trên tài khoản ${owner}. Đang tự động khởi tạo kho mới...`;
+          const createRepoRes = await fetch("https://api.github.com/user/repos", {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              name: repo,
+              description: "Hệ thống Bài Tập Tương Tác - Tiếng Anh Ms Tuyết",
+              public: true,
+              auto_init: true
+            })
+          });
+          if (!createRepoRes.ok) {
+            const errRepo = await createRepoRes.json().catch(() => ({}));
+            throw new Error(errRepo.message || `Không thể tạo kho ${repo} (HTTP ${createRepoRes.status})`);
+          }
+        }
+
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(slug)}`;
+        let existingSha = null;
+        const getRes = await fetch(apiUrl, { method: "GET", headers });
+        if (getRes.ok) {
+          const fileData = await getRes.json();
+          existingSha = fileData.sha;
+        }
+
+        const bodyPayload = {
+          message: `Đăng đề cương ôn tập: ${slug} (Tiếng Anh Ms Tuyết)`,
+          content: encodeUtf8Base64(getStudentHtml())
+        };
+        if (existingSha) {
+          bodyPayload.sha = existingSha;
+        }
+
+        const putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify(bodyPayload)
+        });
+
+        if (!putRes.ok) {
+          const errJson = await putRes.json().catch(() => ({}));
+          throw new Error(errJson.message || `Lỗi HTTP ${putRes.status}`);
+        }
+
+        await fetch(`https://api.github.com/repos/${owner}/${repo}/pages`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ source: { branch: "main", path: "/" } })
+        }).catch(() => {});
+
+        updateShareLinksFromFilename();
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/40";
+        statusBox.innerHTML = `✅ Đã đẩy thành công tệp <strong>${slug}</strong> lên kho <strong>${owner}/${repo}</strong>! Link bên dưới sẽ sẵn sàng sau 30–60 giây. Cô bấm "Sao chép" để gửi học sinh nhé!`;
+        showToast("Đã đẩy Đề cương Lớp 6 lên GitHub thành công!");
+      } catch (err) {
+        statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+        statusBox.innerHTML = `❌ Không thể đẩy tự động: ${err.message}. Cô hãy kiểm tra lại mã Token (cần tích quyền "repo") hoặc bấm "Tải file .html" để kéo vào GitHub nhé.`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldBtnHtml;
+        lucide.createIcons();
+      }
+    }
+
+    function downloadCleanHtmlFile() {
+      const { slug } = getGithubConfig();
+      const blob = new Blob([getStudentHtml()], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = slug;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Đã tải xuống tệp ${slug}!`);
+    }
+
+    function copyTextFromInput(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input) return;
+
+      input.focus();
+      input.select();
+      input.setSelectionRange(0, 99999);
+
+      let copied = false;
+      try {
+        copied = document.execCommand('copy');
+      } catch (err) {
+        copied = false;
+      }
+
+      if (!copied) {
+        try {
+          const tempTextArea = document.createElement('textarea');
+          tempTextArea.value = input.value;
+          tempTextArea.style.position = 'fixed';
+          tempTextArea.style.left = '-9999px';
+          tempTextArea.style.top = '0';
+          document.body.appendChild(tempTextArea);
+          tempTextArea.focus();
+          tempTextArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempTextArea);
+        } catch (fallbackErr) {
+          console.warn('Copy fallback error:', fallbackErr);
+        }
+      }
+
+      if (btn) {
+        const oldText = btn.innerText;
+        btn.innerText = "✓ Đã chép";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      }
+      showToast("Đã sao chép đường link gửi học sinh!");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotice');
+      const msgEl = document.getElementById('toastMessage');
+      if (!toast || !msgEl) return;
+      msgEl.innerText = msg;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 3000);
+    }
+
+    window.onload = function() {
+      renderQuiz();
+      initModeFromUrl();
+      updateProgress();
+    };
+  </script></body></html>
