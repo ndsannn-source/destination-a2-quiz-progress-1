@@ -1,0 +1,2924 @@
+<!DOCTYPE html>
+<html lang="vi"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMDA5MDc1MjUzNDM1MTM3ODc2MyIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzgzOTNiZWIyMmRkNjY1NzFfcGhvbmljcy1zdHVkaW8uaHRtbC05MDcifSwiZXhwIjoxNzk0NjQ1MDA0LCJpYXQiOjE3OTQ2NDE0MDQsImFsZyI6IlJTMjU2In0.hxuiSHg8LAeVG5hDEDLzqNiJZBKp9IpIZL1m5it0f0iFWJGqangI8SudNQrs0vheFQXvcZ6YcyXBP5NtvbcgCJ1wsceD8nLVMf1PC8cH3saa2JESLLmSYp70Dqlr9n0RTKfrwPbTzOT4WnikpYAHA_VXXmtmF4stzl9wWHCoXvW3RpI0G94XhfCwdUSA7D1y7aiJzuIQibdnATChmwvoiWgV0OtNcRlnjJmkBiOwvfHhlrhrPxxDzXsTpvaZqK5INpYHir_U9MWQ7HnBZYjZJ-OSD6ACcJRUA39gRXUZsoysg9_2lY_o4gwJCuw7DnwJkTB1onOF66uRTnfSo8Wjzw","c_8393beb22dd66571_phonics-studio.html-907")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiếng Anh Ms Tuyết - Phonics Studio (10 Chuyên Đề IPA)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Playfair+Display:ital,wght@0,700;1,600&amp;family=Quicksand:wght@600;700;800&amp;display=swap" rel="stylesheet">
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                        heading: ['"Quicksand"', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02)',
+                        'card': '0 4px 14px 0 rgba(15, 23, 42, 0.06)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .drag-over {
+            border-color: #2563eb !important;
+            background-color: rgba(37, 99, 235, 0.08) !important;
+            transform: scale(1.01);
+        }
+        /* Corner Ribbon Badge */
+        .corner-ribbon {
+            position: fixed;
+            top: 24px;
+            right: -55px;
+            transform: rotate(45deg);
+            z-index: 60;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0) scale(1); }
+            15%, 45%, 75% { transform: translateX(-8px) scale(1.04); }
+            30%, 60%, 90% { transform: translateX(8px) scale(1.04); }
+        }
+        .animate-shake {
+            animation: shakeError 0.55s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes popCorrect {
+            0% { transform: scale(0.85); }
+            50% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+        .animate-pop {
+            animation: popCorrect 0.4s ease-out both;
+        }
+        @keyframes pulseX {
+            0% { transform: scale(0.5); opacity: 0; }
+            45% { transform: scale(1.12); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.85); opacity: 0; }
+        }
+        .animate-xxx {
+            animation: pulseX 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .underlined-part {
+            text-decoration: underline;
+            text-decoration-thickness: 2.5px;
+            text-underline-offset: 3px;
+            text-decoration-color: #ef4444;
+            font-weight: 800;
+            color: #1e293b;
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:"Plus Jakarta Sans", sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.-bottom-8{bottom:-2rem}.-right-4{right:-1rem}.-right-8{right:-2rem}.bottom-6{bottom:1.5rem}.right-2{right:0.5rem}.right-6{right:1.5rem}.top-0{top:0px}.top-20{top:5rem}.z-10{z-index:10}.z-30{z-index:30}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-8{margin-top:2rem;margin-bottom:2rem}.my-auto{margin-top:auto;margin-bottom:auto}.mb-1{margin-bottom:0.25rem}.mb-3{margin-bottom:0.75rem}.mb-3\.5{margin-bottom:0.875rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mr-1{margin-right:0.25rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-12{margin-top:3rem}.mt-5{margin-top:1.25rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-11{height:2.75rem}.h-3{height:0.75rem}.h-40{height:10rem}.h-6{height:1.5rem}.h-8{height:2rem}.min-h-\[120px\]{min-height:120px}.min-h-\[260px\]{min-height:260px}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-11{width:2.75rem}.w-3{width:0.75rem}.w-40{width:10rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-full{width:100%}.max-w-3xl{max-width:48rem}.max-w-7xl{max-width:80rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.max-w-xl{max-width:36rem}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.translate-y-20{--tw-translate-y:5rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes ping{75%, 100%{transform:scale(2);opacity:0}}.animate-ping{animation:ping 1s cubic-bezier(0, 0, 0.2, 1) infinite}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.content-start{align-content:flex-start}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-100 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(241 245 249 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-4{border-width:4px}.border-y{border-top-width:1px;border-bottom-width:1px}.border-b{border-bottom-width:1px}.border-l{border-left-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-amber-200\/80{border-color:rgb(253 230 138 / 0.8)}.border-amber-300{--tw-border-opacity:1;border-color:rgb(252 211 77 / var(--tw-border-opacity, 1))}.border-amber-300\/30{border-color:rgb(252 211 77 / 0.3)}.border-blue-100{--tw-border-opacity:1;border-color:rgb(219 234 254 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-blue-200\/80{border-color:rgb(191 219 254 / 0.8)}.border-blue-300{--tw-border-opacity:1;border-color:rgb(147 197 253 / var(--tw-border-opacity, 1))}.border-indigo-100{--tw-border-opacity:1;border-color:rgb(224 231 255 / var(--tw-border-opacity, 1))}.border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254 / var(--tw-border-opacity, 1))}.border-indigo-200\/80{border-color:rgb(199 210 254 / 0.8)}.border-purple-200{--tw-border-opacity:1;border-color:rgb(233 213 255 / var(--tw-border-opacity, 1))}.border-purple-200\/80{border-color:rgb(233 213 255 / 0.8)}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/80{border-color:rgb(226 232 240 / 0.8)}.border-slate-300{--tw-border-opacity:1;border-color:rgb(203 213 225 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-white{--tw-border-opacity:1;border-color:rgb(255 255 255 / var(--tw-border-opacity, 1))}.border-white\/20{border-color:rgb(255 255 255 / 0.2)}.border-white\/30{border-color:rgb(255 255 255 / 0.3)}.border-white\/40{border-color:rgb(255 255 255 / 0.4)}.bg-amber-400\/20{background-color:rgb(251 191 36 / 0.2)}.bg-amber-400\/90{background-color:rgb(251 191 36 / 0.9)}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-amber-500\/10{background-color:rgb(245 158 11 / 0.1)}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-blue-50\/30{background-color:rgb(239 246 255 / 0.3)}.bg-blue-50\/80{background-color:rgb(239 246 255 / 0.8)}.bg-blue-500{--tw-bg-opacity:1;background-color:rgb(59 130 246 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-emerald-500\/10{background-color:rgb(16 185 129 / 0.1)}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-emerald-600\/95{background-color:rgb(5 150 105 / 0.95)}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255 / var(--tw-bg-opacity, 1))}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.bg-indigo-50\/30{background-color:rgb(238 242 255 / 0.3)}.bg-purple-50{--tw-bg-opacity:1;background-color:rgb(250 245 255 / var(--tw-bg-opacity, 1))}.bg-purple-600{--tw-bg-opacity:1;background-color:rgb(147 51 234 / var(--tw-bg-opacity, 1))}.bg-rose-600\/95{background-color:rgb(225 29 72 / 0.95)}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-100\/90{background-color:rgb(241 245 249 / 0.9)}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-50\/90{background-color:rgb(248 250 252 / 0.9)}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/10{background-color:rgb(255 255 255 / 0.1)}.bg-white\/15{background-color:rgb(255 255 255 / 0.15)}.bg-white\/20{background-color:rgb(255 255 255 / 0.2)}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-amber-50{--tw-gradient-from:#fffbeb var(--tw-gradient-from-position);--tw-gradient-to:rgb(255 251 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-blue-500{--tw-gradient-from:#3b82f6 var(--tw-gradient-from-position);--tw-gradient-to:rgb(59 130 246 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-blue-600{--tw-gradient-from:#2563eb var(--tw-gradient-from-position);--tw-gradient-to:rgb(37 99 235 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-blue-700{--tw-gradient-from:#1d4ed8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(29 78 216 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-500{--tw-gradient-from:#10b981 var(--tw-gradient-from-position);--tw-gradient-to:rgb(16 185 129 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-emerald-600{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-slate-50{--tw-gradient-from:#f8fafc var(--tw-gradient-from-position);--tw-gradient-to:rgb(248 250 252 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-blue-50\/40{--tw-gradient-to:rgb(239 246 255 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), rgb(239 246 255 / 0.4) var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-indigo-600{--tw-gradient-to:rgb(79 70 229 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #4f46e5 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-teal-600{--tw-gradient-to:rgb(13 148 136 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #0d9488 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-cyan-600{--tw-gradient-to:#0891b2 var(--tw-gradient-to-position)}.to-indigo-50\/50{--tw-gradient-to:rgb(238 242 255 / 0.5) var(--tw-gradient-to-position)}.to-indigo-600{--tw-gradient-to:#4f46e5 var(--tw-gradient-to-position)}.to-orange-50\/70{--tw-gradient-to:rgb(255 247 237 / 0.7) var(--tw-gradient-to-position)}.to-purple-600{--tw-gradient-to:#9333ea var(--tw-gradient-to-position)}.to-sky-500{--tw-gradient-to:#0ea5e9 var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.to-violet-700{--tw-gradient-to:#6d28d9 var(--tw-gradient-to-position)}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-2\.5{padding:0.625rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.px-16{padding-left:4rem;padding-right:4rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-16{padding-bottom:4rem}.pb-3{padding-bottom:0.75rem}.pb-3\.5{padding-bottom:0.875rem}.pb-4{padding-bottom:1rem}.pt-1{padding-top:0.25rem}.pt-2{padding-top:0.5rem}.pt-3{padding-top:0.75rem}.pt-6{padding-top:1.5rem}.text-left{text-align:left}.text-center{text-align:center}.font-heading{font-family:"Quicksand", sans-serif}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.font-sans{font-family:"Plus Jakarta Sans", sans-serif}.font-serif{font-family:"Playfair Display", serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-8xl{font-size:6rem;line-height:1}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-200{--tw-text-opacity:1;color:rgb(253 230 138 / var(--tw-text-opacity, 1))}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-950{--tw-text-opacity:1;color:rgb(69 26 3 / var(--tw-text-opacity, 1))}.text-blue-100{--tw-text-opacity:1;color:rgb(219 234 254 / var(--tw-text-opacity, 1))}.text-blue-300{--tw-text-opacity:1;color:rgb(147 197 253 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-blue-900{--tw-text-opacity:1;color:rgb(30 58 138 / var(--tw-text-opacity, 1))}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-400{--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-indigo-300{--tw-text-opacity:1;color:rgb(165 180 252 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-indigo-700{--tw-text-opacity:1;color:rgb(67 56 202 / var(--tw-text-opacity, 1))}.text-indigo-950{--tw-text-opacity:1;color:rgb(30 27 75 / var(--tw-text-opacity, 1))}.text-purple-700{--tw-text-opacity:1;color:rgb(126 34 206 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-yellow-300{--tw-text-opacity:1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-15{opacity:0.15}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-soft{--tw-shadow:0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);--tw-shadow-colored:0 10px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-blue-500\/20{--tw-shadow-color:rgb(59 130 246 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.shadow-purple-500\/20{--tw-shadow-color:rgb(168 85 247 / 0.2);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.blur-xl{--tw-blur:blur(24px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-lg{--tw-backdrop-blur:blur(16px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.duration-500{transition-duration:500ms}.hover\:bg-amber-100\/80:hover{background-color:rgb(254 243 199 / 0.8)}.hover\:bg-blue-100:hover{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.hover\:bg-blue-700:hover{--tw-bg-opacity:1;background-color:rgb(29 78 216 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-700:hover{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/20:hover{background-color:rgb(255 255 255 / 0.2)}.hover\:from-emerald-600:hover{--tw-gradient-from:#059669 var(--tw-gradient-from-position);--tw-gradient-to:rgb(5 150 105 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.hover\:to-teal-700:hover{--tw-gradient-to:#0f766e var(--tw-gradient-to-position)}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.hover\:text-blue-800:hover{--tw-text-opacity:1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.hover\:text-slate-600:hover{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:border-emerald-400:focus{--tw-border-opacity:1;border-color:rgb(52 211 153 / var(--tw-border-opacity, 1))}.focus\:ring-1:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-blue-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(59 130 246 / var(--tw-ring-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:col-span-2{grid-column:span 2 / span 2}.sm\:block{display:block}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.sm\:grid-cols-5{grid-template-columns:repeat(5, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:justify-end{justify-content:flex-end}.sm\:p-5{padding:1.25rem}.sm\:p-6{padding:1.5rem}.sm\:p-7{padding:1.75rem}.sm\:p-8{padding:2rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:px-8{padding-left:2rem;padding-right:2rem}.sm\:py-5{padding-top:1.25rem;padding-bottom:1.25rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-9xl{font-size:8rem;line-height:1}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 768px){.md\:inline{display:inline}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:flex-row{flex-direction:row}.md\:p-6{padding:1.5rem}.md\:text-left{text-align:left}.md\:text-2xl{font-size:1.5rem;line-height:2rem}.md\:text-sm{font-size:0.875rem;line-height:1.25rem}}@media (min-width: 1024px){.lg\:block{display:block}.lg\:hidden{display:none}}</style></head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/50 min-h-screen text-slate-800 antialiased font-sans pb-16">
+
+    <!-- WATERMARK CORNER BADGE: TIẾNG ANH MS TUYẾT -->
+    <div class="corner-ribbon pointer-events-none hidden lg:block">
+        <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-extrabold text-xs py-1.5 px-16 text-center tracking-wider shadow-lg border-y border-white/30">
+            Tiếng Anh Ms Tuyết
+        </div>
+    </div>
+
+    <!-- Floating Mobile Brand Tag -->
+    <div class="fixed top-20 right-2 z-30 lg:hidden pointer-events-none">
+        <div class="bg-emerald-600/95 backdrop-blur text-white text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md border border-white/40 flex items-center gap-1">
+            <i class="fa-solid fa-wand-magic-sparkles text-yellow-300"></i>
+            Tiếng Anh Ms Tuyết
+        </div>
+    </div>
+
+    <!-- Screen-center XXX Overlay Alert Container -->
+    <div id="xxxAlertContainer" class="fixed inset-0 pointer-events-none z-50 flex items-center justify-center hidden p-4">
+        <div id="xxxAlertBox" class="bg-rose-600/95 backdrop-blur-md text-white border-4 border-white px-6 sm:px-8 py-4 sm:py-5 rounded-3xl shadow-2xl flex items-center gap-3 transform max-w-md">
+        </div>
+    </div>
+
+    <!-- Top Brand Header -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-lg border-b border-slate-200/80 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand Identity -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 font-serif font-bold text-xl shrink-0">
+                    AT
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-xl font-extrabold tracking-tight text-slate-900 flex flex-wrap items-center gap-2">
+                        <span>Tiếng Anh Ms Tuyết</span>
+                        <span class="text-[11px] bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-2.5 py-0.5 rounded-full font-bold tracking-wide">Phonics Studio</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 font-medium hidden sm:block">Hệ thống 10 chuyên đề phân biệt phát âm chuẩn IPA &amp; Luyện nghe tương tác</p>
+                </div>
+            </div>
+
+            <!-- Voice Accent, Speed Controls & Teacher GitHub Push -->
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200/80 text-xs text-slate-700">
+                    <div class="flex items-center gap-1.5 px-1">
+                        <i class="fa-solid fa-earth-americas text-indigo-600"></i>
+                        <select id="voiceAccent" class="bg-white rounded-lg px-2 py-1 font-semibold text-slate-700 border border-slate-200 outline-none cursor-pointer focus:ring-1 focus:ring-blue-500" title="Chọn giọng đọc">
+                            <option value="en-GB" selected="">Giọng Anh (UK)</option>
+                            <option value="en-US">Giọng Mỹ (US)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-1 border-l border-slate-200">
+                        <i class="fa-solid fa-gauge-high text-blue-600"></i>
+                        <select id="voiceSpeed" class="bg-white rounded-lg px-2 py-1 font-semibold text-slate-700 border border-slate-200 outline-none cursor-pointer focus:ring-1 focus:ring-blue-500" title="Chọn tốc độ đọc">
+                            <option value="0.75">Chậm (0.75x)</option>
+                            <option value="1.0" selected="">Chuẩn (1.0x)</option>
+                        </select>
+                    </div>
+                    <button type="button" id="testVoiceBtn" title="Nghe thử giọng đọc" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded-lg font-semibold transition flex items-center gap-1 shadow-xs">
+                        <i class="fa-solid fa-volume-high text-[11px]"></i>
+                        <span class="hidden md:inline">Thử giọng</span>
+                    </button>
+                </div>
+
+                <!-- Teacher GitHub Push & Copy Link Button (Teacher Only - Automatically Removed on Student Build) -->
+                
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
+
+        <!-- Banner thương hiệu lớp học Tiếng Anh Ms. Tuyết -->
+        <div class="bg-gradient-to-r from-blue-500 via-indigo-600 to-sky-500 text-white rounded-3xl p-5 md:p-6 shadow-md relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4 border border-blue-300">
+            <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+            <div class="space-y-1 text-center md:text-left z-10">
+                <div class="inline-flex items-center gap-1.5 bg-amber-400/90 text-indigo-950 font-black text-[11px] px-3 py-0.5 rounded-full uppercase tracking-wider mb-1">
+                    <i class="fa-solid fa-award"></i> Trung tâm &amp; Lớp Học Chất Lượng Cao
+                </div>
+                <h2 class="text-xl md:text-2xl font-black text-white font-heading">
+                    LỚP HỌC TIẾNG ANH MS. TUYẾT
+                </h2>
+                <p class="text-xs md:text-sm text-blue-100 font-medium">
+                    Chuyên đào tạo: <b>Tiếng Anh nền tảng 1-12</b>, Luyện thi Chuyển cấp, Ôn thi Đại Học &amp; Luyện thi chứng chỉ <b>VSTEP - TOEIC</b>.
+                </p>
+            </div>
+            <div class="flex items-center justify-center gap-2 shrink-0 z-10">
+                <div class="text-center px-3.5 py-2 bg-white/15 backdrop-blur-md rounded-2xl border border-white/20">
+                    <span class="block text-amber-300 font-black text-xs uppercase">Cam kết</span>
+                    <span class="text-xs font-semibold text-white">Vững kiến thức</span>
+                </div>
+                <div class="text-center px-3.5 py-2 bg-white/15 backdrop-blur-md rounded-2xl border border-white/20">
+                    <span class="block text-amber-300 font-black text-xs uppercase">Mục tiêu</span>
+                    <span class="text-xs font-semibold text-white">Điểm 9+ &amp; Đạt Target</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10-LESSON NAVIGATION GRID -->
+        <section class="bg-white rounded-3xl p-4 sm:p-5 shadow-soft border border-slate-200/80">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3.5">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-blue-600"></i> Danh sách 10 Chuyên Đề Phát Âm
+                </span>
+                <span class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100" id="overallProgressBadge">
+                    Hoàn thành: 0/10 bài
+                </span>
+            </div>
+
+            <div id="lessonGridMenu" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                <!-- 10 Lesson buttons rendered dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- LESSON HERO BANNER -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-600 to-violet-700 text-white p-6 sm:p-8 shadow-xl transition-all duration-300">
+            <div class="absolute -right-4 -bottom-8 opacity-15 pointer-events-none text-8xl sm:text-9xl font-serif select-none font-bold" id="bannerWatermark">
+                /ɑː/
+            </div>
+            <div class="relative z-10 max-w-3xl space-y-2.5">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-300/30 backdrop-blur-md text-xs font-bold tracking-wide text-amber-200 uppercase">
+                        <i class="fa-solid fa-graduation-cap"></i> Tiếng Anh Ms Tuyết
+                    </span>
+                    <span id="bannerTag" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold tracking-wide text-blue-100 uppercase">
+                        Chuyên đề 1
+                    </span>
+                </div>
+                <h2 id="bannerTitle" class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-snug">
+                    Phân Biệt Cặp Âm
+                </h2>
+                <p id="bannerDesc" class="text-blue-100 text-sm sm:text-base leading-relaxed">
+                    Mô tả bài học
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 1: THEORY & MEMORY TRICKS (LÝ THUYẾT & MẸO NHẬN BIẾT) -->
+        <section class="bg-white rounded-3xl p-5 sm:p-7 shadow-soft border border-slate-200/80">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-5 pb-3.5 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Lý Thuyết &amp; Mẹo Nhận Biết "Thần Tốc"</h3>
+                        <p class="text-xs text-slate-500">Khẩu hình miệng, quy tắc chính tả đặc trưng &amp; âm thanh mẫu</p>
+                    </div>
+                </div>
+                <span class="text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                    <i class="fa-solid fa-volume-high mr-1"></i> Bấm vào loa để nghe âm mẫu
+                </span>
+            </div>
+
+            <!-- Dynamic Theory Cards Grid -->
+            <div id="theoryCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Special Mnemonic / Tip Box -->
+            <div id="specialTipBox" class="mt-5 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50/70 border border-amber-200/80 flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                </div>
+                <div class="text-xs sm:text-sm text-amber-950 leading-relaxed" id="specialTipContent">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: INTERACTIVE WORD CLASSIFICATION (BÀI TẬP PHÂN LOẠI TỪ) -->
+        <section class="space-y-5">
+            <!-- Header & Score Bar -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl shadow-soft border border-slate-200/80">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span>Phần 1: Phân Loại Từ Vựng Vào Cột Âm Tương Ứng</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Nghe phát âm &amp; chọn âm (bấm nút hoặc kéo thả). <strong>Đúng</strong> → Pháo hoa + Chuông Ding! | <strong>Sai</strong> → Báo ❌ XXX ❌ + Rung lắc!
+                    </p>
+                </div>
+
+                <!-- Stats Counters -->
+                <div class="flex items-center gap-3 shrink-0">
+                    <div class="bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-check-double text-emerald-600"></i>
+                        <span>Đã hoàn thành: <strong id="placedCount" class="text-slate-900 font-extrabold">0</strong>/<span id="totalWordsCount">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pool of Available Words (Hidden IPA during practice) -->
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-soft border border-slate-200/80">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <i class="fa-solid fa-boxes-stacked text-blue-600"></i> Kho từ tự luyện (Ẩn phiên âm - Còn <span id="unassignedCount" class="text-blue-600 font-extrabold">0</span> từ)
+                    </span>
+                    <button type="button" onclick="shuffleUnassignedWords()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition">
+                        <i class="fa-solid fa-shuffle"></i> Trộn thứ tự từ
+                    </button>
+                </div>
+
+                <div id="wordBank" class="min-h-[120px] p-4 rounded-2xl bg-slate-50/90 border-2 border-dashed border-slate-300 flex flex-wrap gap-3 items-center justify-center transition-all">
+                    <!-- Word cards rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- Two Classification Columns -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Column A -->
+                <div class="flex flex-col bg-white rounded-3xl p-5 shadow-soft border-2 border-blue-200 relative overflow-hidden transition-all duration-300">
+                    <div class="flex items-center justify-between pb-3.5 mb-3 border-b border-blue-100">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl font-black text-blue-600 bg-blue-100 px-3.5 py-1 rounded-xl font-serif" id="colALabel">/ɑː/</span>
+                            <div>
+                                <h4 class="font-bold text-slate-800 leading-tight" id="colATitle">Cột âm A</h4>
+                                <span class="text-xs text-slate-400" id="colAExample">Ví dụ...</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200" id="countColA">
+                            0 từ
+                        </span>
+                    </div>
+
+                    <div id="dropColA" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'colA')" class="flex-1 min-h-[260px] p-3 rounded-2xl bg-blue-50/30 border-2 border-dashed border-blue-200/80 flex flex-wrap content-start gap-2.5 transition-all">
+                        <div class="empty-hint w-full text-center my-auto py-10 text-slate-400 pointer-events-none select-none flex flex-col items-center gap-2">
+                            <i class="fa-solid fa-arrow-down text-2xl text-blue-300"></i>
+                            <p class="text-xs" id="colAHint">Kéo từ vào đây hoặc bấm nút âm trên thẻ từ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column B -->
+                <div class="flex flex-col bg-white rounded-3xl p-5 shadow-soft border-2 border-indigo-200 relative overflow-hidden transition-all duration-300">
+                    <div class="flex items-center justify-between pb-3.5 mb-3 border-b border-indigo-100">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl font-black text-indigo-600 bg-indigo-100 px-3.5 py-1 rounded-xl font-serif" id="colBLabel">/ʌ/</span>
+                            <div>
+                                <h4 class="font-bold text-slate-800 leading-tight" id="colBTitle">Cột âm B</h4>
+                                <span class="text-xs text-slate-400" id="colBExample">Ví dụ...</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200" id="countColB">
+                            0 từ
+                        </span>
+                    </div>
+
+                    <div id="dropColB" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'colB')" class="flex-1 min-h-[260px] p-3 rounded-2xl bg-indigo-50/30 border-2 border-dashed border-indigo-200/80 flex flex-wrap content-start gap-2.5 transition-all">
+                        <div class="empty-hint w-full text-center my-auto py-10 text-slate-400 pointer-events-none select-none flex flex-col items-center gap-2">
+                            <i class="fa-solid fa-arrow-down text-2xl text-indigo-300"></i>
+                            <p class="text-xs" id="colBHint">Kéo từ vào đây hoặc bấm nút âm trên thẻ từ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons Toolbar -->
+            <div class="flex flex-wrap items-center justify-center sm:justify-end gap-3 pt-2">
+                <button type="button" onclick="resetExercise()" class="px-5 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm shadow-xs transition flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-rotate-left text-slate-500"></i> Làm lại bài này
+                </button>
+                <button type="button" onclick="autoSolveDemo()" class="px-5 py-2.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100/80 text-amber-800 font-semibold text-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-eye text-amber-600"></i> Xem đáp án &amp; Bảng IPA
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION 2B: MULTIPLE CHOICE QUIZ SECTION (ONLY FOR LESSON 3 & LESSON 9) -->
+        <section id="mcqSection" class="hidden bg-white rounded-3xl p-6 sm:p-7 shadow-soft border-2 border-purple-200/80 space-y-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold shadow-md shadow-purple-500/20">
+                        <i class="fa-solid fa-list-ol"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Phần 2: Trắc Nghiệm Tìm Từ Phát Âm Khác</h3>
+                        <p class="text-xs text-slate-500">Choose the word that has a different sound in the underlined part (Bấm chọn đáp án đúng để nhận pháo hoa!)</p>
+                    </div>
+                </div>
+                <span id="mcqScoreBadge" class="text-xs font-bold px-3.5 py-1.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                    Đúng: 0/0 câu
+                </span>
+            </div>
+
+            <div id="mcqQuestionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- MCQ Cards injected dynamically -->
+            </div>
+        </section>
+
+        <!-- SECTION 3: DETAILED PHONETIC EXPLANATION TABLE (Unlocked when finished or clicked) -->
+        <section id="explanationSection" class="hidden bg-white rounded-3xl p-6 sm:p-7 shadow-soft border border-slate-200/80 space-y-5 transition-all duration-500">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-spell-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Bảng Tổng Kết &amp; Tra Cứu Phiên Âm IPA Chi Tiết</h3>
+                        <p class="text-xs text-slate-500">Ôn tập lại mặt chữ, phiên âm chuẩn quốc tế, nghĩa tiếng Việt và nghe lại từng từ</p>
+                    </div>
+                </div>
+                <button type="button" onclick="document.getElementById('explanationSection').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg transition" title="Thu gọn bảng">
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 text-xs font-bold text-slate-600 uppercase border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-4">Từ vựng</th>
+                            <th class="py-3.5 px-4">Phiên âm IPA</th>
+                            <th class="py-3.5 px-4">Phân loại âm</th>
+                            <th class="py-3.5 px-4">Nghĩa tiếng Việt</th>
+                            <th class="py-3.5 px-4 text-center">Nghe đọc</th>
+                        </tr>
+                    </thead>
+                    <tbody id="explanationTableBody" class="divide-y divide-slate-100 text-slate-700">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto px-4 sm:px-6 mt-12 pt-6 border-t border-slate-200/80 text-center text-xs text-slate-500">
+        <p class="font-semibold text-slate-700">Hệ thống học liệu tương tác độc quyền - Tiếng Anh Ms Tuyết</p>
+        <p class="mt-1">Chúc các em học tốt và chinh phục trọn vẹn điểm phát âm tiếng Anh!</p>
+    </footer>
+
+    <!-- SHARE & 1-CLICK GITHUB PUSH MODAL FOR MS TUYET (Teacher Only) -->
+    
+
+    <!-- Custom Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-sm max-w-sm">
+        <div id="toastIcon" class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs text-white shrink-0">
+            <i class="fa-solid fa-info"></i>
+        </div>
+        <p id="toastMessage" class="font-medium text-xs sm:text-sm">Thông báo</p>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & COMPLETE 10-LESSON DATABASE -->
+    <script>
+        const DEFAULT_GITHUB_OWNER = "ndsannn-source";
+        const DEFAULT_GITHUB_REPO = "destination-a2-quiz-progress-1";
+        const FILE_SLUG = "phonics-studio.html";
+
+        // Capture pristine HTML at initial load so teacher can push or download a clean student copy
+        const INITIAL_RAW_HTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+        const LESSON_CONFIG = {
+            lesson1: {
+                id: 'lesson1',
+                shortTitle: 'Bài 1',
+                pairLabel: '/ɑː/ & /ʌ/',
+                title: 'Bài 1: Phân Biệt Nguyên Âm /ɑː/ (A dài) & /ʌ/ (Á ngắn)',
+                tag: 'Chuyên đề 1 • 18 từ vựng',
+                desc: 'Nắm chắc khẩu hình miệng hạ thấp sàn lưỡi khi phát âm /ɑː/ và cách bật hơi nhanh, gọn cho âm /ʌ/.',
+                watermark: '/ɑː/',
+                colA: {
+                    symbol: '/ɑː/',
+                    name: 'Cột âm /ɑː/ (A dài)',
+                    example: 'Barber, bark, hard, garden, card...',
+                    hint: 'Kéo từ chứa âm /ɑː/ vào đây'
+                },
+                colB: {
+                    symbol: '/ʌ/',
+                    name: 'Cột âm /ʌ/ (Á ngắn)',
+                    example: 'duckling, company, ugly, monkey...',
+                    hint: 'Kéo từ chứa âm /ʌ/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/ɑː/',
+                        title: 'Âm "A dài" (Long A)',
+                        badge: 'Mở rộng & Ngân dài',
+                        theme: 'blue',
+                        audioSample: 'father, car, garden, park',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Mở miệng to theo chiều dọc, hạ thấp cằm và thân lưỡi xuống sàn miệng.',
+                            '<strong>Độ dài:</strong> Ngân dài hơi tự nhiên (có dấu <code>:</code> trong phiên âm).',
+                            '<strong>Dấu hiệu chính tả:</strong> Thường gặp ở cụm <code>ar</code> (barber, bark, hard, garden, parking, large, harbor, card) hoặc <code>uar</code> (guard).'
+                        ]
+                    },
+                    {
+                        symbol: '/ʌ/',
+                        title: 'Âm "Á ngắn" (Short U)',
+                        badge: 'Thả lỏng & Dứt khoát',
+                        theme: 'indigo',
+                        audioSample: 'cup, duck, monkey, brother',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Miệng mở tự nhiên vừa phải, lưỡi thả lỏng ở vị trí giữa.',
+                            '<strong>Độ dài:</strong> Bật âm thật nhanh, ngắn và dứt khoát, nghe hơi giống "ă/ơ" nhẹ.',
+                            '<strong>Dấu hiệu chính tả:</strong> Chữ <code>u</code> (duckling, ugly, lung), hoặc chữ <code>o</code> đứng cạnh m, n, v, th (company, other, monkey, dozen, nothing, brother).'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Mẹo nhớ nhanh:</strong> Hầu hết các từ có mặt chữ <strong>"ar"</strong> (như <em>park, card, garden</em>) đều đọc là <strong>/ɑː/</strong>. Trong khi đó, chữ <strong>"o"</strong> đi kèm các phụ âm mũi/rung (<em>company, monkey, brother, mother, other, dozen</em>) thường đọc là <strong>/ʌ/</strong>!',
+                words: [
+                    { id: 101, word: "Barber", ipa: "/ˈbɑː.bər/", target: "colA", meaning: "thợ cắt tóc nam" },
+                    { id: 102, word: "duckling", ipa: "/ˈdʌk.lɪŋ/", target: "colB", meaning: "vịt con" },
+                    { id: 103, word: "company", ipa: "/ˈkʌm.pə.ni/", target: "colB", meaning: "công ty, sự đồng hành" },
+                    { id: 104, word: "bark", ipa: "/bɑːk/", target: "colA", meaning: "tiếng chó sủa / vỏ cây" },
+                    { id: 105, word: "hard", ipa: "/hɑːd/", target: "colA", meaning: "cứng rắn, chăm chỉ, khó" },
+                    { id: 106, word: "ugly", ipa: "/ˈʌɡ.li/", target: "colB", meaning: "xấu xí" },
+                    { id: 107, word: "garden", ipa: "/ˈɡɑː.dən/", target: "colA", meaning: "khu vườn" },
+                    { id: 108, word: "other", ipa: "/ˈʌð.ər/", target: "colB", meaning: "khác, người khác" },
+                    { id: 109, word: "monkey", ipa: "/ˈmʌŋ.ki/", target: "colB", meaning: "con khỉ" },
+                    { id: 110, word: "parking", ipa: "/ˈpɑː.kɪŋ/", target: "colA", meaning: "bãi đỗ xe" },
+                    { id: 111, word: "large", ipa: "/lɑːdʒ/", target: "colA", meaning: "rộng lớn, to lớn" },
+                    { id: 112, word: "guard", ipa: "/ɡɑːd/", target: "colA", meaning: "người bảo vệ, canh gác" },
+                    { id: 113, word: "lung", ipa: "/lʌŋ/", target: "colB", meaning: "lá phổi" },
+                    { id: 114, word: "dozen", ipa: "/ˈdʌz.ən/", target: "colB", meaning: "một tá (12 chiếc)" },
+                    { id: 115, word: "harbor", ipa: "/ˈhɑː.bər/", target: "colA", meaning: "bến cảng" },
+                    { id: 116, word: "nothing", ipa: "/ˈnʌθ.ɪŋ/", target: "colB", meaning: "không có gì" },
+                    { id: 117, word: "card", ipa: "/kɑːd/", target: "colA", meaning: "tấm thẻ, danh thiếp" },
+                    { id: 118, word: "brother", ipa: "/ˈbrʌð.ər/", target: "colB", meaning: "anh / em trai" }
+                ]
+            },
+
+            lesson2: {
+                id: 'lesson2',
+                shortTitle: 'Bài 2',
+                pairLabel: '/iː/ & /ɪ/',
+                title: 'Bài 2: Phân Biệt Nguyên Âm /iː/ (i dài) & /ɪ/ (i ngắn)',
+                tag: 'Chuyên đề 2 • 17 từ vựng',
+                desc: 'Phân biệt âm /iː/ căng cơ miệng như mỉm cười và âm /ɪ/ thả lỏng, bật ngắn dứt khoát.',
+                watermark: '/iː/',
+                colA: {
+                    symbol: '/iː/',
+                    name: 'Cột âm /iː/ (i dài)',
+                    example: 'seat, cheap, beef, team, queen...',
+                    hint: 'Kéo từ chứa âm /iː/ vào đây'
+                },
+                colB: {
+                    symbol: '/ɪ/',
+                    name: 'Cột âm /ɪ/ (i ngắn)',
+                    example: 'quick, ostrich, spring, sit, win...',
+                    hint: 'Kéo từ chứa âm /ɪ/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/iː/',
+                        title: 'Âm "I dài" (/iː/)',
+                        badge: 'Cười mỉm & Ngân dài',
+                        theme: 'blue',
+                        audioSample: 'see, seat, beef, team, queen',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Hai khóe miệng kéo căng sang hai bên như đang mỉm cười, đầu lưỡi nâng cao.',
+                            '<strong>Độ dài:</strong> Ngân dài giọng rõ ràng.',
+                            '<strong>Dấu hiệu chính tả:</strong> Nhóm chữ <code>ee</code> (beef, teen, queen, keep) và nhóm <code>ea</code> (seat, cheap, team, lead, heat, steal).'
+                        ]
+                    },
+                    {
+                        symbol: '/ɪ/',
+                        title: 'Âm "I ngắn" (/ɪ/)',
+                        badge: 'Thả lỏng & Ngắn gọn',
+                        theme: 'indigo',
+                        audioSample: 'sit, quick, spring, win, chicken',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Môi mở tự nhiên, không căng khóe miệng, lưỡi hạ nhẹ và thả lỏng.',
+                            '<strong>Độ dài:</strong> Bật âm rất ngắn và dứt khoát (âm thanh nghe hơi lai giữa "i" và "ê").',
+                            '<strong>Dấu hiệu chính tả:</strong> Chữ <code>i</code> đơn đứng giữa các phụ âm (quick, spring, sit, win, chicken, illness) hoặc đuôi <code>-ich</code> (ostrich).'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Thần chú nhận diện:</strong> Thấy cặp nguyên âm đôi <strong>"ee"</strong> hoặc <strong>"ea"</strong> thường đọc kéo dài là <strong>/iː/</strong>. Thấy một chữ <strong>"i"</strong> đứng một mình kẹp giữa phụ âm (<em>sit, win, spring, quick</em>) thì 90% đọc ngắn là <strong>/ɪ/</strong>!',
+                words: [
+                    { id: 201, word: "seat", ipa: "/siːt/", target: "colA", meaning: "chỗ ngồi, ghế ngồi" },
+                    { id: 202, word: "quick", ipa: "/kwɪk/", target: "colB", meaning: "nhanh nhẹn, lẹ làng" },
+                    { id: 203, word: "ostrich", ipa: "/ˈɒs.trɪtʃ/", target: "colB", meaning: "chim đà điểu" },
+                    { id: 204, word: "spring", ipa: "/sprɪŋ/", target: "colB", meaning: "mùa xuân / lò xo" },
+                    { id: 205, word: "cheap", ipa: "/tʃiːp/", target: "colA", meaning: "giá rẻ, bình dân" },
+                    { id: 206, word: "beef", ipa: "/biːf/", target: "colA", meaning: "thịt bò" },
+                    { id: 207, word: "team", ipa: "/tiːm/", target: "colA", meaning: "đội, nhóm" },
+                    { id: 208, word: "sit", ipa: "/sɪt/", target: "colB", meaning: "ngồi xuống" },
+                    { id: 209, word: "teen", ipa: "/tiːn/", target: "colA", meaning: "tuổi thiếu niên" },
+                    { id: 210, word: "lead", ipa: "/liːd/", target: "colA", meaning: "dẫn dắt, lãnh đạo" },
+                    { id: 211, word: "queen", ipa: "/kwiːn/", target: "colA", meaning: "nữ hoàng" },
+                    { id: 212, word: "keep", ipa: "/kiːp/", target: "colA", meaning: "giữ gìn" },
+                    { id: 213, word: "heat", ipa: "/hiːt/", target: "colA", meaning: "nhiệt lượng, sức nóng" },
+                    { id: 214, word: "win", ipa: "/wɪn/", target: "colB", meaning: "chiến thắng" },
+                    { id: 215, word: "chicken", ipa: "/ˈtʃɪk.ɪn/", target: "colB", meaning: "con gà / thịt gà" },
+                    { id: 216, word: "steal", ipa: "/stiːl/", target: "colA", meaning: "ăn trộm, đánh cắp" },
+                    { id: 217, word: "illness", ipa: "/ˈɪl.nəs/", target: "colB", meaning: "bệnh tật, sự ốm đau" }
+                ]
+            },
+
+            lesson3: {
+                id: 'lesson3',
+                shortTitle: 'Bài 3',
+                pairLabel: 'Đuôi -s /s/ & /z/',
+                title: 'Bài 3: Quy Tắc Phát Âm Đuôi -s/-es: /s/ vs /z/',
+                tag: 'Chuyên đề 3 • 15 từ + 6 câu trắc nghiệm',
+                desc: 'Nắm vững câu thần chú "Thời Phong Kiến Phương Tây" để chinh phục 100% bài tập phát âm đuôi -s/-es trong mọi đề thi.',
+                watermark: '/s/ /z/',
+                colA: {
+                    symbol: '/s/',
+                    name: 'Cột âm vô thanh /s/',
+                    example: 'roofs, lights, desks, aunts, books...',
+                    hint: 'Kéo từ có đuôi -s đọc là /s/ vào đây'
+                },
+                colB: {
+                    symbol: '/z/',
+                    name: 'Cột âm hữu thanh /z/',
+                    example: 'cars, pictures, kitchens, sofas...',
+                    hint: 'Kéo từ có đuôi -s đọc là /z/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/s/',
+                        title: 'Đuôi -s đọc là /s/ (Âm gió vô thanh)',
+                        badge: 'Không rung cổ họng',
+                        theme: 'blue',
+                        audioSample: 'roofs, lights, desks, aunts, clocks, lamps, books',
+                        points: [
+                            '<strong>Quy tắc vàng:</strong> Đọc là <strong>/s/</strong> khi từ gốc kết thúc bằng các âm vô thanh: <code>/t/, /p/, /k/, /f/, /θ/</code> (mặt chữ thường là <code>-t, -p, -k, -f/-gh/-ph, -th</code>).',
+                            '<strong>Thần chú dễ nhớ:</strong> <em>"<strong>T</strong>hời <strong>P</strong>hong <strong>K</strong>iến <strong>P</strong>hương <strong>T</strong>ây"</em> (t, p, k, f, th).',
+                            '<strong>Ví dụ trong bài:</strong> roo<strong>f</strong>s, ligh<strong>t</strong>s, des<strong>k</strong>s, aun<strong>t</strong>s, cloc<strong>k</strong>s, lam<strong>p</strong>s, boo<strong>k</strong>s.'
+                        ]
+                    },
+                    {
+                        symbol: '/z/',
+                        title: 'Đuôi -s đọc là /z/ (Âm rung hữu thanh)',
+                        badge: 'Rung dây thanh quản',
+                        theme: 'indigo',
+                        audioSample: 'cars, pictures, kitchens, sofas, tables, fans',
+                        points: [
+                            '<strong>Quy tắc vàng:</strong> Đọc là <strong>/z/</strong> khi từ gốc kết thúc bằng nguyên âm (a, e, i, o, u) hoặc các phụ âm hữu thanh còn lại (b, d, g, l, m, n, r, v, w, y...).',
+                            '<strong>Lưu ý từ tận cùng -e câm:</strong> Phải xét âm cuối trước chữ <code>e</code>! Ví dụ: <em>picture<strong>s</strong></em> (âm cuối /r/ &rarr; /z/), <em>table<strong>s</strong></em> (âm cuối /l/ &rarr; /z/).',
+                            '<strong>Ví dụ trong bài:</strong> car<strong>s</strong>, picture<strong>s</strong>, kitchen<strong>s</strong>, sofa<strong>s</strong>, table<strong>s</strong>, fan<strong>s</strong>, computer<strong>s</strong>, pillow<strong>s</strong>.'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Bí kíp Ms Tuyết:</strong> Chỉ cần thuộc lòng 5 chữ cái cuối của từ gốc: <strong>t - p - k - f - th</strong> (<em>Thời Phong Kiến Phương Tây</em>) &rarr; Đọc là <strong>/s/</strong>. Tất cả các trường hợp còn lại (trừ nhóm âm gió <em>s, sh, ch, x, z, ge</em> đọc là /ɪz/) đều đọc là <strong>/z/</strong>!',
+                words: [
+                    { id: 301, word: "cars", ipa: "/kɑːz/", target: "colB", meaning: "những chiếc ô tô" },
+                    { id: 302, word: "roofs", ipa: "/ruːfs/", target: "colA", meaning: "những mái nhà" },
+                    { id: 303, word: "pictures", ipa: "/ˈpɪk.tʃəz/", target: "colB", meaning: "những bức tranh" },
+                    { id: 304, word: "kitchens", ipa: "/ˈkɪtʃ.ənz/", target: "colB", meaning: "những nhà bếp" },
+                    { id: 305, word: "lights", ipa: "/laɪts/", target: "colA", meaning: "những ngọn đèn" },
+                    { id: 306, word: "desks", ipa: "/desks/", target: "colA", meaning: "những chiếc bàn học" },
+                    { id: 307, word: "sofas", ipa: "/ˈsəʊ.fəz/", target: "colB", meaning: "những ghế sô-pha" },
+                    { id: 308, word: "tables", ipa: "/ˈteɪ.bəlz/", target: "colB", meaning: "những chiếc bàn" },
+                    { id: 309, word: "aunts", ipa: "/ɑːnts/", target: "colA", meaning: "các cô / dì / bác gái" },
+                    { id: 310, word: "fans", ipa: "/fænz/", target: "colB", meaning: "những chiếc quạt / người hâm mộ" },
+                    { id: 311, word: "clocks", ipa: "/klɒks/", target: "colA", meaning: "những đồng hồ treo tường" },
+                    { id: 312, word: "computers", ipa: "/kəmˈpjuː.təz/", target: "colB", meaning: "những máy vi tính" },
+                    { id: 313, word: "pillows", ipa: "/ˈpɪl.əʊz/", target: "colB", meaning: "những chiếc gối" },
+                    { id: 314, word: "lamps", ipa: "/læmps/", target: "colA", meaning: "những chiếc đèn ngủ" },
+                    { id: 315, word: "books", ipa: "/bʊks/", target: "colA", meaning: "những cuốn sách" }
+                ],
+                mcqs: [
+                    {
+                        id: 'l3_q1',
+                        num: 1,
+                        options: [
+                            { label: 'A', html: 'map<u>s</u>', word: 'maps', sound: '/s/' },
+                            { label: 'B', html: 'hat<u>s</u>', word: 'hats', sound: '/s/' },
+                            { label: 'C', html: 'knock<u>s</u>', word: 'knocks', sound: '/s/' },
+                            { label: 'D', html: 'bee<u>s</u>', word: 'bees', sound: '/z/' }
+                        ],
+                        correct: 'D',
+                        explanation: 'A, B, C tận cùng là p, t, k nên đuôi -s đọc là /s/. Riêng D (bees) tận cùng là nguyên âm dài /iː/ nên -s đọc là /z/.'
+                    },
+                    {
+                        id: 'l3_q2',
+                        num: 2,
+                        options: [
+                            { label: 'A', html: 'cat<u>s</u>', word: 'cats', sound: '/s/' },
+                            { label: 'B', html: 'lamp<u>s</u>', word: 'lamps', sound: '/s/' },
+                            { label: 'C', html: 'board<u>s</u>', word: 'boards', sound: '/z/' },
+                            { label: 'D', html: 'clock<u>s</u>', word: 'clocks', sound: '/s/' }
+                        ],
+                        correct: 'C',
+                        explanation: 'A, B, D tận cùng là t, p, k nên -s đọc là /s/. C (boards) tận cùng là âm hữu thanh /d/ nên -s đọc là /z/.'
+                    },
+                    {
+                        id: 'l3_q3',
+                        num: 3,
+                        options: [
+                            { label: 'A', html: 'cooker<u>s</u>', word: 'cookers', sound: '/z/' },
+                            { label: 'B', html: 'notebook<u>s</u>', word: 'notebooks', sound: '/s/' },
+                            { label: 'C', html: 'poster<u>s</u>', word: 'posters', sound: '/z/' },
+                            { label: 'D', html: 'table<u>s</u>', word: 'tables', sound: '/z/' }
+                        ],
+                        correct: 'B',
+                        explanation: 'B (notebooks) tận cùng là chữ k nên -s đọc là /s/. Các từ A, C, D đều đọc là /z/.'
+                    },
+                    {
+                        id: 'l3_q4',
+                        num: 4,
+                        options: [
+                            { label: 'A', html: 'light<u>s</u>', word: 'lights', sound: '/s/' },
+                            { label: 'B', html: 'armchair<u>s</u>', word: 'armchairs', sound: '/z/' },
+                            { label: 'C', html: 'sofa<u>s</u>', word: 'sofas', sound: '/z/' },
+                            { label: 'D', html: 'picture<u>s</u>', word: 'pictures', sound: '/z/' }
+                        ],
+                        correct: 'A',
+                        explanation: 'A (lights) tận cùng là âm /t/ nên -s đọc là /s/. Các từ B, C, D đều đọc là /z/.'
+                    },
+                    {
+                        id: 'l3_q5',
+                        num: 5,
+                        options: [
+                            { label: 'A', html: 'pencil<u>s</u>', word: 'pencils', sound: '/z/' },
+                            { label: 'B', html: 'pillow<u>s</u>', word: 'pillows', sound: '/z/' },
+                            { label: 'C', html: 'bed<u>s</u>', word: 'beds', sound: '/z/' },
+                            { label: 'D', html: 'book<u>s</u>', word: 'books', sound: '/s/' }
+                        ],
+                        correct: 'D',
+                        explanation: 'D (books) tận cùng là chữ k nên -s đọc là /s/. A, B, C tận cùng là l, w, d nên -s đọc là /z/.'
+                    },
+                    {
+                        id: 'l3_q6',
+                        num: 6,
+                        options: [
+                            { label: 'A', html: 'garden<u>s</u>', word: 'gardens', sound: '/z/' },
+                            { label: 'B', html: 'sink<u>s</u>', word: 'sinks', sound: '/s/' },
+                            { label: 'C', html: 'stove<u>s</u>', word: 'stoves', sound: '/z/' },
+                            { label: 'D', html: 'drawer<u>s</u>', word: 'drawers', sound: '/z/' }
+                        ],
+                        correct: 'B',
+                        explanation: 'B (sinks) tận cùng là chữ k nên -s đọc là /s/. A, C, D đều tận cùng bằng phụ âm hữu thanh nên -s đọc là /z/.'
+                    }
+                ]
+            },
+
+            lesson4: {
+                id: 'lesson4',
+                shortTitle: 'Bài 4',
+                pairLabel: '/t/ & /d/',
+                title: 'Bài 4: Phân Biệt Cặp Phụ Âm Bật /t/ & /d/',
+                tag: 'Chuyên đề 4 • 17 từ vựng',
+                desc: 'Cùng vị trí đặt đầu lưỡi chạm chân răng trên, nhưng /t/ là âm bật hơi vô thanh mạnh, còn /d/ là âm rung dây thanh quản.',
+                watermark: '/t/ /d/',
+                colA: {
+                    symbol: '/t/',
+                    name: 'Cột phụ âm /t/',
+                    example: 'little, doctor, actor, curtain, teach...',
+                    hint: 'Kéo từ chứa âm /t/ vào đây'
+                },
+                colB: {
+                    symbol: '/d/',
+                    name: 'Cột phụ âm /d/',
+                    example: 'danger, board, hide, mend, dinner...',
+                    hint: 'Kéo từ chứa âm /d/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/t/',
+                        title: 'Phụ âm vô thanh /t/',
+                        badge: 'Bật hơi mạnh • Không rung họng',
+                        theme: 'blue',
+                        audioSample: 'little, doctor, actor, curtain, teach, meat',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Đầu lưỡi chạm vào phần lợi ngay sau răng cửa trên, nén hơi rồi bật mạnh ra ngoài.',
+                            '<strong>Kiểm tra:</strong> Đặt tay lên cổ họng khi phát âm /t/ thấy dây thanh quản <strong>không rung</strong>, có luồng gió bật ra.',
+                            '<strong>Mặt chữ trong bài:</strong> Chữ <code>t</code> hoặc <code>tt</code> (little, doctor, actor, curtain, teach, plant, architect, attract, meat, butter).'
+                        ]
+                    },
+                    {
+                        symbol: '/d/',
+                        title: 'Phụ âm hữu thanh /d/',
+                        badge: 'Rung cổ họng • Âm đục',
+                        theme: 'indigo',
+                        audioSample: 'danger, board, hide, mend, dinner, divide',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Vị trí đầu lưỡi giống hệt âm /t/ (chạm lợi trên), nhưng bật hơi nhẹ hơn và làm <strong>rung cổ họng</strong>.',
+                            '<strong>Kiểm tra:</strong> Đặt tay lên yết hầu thấy rung rõ rệt.',
+                            '<strong>Mặt chữ trong bài:</strong> Chữ <code>d</code> (danger, board, hide, mend, dinner, louder, divide).'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Lưu ý phân biệt nhanh:</strong> Quan sát kỹ chữ cái mục tiêu trong từ: các từ chứa chữ <strong>t / tt</strong> (<em>little, doctor, actor, curtain, teach, plant, architect, attract, meat, butter</em>) thuộc nhóm <strong>/t/</strong>; các từ chứa chữ <strong>d</strong> (<em>danger, board, hide, mend, dinner, louder, divide</em>) thuộc nhóm <strong>/d/</strong>.',
+                words: [
+                    { id: 401, word: "little", ipa: "/ˈlɪt.əl/", target: "colA", meaning: "nhỏ bé, một chút" },
+                    { id: 402, word: "danger", ipa: "/ˈdeɪn.dʒər/", target: "colB", meaning: "sự nguy hiểm" },
+                    { id: 403, word: "doctor", ipa: "/ˈdɒk.tər/", target: "colA", meaning: "bác sĩ" },
+                    { id: 404, word: "actor", ipa: "/ˈæk.tər/", target: "colA", meaning: "nam diễn viên" },
+                    { id: 405, word: "curtain", ipa: "/ˈkɜː.tən/", target: "colA", meaning: "rèm cửa" },
+                    { id: 406, word: "teach", ipa: "/tiːtʃ/", target: "colA", meaning: "dạy học" },
+                    { id: 407, word: "board", ipa: "/bɔːd/", target: "colB", meaning: "tấm bảng / ban quản trị" },
+                    { id: 408, word: "hide", ipa: "/haɪd/", target: "colB", meaning: "trốn, che giấu" },
+                    { id: 409, word: "plant", ipa: "/plɑːnt/", target: "colA", meaning: "thực vật, trồng cây" },
+                    { id: 410, word: "mend", ipa: "/mend/", target: "colB", meaning: "sửa chữa, vá" },
+                    { id: 411, word: "architect", ipa: "/ˈɑː.kɪ.tekt/", target: "colA", meaning: "kiến trúc sư" },
+                    { id: 412, word: "dinner", ipa: "/ˈdɪn.ər/", target: "colB", meaning: "bữa tối" },
+                    { id: 413, word: "attract", ipa: "/əˈtrækt/", target: "colA", meaning: "thu hút, hấp dẫn" },
+                    { id: 414, word: "louder", ipa: "/ˈlaʊ.dər/", target: "colB", meaning: "to hơn (âm thanh)" },
+                    { id: 415, word: "meat", ipa: "/miːt/", target: "colA", meaning: "thịt" },
+                    { id: 416, word: "butter", ipa: "/ˈbʌt.ər/", target: "colA", meaning: "bơ" },
+                    { id: 417, word: "divide", ipa: "/dɪˈvaɪd/", target: "colB", meaning: "chia, phân chia" }
+                ]
+            },
+
+            lesson5: {
+                id: 'lesson5',
+                shortTitle: 'Bài 5',
+                pairLabel: '/s/ & /ʃ/',
+                title: 'Bài 5: Phân Biệt Cặp Âm Gió /s/ (S nhẹ) & /ʃ/ (S nặng)',
+                tag: 'Chuyên đề 5 • 18 từ vựng',
+                desc: 'Tránh nhầm lẫn giữa âm "xì" thẳng răng /s/ và âm "suỵt" chu môi /ʃ/ – đặc biệt là từ bẫy kinh điển "sugar"!',
+                watermark: '/s/ /ʃ/',
+                colA: {
+                    symbol: '/s/',
+                    name: 'Cột âm /s/ (S nhẹ)',
+                    example: 'sentence, miss, seven, spend, soup...',
+                    hint: 'Kéo từ chứa âm /s/ vào đây'
+                },
+                colB: {
+                    symbol: '/ʃ/',
+                    name: 'Cột âm /ʃ/ (S nặng)',
+                    example: 'sugar, shy, shoes, shout, wash...',
+                    hint: 'Kéo từ chứa âm /ʃ/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/s/',
+                        title: 'Âm /s/ (S nhẹ - Xì hơi)',
+                        badge: 'Miệng cười mỉm • Đầu lưỡi thẳng',
+                        theme: 'blue',
+                        audioSample: 'sentence, miss, seven, spend, search, south, sick, soup',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Hai khóe miệng kéo nhẹ sang ngang, hai hàm răng khép hờ, đẩy luồng gió qua kẽ răng.',
+                            '<strong>Dấu hiệu chính tả:</strong> Chữ <code>s</code> hoặc <code>ss</code> thông thường (sentence, miss, seven, spend, search, south, sick, Scotland, soup, souvenir).'
+                        ]
+                    },
+                    {
+                        symbol: '/ʃ/',
+                        title: 'Âm /ʃ/ (S nặng - Suỵt em bé)',
+                        badge: 'Chu tròn môi • Cong lưỡi',
+                        theme: 'indigo',
+                        audioSample: 'sugar, shy, shoes, shout, sheep, wash, shirt, shrimp',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Chu tròn môi về phía trước như khi ra hiệu "suỵt" giữ im lặng, thân lưỡi nâng cao.',
+                            '<strong>Dấu hiệu chính tả:</strong> Cụm chữ <code>sh</code> (shy, shoes, shout, sheep, wash, shirt, shrimp).',
+                            '<strong>Từ bẫy đặc biệt:</strong> Chữ <code>su-</code> trong <strong>sugar</strong> (/ˈʃʊɡ.ər/) đọc là <strong>/ʃ/</strong>!'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Cảnh báo từ bẫy thi cử:</strong> 100% từ có cụm <strong>"sh"</strong> đọc là <strong>/ʃ/</strong>. Đặc biệt lưu ý từ <strong>sugar</strong> (đường) tuy viết bằng chữ "s" nhưng đọc là <strong>/ˈʃʊɡ.ər/</strong> (âm /ʃ/), trong khi <em>soup, south, souvenir</em> đọc là <strong>/s/</strong>!',
+                words: [
+                    { id: 501, word: "sugar", ipa: "/ˈʃʊɡ.ər/", target: "colB", meaning: "đường (gia vị)" },
+                    { id: 502, word: "sentence", ipa: "/ˈsen.təns/", target: "colA", meaning: "câu văn / bản án" },
+                    { id: 503, word: "shy", ipa: "/ʃaɪ/", target: "colB", meaning: "nhút nhát, e thẹn" },
+                    { id: 504, word: "miss", ipa: "/mɪs/", target: "colA", meaning: "nhớ nhung / bỏ lỡ" },
+                    { id: 505, word: "seven", ipa: "/ˈsev.ən/", target: "colA", meaning: "số bảy" },
+                    { id: 506, word: "shoes", ipa: "/ʃuːz/", target: "colB", meaning: "đôi giày" },
+                    { id: 507, word: "spend", ipa: "/spend/", target: "colA", meaning: "tiêu xài, dành thời gian" },
+                    { id: 508, word: "shout", ipa: "/ʃaʊt/", target: "colB", meaning: "la hét, hô to" },
+                    { id: 509, word: "search", ipa: "/sɜːtʃ/", target: "colA", meaning: "tìm kiếm" },
+                    { id: 510, word: "sheep", ipa: "/ʃiːp/", target: "colB", meaning: "con cừu" },
+                    { id: 511, word: "south", ipa: "/saʊθ/", target: "colA", meaning: "phương Nam" },
+                    { id: 512, word: "wash", ipa: "/wɒʃ/", target: "colB", meaning: "rửa, giặt" },
+                    { id: 513, word: "sick", ipa: "/sɪk/", target: "colA", meaning: "bị ốm, bệnh" },
+                    { id: 514, word: "shirt", ipa: "/ʃɜːt/", target: "colB", meaning: "áo sơ mi" },
+                    { id: 515, word: "Scotland", ipa: "/ˈskɒt.lənd/", target: "colA", meaning: "xứ Scotland" },
+                    { id: 516, word: "soup", ipa: "/suːp/", target: "colA", meaning: "món súp, canh" },
+                    { id: 517, word: "shrimp", ipa: "/ʃrɪmp/", target: "colB", meaning: "con tôm" },
+                    { id: 518, word: "souvenir", ipa: "/ˌsuː.vəˈnɪər/", target: "colA", meaning: "quà lưu niệm" }
+                ]
+            },
+
+            lesson6: {
+                id: 'lesson6',
+                shortTitle: 'Bài 6',
+                pairLabel: '/θ/ & /ð/',
+                title: 'Bài 6: Phân Biệt Cặp Âm "Thè Lưỡi" /θ/ & /ð/',
+                tag: 'Chuyên đề 6 • 17 từ vựng',
+                desc: 'Cùng viết bằng tổ hợp chữ "th", làm sao để biết khi nào thổi gió /θ/ và khi nào rung cổ họng /ð/?',
+                watermark: '/θ/ /ð/',
+                colA: {
+                    symbol: '/θ/',
+                    name: 'Cột âm vô thanh /θ/',
+                    example: 'think, north, earth, throw, truth...',
+                    hint: 'Kéo từ có "th" đọc là /θ/ vào đây'
+                },
+                colB: {
+                    symbol: '/ð/',
+                    name: 'Cột âm hữu thanh /ð/',
+                    example: 'these, though, brother, father, they...',
+                    hint: 'Kéo từ có "th" đọc là /ð/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/θ/',
+                        title: 'Âm /θ/ (Vô thanh - Thổi gió)',
+                        badge: 'Đặt lưỡi giữa 2 răng • Không rung',
+                        theme: 'blue',
+                        audioSample: 'think, north, earth, throw, thousand, truth, teeth',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Đặt nhẹ đầu lưỡi vào giữa hàm răng trên và dưới, thổi luồng hơi thoát ra ngoài (không rung họng).',
+                            '<strong>Mẹo nhận biết:</strong> Thường xuất hiện ở từ mang nghĩa từ vựng (danh từ, động từ, tính từ, số đếm): <em>think, north, earth, throw, thousand, truth, teeth</em>.'
+                        ]
+                    },
+                    {
+                        symbol: '/ð/',
+                        title: 'Âm /ð/ (Hữu thanh - Rung họng)',
+                        badge: 'Đặt lưỡi giữa 2 răng • Rung mạnh',
+                        theme: 'indigo',
+                        audioSample: 'these, though, brother, father, weather, they, with',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Đặt đầu lưỡi giữa hai răng giống hệt /θ/, nhưng phát ra tiếng rung mạnh ở cổ họng (giống chữ "d/đ" nhẹ).',
+                            '<strong>Mẹo nhận biết 1:</strong> Các từ chỉ định, mạo từ, liên từ bắt đầu bằng <code>th-</code>: <em>this, that, these, those, they, though</em>.',
+                            '<strong>Mẹo nhận biết 2:</strong> Cụm <code>-ther</code> ở giữa/cuối từ: <em>brother, father, further, weather, another</em> (và <em>with, booth</em>).'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Bí quyết thần thánh:</strong> 1) Nhóm từ đại từ chỉ định (<em>this, that, these, those, they, them, though</em>) luôn đọc là <strong>/ð/</strong>. 2) Đuôi <strong>"-ther"</strong> (<em>father, mother, brother, weather, further, another</em>) 100% đọc là <strong>/ð/</strong>!',
+                words: [
+                    { id: 601, word: "these", ipa: "/ðiːz/", target: "colB", meaning: "những cái này" },
+                    { id: 602, word: "think", ipa: "/θɪŋk/", target: "colA", meaning: "suy nghĩ" },
+                    { id: 603, word: "with", ipa: "/wɪð/", target: "colB", meaning: "cùng với" },
+                    { id: 604, word: "north", ipa: "/nɔːθ/", target: "colA", meaning: "phương Bắc" },
+                    { id: 605, word: "though", ipa: "/ðəʊ/", target: "colB", meaning: "mặc dù" },
+                    { id: 606, word: "brother", ipa: "/ˈbrʌð.ər/", target: "colB", meaning: "anh / em trai" },
+                    { id: 607, word: "earth", ipa: "/ɜːθ/", target: "colA", meaning: "Trái Đất, mặt đất" },
+                    { id: 608, word: "throw", ipa: "/θrəʊ/", target: "colA", meaning: "ném, quăng" },
+                    { id: 609, word: "father", ipa: "/ˈfɑː.ðər/", target: "colB", meaning: "người cha, bố" },
+                    { id: 610, word: "further", ipa: "/ˈfɜː.ðər/", target: "colB", meaning: "xa hơn, thêm nữa" },
+                    { id: 611, word: "weather", ipa: "/ˈweð.ər/", target: "colB", meaning: "thời tiết" },
+                    { id: 612, word: "another", ipa: "/əˈnʌð.ər/", target: "colB", meaning: "một cái khác" },
+                    { id: 613, word: "thousand", ipa: "/ˈθaʊ.zənd/", target: "colA", meaning: "một nghìn (1,000)" },
+                    { id: 614, word: "they", ipa: "/ðeɪ/", target: "colB", meaning: "họ, bọn họ" },
+                    { id: 615, word: "truth", ipa: "/truːθ/", target: "colA", meaning: "sự thật" },
+                    { id: 616, word: "teeth", ipa: "/tiːθ/", target: "colA", meaning: "những chiếc răng" },
+                    { id: 617, word: "booth", ipa: "/buːð/", target: "colB", meaning: "buồng điện thoại, gian hàng" }
+                ]
+            },
+
+            lesson7: {
+                id: 'lesson7',
+                shortTitle: 'Bài 7',
+                pairLabel: '/e/ & /æ/',
+                title: 'Bài 7: Phân Biệt Cặp Nguyên Âm /e/ (E thường) & /æ/ (E bẹt)',
+                tag: 'Chuyên đề 7 • 16 từ vựng',
+                desc: 'Làm chủ âm "e bẹt" /æ/ đặc trưng của tiếng Anh (miệng mở rộng cả chiều ngang lẫn dọc) và âm /e/ tự nhiên.',
+                watermark: '/e/ /æ/',
+                colA: {
+                    symbol: '/e/',
+                    name: 'Cột âm /e/ (E thường)',
+                    example: 'eleven, enter, nest, lend, pencil...',
+                    hint: 'Kéo từ chứa âm /e/ vào đây'
+                },
+                colB: {
+                    symbol: '/æ/',
+                    name: 'Cột âm /æ/ (E bẹt)',
+                    example: 'Angry, map, action, hacker, rang...',
+                    hint: 'Kéo từ chứa âm /æ/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/e/',
+                        title: 'Âm "E thường" (/e/)',
+                        badge: 'Mở miệng vừa phải',
+                        theme: 'blue',
+                        audioSample: 'eleven, enter, nest, lend, center, bench, pencil, director',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Mở miệng tự nhiên vừa phải (hẹp hơn âm /æ/), phát âm gần giống chữ "e" trong tiếng Việt nhưng ngắn gọn.',
+                            '<strong>Dấu hiệu chính tả:</strong> Thường viết bằng chữ cái <strong>"e"</strong> đứng trước phụ âm: <em>eleven, enter, nest, lend, center, bench, pencil, director</em>.'
+                        ]
+                    },
+                    {
+                        symbol: '/æ/',
+                        title: 'Âm "E bẹt" (/æ/)',
+                        badge: 'Mở rộng cằm & Bè miệng',
+                        theme: 'indigo',
+                        audioSample: 'angry, map, action, landscape, handbag, hacker, rang, actress',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Hạ thấp quai hàm hết cỡ đồng thời kéo căng hai khóe miệng sang hai bên (âm lai giữa "a" và "e").',
+                            '<strong>Dấu hiệu chính tả:</strong> Gần như 100% viết bằng chữ cái <strong>"a"</strong> trong âm tiết đóng: <em>Angry, map, action, landscape, handbag, hacker, rang, actress</em>.'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Quy tắc đối chiếu mặt chữ:</strong> Trong bài này, cứ từ nào có âm tiết nhấn trọng âm viết bằng chữ <strong>"e"</strong> (<em>enter, nest, lend, center, bench, pencil, eleven, director</em>) thì đọc là <strong>/e/</strong>; còn viết bằng chữ <strong>"a"</strong> (<em>angry, map, action, landscape, handbag, hacker, rang, actress</em>) thì đọc là <strong>/æ/</strong>!',
+                words: [
+                    { id: 701, word: "Angry", ipa: "/ˈæŋ.ɡri/", target: "colB", meaning: "tức giận" },
+                    { id: 702, word: "eleven", ipa: "/ɪˈlev.ən/", target: "colA", meaning: "số mười một (11)" },
+                    { id: 703, word: "map", ipa: "/mæp/", target: "colB", meaning: "bản đồ" },
+                    { id: 704, word: "action", ipa: "/ˈæk.ʃən/", target: "colB", meaning: "hành động" },
+                    { id: 705, word: "enter", ipa: "/ˈen.tər/", target: "colA", meaning: "bước vào, đi vào" },
+                    { id: 706, word: "nest", ipa: "/nest/", target: "colA", meaning: "tổ chim" },
+                    { id: 707, word: "landscape", ipa: "/ˈlænd.skeɪp/", target: "colB", meaning: "phong cảnh" },
+                    { id: 708, word: "lend", ipa: "/lend/", target: "colA", meaning: "cho mượn" },
+                    { id: 709, word: "handbag", ipa: "/ˈhænd.bæɡ/", target: "colB", meaning: "túi xách tay" },
+                    { id: 710, word: "center", ipa: "/ˈsen.tər/", target: "colA", meaning: "trung tâm" },
+                    { id: 711, word: "bench", ipa: "/bentʃ/", target: "colA", meaning: "ghế băng dài" },
+                    { id: 712, word: "hacker", ipa: "/ˈhæk.ər/", target: "colB", meaning: "tin tặc" },
+                    { id: 713, word: "rang", ipa: "/ræŋ/", target: "colB", meaning: "đã reo chuông (quá khứ của ring)" },
+                    { id: 714, word: "pencil", ipa: "/ˈpen.səl/", target: "colA", meaning: "bút chì" },
+                    { id: 715, word: "actress", ipa: "/ˈæk.trəs/", target: "colB", meaning: "nữ diễn viên" },
+                    { id: 716, word: "director", ipa: "/daɪˈrek.tər/", target: "colA", meaning: "đạo diễn, giám đốc" }
+                ]
+            },
+
+            lesson8: {
+                id: 'lesson8',
+                shortTitle: 'Bài 8',
+                pairLabel: '/əʊ/ & /aʊ/',
+                title: 'Bài 8: Phân Biệt Nguyên Âm Đôi /əʊ/ & /aʊ/',
+                tag: 'Chuyên đề 8 • 18 từ vựng',
+                desc: 'Giải mã cặp nguyên âm đôi dễ nhầm lẫn khi cùng viết bằng "ow" hoặc "ou" (như low vs cow, shoulder vs shout).',
+                watermark: '/əʊ/ /aʊ/',
+                colA: {
+                    symbol: '/əʊ/',
+                    name: 'Cột âm /əʊ/ (Âu / Ô)',
+                    example: 'chose, low, folder, rainbow, hole...',
+                    hint: 'Kéo từ chứa âm /əʊ/ vào đây'
+                },
+                colB: {
+                    symbol: '/aʊ/',
+                    name: 'Cột âm /aʊ/ (Ao)',
+                    example: 'Trousers, pound, around, mouse, cow...',
+                    hint: 'Kéo từ chứa âm /aʊ/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/əʊ/',
+                        title: 'Nguyên âm đôi /əʊ/',
+                        badge: 'Chuyển từ /ə/ sang /ʊ/',
+                        theme: 'blue',
+                        audioSample: 'chose, low, folder, rainbow, oldest, hole, window, colder, show, moment, soldier',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Bắt đầu bằng âm /ə/ thả lỏng, sau đó khép dần và chu tròn môi về âm /ʊ/ (nghe gần như "âu/ô").',
+                            '<strong>Dấu hiệu chính tả:</strong> Chữ <code>o</code> đứng cuối âm tiết mở hoặc trước <code>ld</code> (chose, folder, oldest, hole, colder, moment, soldier) và đuôi <code>-ow</code> (low, rainbow, window, show).'
+                        ]
+                    },
+                    {
+                        symbol: '/aʊ/',
+                        title: 'Nguyên âm đôi /aʊ/',
+                        badge: 'Mở rộng /a/ rồi khép /ʊ/',
+                        theme: 'indigo',
+                        audioSample: 'trousers, pound, around, mouse, cow, found, shout',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Mở rộng miệng phát âm /a/ rõ ràng rồi khép nhanh môi về /ʊ/ (nghe gần giống vần "ao" trong tiếng Việt).',
+                            '<strong>Dấu hiệu chính tả:</strong> Nhóm chữ <code>ou</code> (Trousers, pound, around, mouse, found, shout) và một số từ <code>ow</code> (cow).'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Mẹo tránh bẫy "ou" và "ow":</strong> Nhóm chữ <strong>"ou"</strong> hầu hết đọc là <strong>/aʊ/</strong> (<em>trousers, pound, around, mouse, found, shout</em>). Còn chữ <strong>"o"</strong> đi với <strong>"ld"</strong> (<em>old, cold, folder, soldier</em>) luôn đọc là <strong>/əʊ/</strong>!',
+                words: [
+                    { id: 801, word: "Trousers", ipa: "/ˈtraʊ.zəz/", target: "colB", meaning: "quần dài" },
+                    { id: 802, word: "chose", ipa: "/tʃəʊz/", target: "colA", meaning: "đã chọn (quá khứ của choose)" },
+                    { id: 803, word: "pound", ipa: "/paʊnd/", target: "colB", meaning: "đồng bảng Anh / đơn vị cân" },
+                    { id: 804, word: "low", ipa: "/ləʊ/", target: "colA", meaning: "thấp" },
+                    { id: 805, word: "folder", ipa: "/ˈfəʊl.dər/", target: "colA", meaning: "thư mục, bìa kẹp hồ sơ" },
+                    { id: 806, word: "around", ipa: "/əˈraʊnd/", target: "colB", meaning: "xung quanh" },
+                    { id: 807, word: "rainbow", ipa: "/ˈreɪn.bəʊ/", target: "colA", meaning: "cầu vồng" },
+                    { id: 808, word: "oldest", ipa: "/ˈəʊl.dɪst/", target: "colA", meaning: "già nhất, cũ nhất" },
+                    { id: 809, word: "hole", ipa: "/həʊl/", target: "colA", meaning: "cái hố, cái lỗ" },
+                    { id: 810, word: "mouse", ipa: "/maʊs/", target: "colB", meaning: "con chuột" },
+                    { id: 811, word: "window", ipa: "/ˈwɪn.dəʊ/", target: "colA", meaning: "cửa sổ" },
+                    { id: 812, word: "colder", ipa: "/ˈkəʊl.dər/", target: "colA", meaning: "lạnh hơn" },
+                    { id: 813, word: "show", ipa: "/ʃəʊ/", target: "colA", meaning: "trình diễn, chỉ cho xem" },
+                    { id: 814, word: "cow", ipa: "/kaʊ/", target: "colB", meaning: "con bò cái" },
+                    { id: 815, word: "found", ipa: "/faʊnd/", target: "colB", meaning: "đã tìm thấy" },
+                    { id: 816, word: "moment", ipa: "/ˈməʊ.mənt/", target: "colA", meaning: "khoảnh khắc" },
+                    { id: 817, word: "shout", ipa: "/ʃaʊt/", target: "colB", meaning: "la hét" },
+                    { id: 818, word: "soldier", ipa: "/ˈsəʊl.dʒər/", target: "colA", meaning: "người lính" }
+                ]
+            },
+
+            lesson9: {
+                id: 'lesson9',
+                shortTitle: 'Bài 9',
+                pairLabel: '/ɑː/ & /æ/',
+                title: 'Bài 9: Phân Biệt Cặp Âm /ɑː/ (A dài) & /æ/ (E bẹt)',
+                tag: 'Chuyên đề 9 • 16 từ + 4 câu trắc nghiệm',
+                desc: 'Cùng viết bằng chữ cái "a", phân biệt khi nào đọc sâu trầm /ɑː/ (như aunt, guard, park) và khi nào đọc bè miệng /æ/ (như back, candy, man).',
+                watermark: '/ɑː/ /æ/',
+                colA: {
+                    symbol: '/ɑː/',
+                    name: 'Cột âm /ɑː/ (A dài)',
+                    example: 'hard, marvelous, dark, guard, aunt...',
+                    hint: 'Kéo từ chứa âm /ɑː/ vào đây'
+                },
+                colB: {
+                    symbol: '/æ/',
+                    name: 'Cột âm /æ/ (E bẹt)',
+                    example: 'back, band, candy, hang, man, van...',
+                    hint: 'Kéo từ chứa âm /æ/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/ɑː/',
+                        title: 'Âm /ɑː/ (A dài)',
+                        badge: 'Hạ thấp lưỡi • Ngân dài',
+                        theme: 'blue',
+                        audioSample: 'hard, marvelous, dark, guard, bark, charge, aunt, card, park',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Mở rộng miệng theo chiều dọc, hạ thấp lưỡi và kéo dài âm.',
+                            '<strong>Dấu hiệu chính tả:</strong> Cụm <code>ar</code> (hard, marvelous, dark, bark, charge, card, park), <code>uar</code> (guard), và từ đặc biệt <strong>aunt</strong> (/ɑːnt/).'
+                        ]
+                    },
+                    {
+                        symbol: '/æ/',
+                        title: 'Âm /æ/ (E bẹt)',
+                        badge: 'Bè miệng • Ngắn gọn',
+                        theme: 'indigo',
+                        audioSample: 'back, band, candy, hang, man, tram, van',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Mở rộng cằm và kéo căng hai khóe miệng sang ngang (âm lai giữa "a" và "e").',
+                            '<strong>Dấu hiệu chính tả:</strong> Chữ <code>a</code> đứng một mình kẹp giữa các phụ âm (không có chữ "r" theo sau): <em>back, band, candy, hang, man, tram, van</em>.'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Quy tắc phân biệt siêu tốc:</strong> Nhìn sau chữ <strong>"a"</strong>: Nếu có chữ <strong>"r"</strong> đi kèm (<em>hard, dark, bark, charge, card, park, marvelous, guard</em>) + từ <strong>aunt</strong> &rarr; Đọc là <strong>/ɑː/</strong>. Nếu không có "r" (<em>back, band, candy, hang, man, tram, van</em>) &rarr; Đọc là <strong>/æ/</strong>!',
+                words: [
+                    { id: 901, word: "hard", ipa: "/hɑːd/", target: "colA", meaning: "cứng, chăm chỉ, khó" },
+                    { id: 902, word: "back", ipa: "/bæk/", target: "colB", meaning: "lưng / phía sau" },
+                    { id: 903, word: "band", ipa: "/bænd/", target: "colB", meaning: "ban nhạc / dải băng" },
+                    { id: 904, word: "marvelous", ipa: "/ˈmɑː.vəl.əs/", target: "colA", meaning: "tuyệt vời, phi thường" },
+                    { id: 905, word: "candy", ipa: "/ˈkæn.di/", target: "colB", meaning: "kẹo ngọt" },
+                    { id: 906, word: "dark", ipa: "/dɑːk/", target: "colA", meaning: "tối tăm, màu tối" },
+                    { id: 907, word: "guard", ipa: "/ɡɑːd/", target: "colA", meaning: "bảo vệ, canh gác" },
+                    { id: 908, word: "bark", ipa: "/bɑːk/", target: "colA", meaning: "tiếng chó sủa / vỏ cây" },
+                    { id: 909, word: "charge", ipa: "/tʃɑːdʒ/", target: "colA", meaning: "sạc pin / tính phí / phụ trách" },
+                    { id: 910, word: "aunt", ipa: "/ɑːnt/", target: "colA", meaning: "cô, dì, bác gái" },
+                    { id: 911, word: "hang", ipa: "/hæŋ/", target: "colB", meaning: "treo, móc" },
+                    { id: 912, word: "card", ipa: "/kɑːd/", target: "colA", meaning: "tấm thẻ, danh thiếp" },
+                    { id: 913, word: "man", ipa: "/mæn/", target: "colB", meaning: "người đàn ông" },
+                    { id: 914, word: "park", ipa: "/pɑːk/", target: "colA", meaning: "công viên / đỗ xe" },
+                    { id: 915, word: "tram", ipa: "/træm/", target: "colB", meaning: "xe điện mặt đất" },
+                    { id: 916, word: "van", ipa: "/væn/", target: "colB", meaning: "xe tải nhỏ" }
+                ],
+                mcqs: [
+                    {
+                        id: 'l9_q1',
+                        num: 1,
+                        options: [
+                            { label: 'A', html: '<u>a</u>pple', word: 'apple', sound: '/æ/' },
+                            { label: 'B', html: 'c<u>a</u>p', word: 'cap', sound: '/æ/' },
+                            { label: 'C', html: 'l<u>a</u>mp', word: 'lamp', sound: '/æ/' },
+                            { label: 'D', html: 'm<u>ar</u>k', word: 'mark', sound: '/ɑː/' }
+                        ],
+                        correct: 'D',
+                        explanation: 'A (apple), B (cap), C (lamp) đều đọc là âm e bẹt /æ/. Riêng D (mark) có cụm "ar" nên đọc là /ɑː/.'
+                    },
+                    {
+                        id: 'l9_q2',
+                        num: 2,
+                        options: [
+                            { label: 'A', html: '<u>a</u>ction', word: 'action', sound: '/æ/' },
+                            { label: 'B', html: '<u>a</u>nswer', word: 'answer', sound: '/ɑː/' },
+                            { label: 'C', html: '<u>a</u>fternoon', word: 'afternoon', sound: '/ɑː/' },
+                            { label: 'D', html: 'p<u>ar</u>t', word: 'part', sound: '/ɑː/' }
+                        ],
+                        correct: 'A',
+                        explanation: 'B (answer), C (afternoon), D (part) đều đọc là /ɑː/ (theo chuẩn Anh-Anh). Riêng A (action) đọc là /æ/.'
+                    },
+                    {
+                        id: 'l9_q3',
+                        num: 3,
+                        options: [
+                            { label: 'A', html: 'br<u>a</u>nd', word: 'brand', sound: '/æ/' },
+                            { label: 'B', html: 'f<u>a</u>ther', word: 'father', sound: '/ɑː/' },
+                            { label: 'C', html: 'r<u>a</u>bbit', word: 'rabbit', sound: '/æ/' },
+                            { label: 'D', html: 's<u>a</u>nd', word: 'sand', sound: '/æ/' }
+                        ],
+                        correct: 'B',
+                        explanation: 'A (brand), C (rabbit), D (sand) đọc là /æ/. Riêng B (father) đọc là /ˈfɑː.ðər/ (âm /ɑː/).'
+                    },
+                    {
+                        id: 'l9_q4',
+                        num: 4,
+                        options: [
+                            { label: 'A', html: 'n<u>a</u>tural', word: 'natural', sound: '/æ/' },
+                            { label: 'B', html: 'm<u>a</u>p', word: 'map', sound: '/æ/' },
+                            { label: 'C', html: 'g<u>ar</u>den', word: 'garden', sound: '/ɑː/' },
+                            { label: 'D', html: 'p<u>a</u>nts', word: 'pants', sound: '/æ/' }
+                        ],
+                        correct: 'C',
+                        explanation: 'A (natural), B (map), D (pants) đọc là /æ/. Riêng C (garden) có "ar" nên đọc là /ɑː/.'
+                    }
+                ]
+            },
+
+            lesson10: {
+                id: 'lesson10',
+                shortTitle: 'Bài 10',
+                pairLabel: '/ɔɪ/ & /aʊ/',
+                title: 'Bài 10: Phân Biệt Nguyên Âm Đôi /ɔɪ/ & /aʊ/',
+                tag: 'Chuyên đề 10 • 17 từ vựng',
+                desc: 'Chuyên đề tổng kết về nguyên âm đôi: nhận diện siêu dễ qua mặt chữ "oi / oy" (/ɔɪ/) và "ou / ow" (/aʊ/).',
+                watermark: '/ɔɪ/ /aʊ/',
+                colA: {
+                    symbol: '/ɔɪ/',
+                    name: 'Cột âm /ɔɪ/ (Oi)',
+                    example: 'choice, toy, coin, point, lawyer...',
+                    hint: 'Kéo từ chứa âm /ɔɪ/ vào đây'
+                },
+                colB: {
+                    symbol: '/aʊ/',
+                    name: 'Cột âm /aʊ/ (Ao)',
+                    example: 'trousers, count, how, found, loud...',
+                    hint: 'Kéo từ chứa âm /aʊ/ vào đây'
+                },
+                theory: [
+                    {
+                        symbol: '/ɔɪ/',
+                        title: 'Nguyên âm đôi /ɔɪ/',
+                        badge: 'Tròn môi /ɔː/ sang /ɪ/',
+                        theme: 'blue',
+                        audioSample: 'choice, toy, coin, point, lawyer, soil, boy, oil',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Tròn môi phát âm /ɔː/ rồi kéo nhanh khóe miệng sang ngang về /ɪ/ (giống vần "oi" tiếng Việt).',
+                            '<strong>Dấu hiệu chính tả:</strong> 100% viết bằng tổ hợp <code>oi</code> (choice, coin, point, soil, oil) hoặc <code>oy</code> / <code>awyer</code> (toy, boy, lawyer).'
+                        ]
+                    },
+                    {
+                        symbol: '/aʊ/',
+                        title: 'Nguyên âm đôi /aʊ/',
+                        badge: 'Mở rộng /a/ sang /ʊ/',
+                        theme: 'indigo',
+                        audioSample: 'trousers, count, how, found, loud, pound, brown, round, cow',
+                        points: [
+                            '<strong>Khẩu hình:</strong> Mở miệng rộng phát âm /a/ rồi khép nhanh môi lại về /ʊ/ (giống vần "ao" tiếng Việt).',
+                            '<strong>Dấu hiệu chính tả:</strong> Viết bằng tổ hợp <code>ou</code> (trousers, count, found, loud, pound, round) hoặc <code>ow</code> (how, brown, cow).'
+                        ]
+                    }
+                ],
+                specialTip: '<strong>Quy tắc vàng 100% chính xác:</strong> Thấy <strong>"oi / oy"</strong> (và <em>lawyer</em>) &rarr; Chọn ngay <strong>/ɔɪ/</strong>. Thấy <strong>"ou / ow"</strong> trong bài này &rarr; Chọn ngay <strong>/aʊ/</strong>!',
+                words: [
+                    { id: 1001, word: "trousers", ipa: "/ˈtraʊ.zəz/", target: "colB", meaning: "quần dài" },
+                    { id: 1002, word: "choice", ipa: "/tʃɔɪs/", target: "colA", meaning: "sự lựa chọn" },
+                    { id: 1003, word: "toy", ipa: "/tɔɪ/", target: "colA", meaning: "đồ chơi" },
+                    { id: 1004, word: "count", ipa: "/kaʊnt/", target: "colB", meaning: "đếm số" },
+                    { id: 1005, word: "how", ipa: "/haʊ/", target: "colB", meaning: "như thế nào" },
+                    { id: 1006, word: "coin", ipa: "/kɔɪn/", target: "colA", meaning: "đồng tiền xu" },
+                    { id: 1007, word: "found", ipa: "/faʊnd/", target: "colB", meaning: "đã tìm thấy" },
+                    { id: 1008, word: "point", ipa: "/pɔɪnt/", target: "colA", meaning: "điểm số / chỉ tay" },
+                    { id: 1009, word: "lawyer", ipa: "/ˈlɔɪ.ər/", target: "colA", meaning: "luật sư" },
+                    { id: 1010, word: "loud", ipa: "/laʊd/", target: "colB", meaning: "to tiếng, ồn ào" },
+                    { id: 1011, word: "soil", ipa: "/sɔɪl/", target: "colA", meaning: "đất trồng" },
+                    { id: 1012, word: "pound", ipa: "/paʊnd/", target: "colB", meaning: "đồng bảng Anh / cân Anh" },
+                    { id: 1013, word: "brown", ipa: "/braʊn/", target: "colB", meaning: "màu nâu" },
+                    { id: 1014, word: "boy", ipa: "/bɔɪ/", target: "colA", meaning: "cậu bé, con trai" },
+                    { id: 1015, word: "round", ipa: "/raʊnd/", target: "colB", meaning: "hình tròn, vòng quanh" },
+                    { id: 1016, word: "oil", ipa: "/ɔɪl/", target: "colA", meaning: "dầu ăn, dầu mỏ" },
+                    { id: 1017, word: "cow", ipa: "/kaʊ/", target: "colB", meaning: "con bò cái" }
+                ]
+            }
+        };
+
+        // Application State
+        let currentLessonKey = 'lesson1';
+        let placementsByLesson = {};
+        let mcqProgressByLesson = {};
+        let draggedWordId = null;
+
+        // Initialize state for all 10 lessons
+        Object.keys(LESSON_CONFIG).forEach(key => {
+            placementsByLesson[key] = {};
+            LESSON_CONFIG[key].words.forEach(w => {
+                placementsByLesson[key][w.id] = 'bank';
+            });
+            mcqProgressByLesson[key] = {};
+        });
+
+        // Web Audio API Synthesizer
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function getAudioCtx() {
+            if (!audioCtx) {
+                audioCtx = new AudioCtx();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSoundSuccess() {
+            try {
+                const ctx = getAudioCtx();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(587.33, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } catch (e) {}
+        }
+
+        function playSoundError() {
+            try {
+                const ctx = getAudioCtx();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(145, now);
+                osc.frequency.linearRampToValueAtTime(75, now + 0.35);
+
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } catch (e) {}
+        }
+
+        function popMiniConfetti(element) {
+            if (typeof confetti !== 'function') return;
+            let x = 0.5, y = 0.5;
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                x = (rect.left + rect.width / 2) / window.innerWidth;
+                y = (rect.top + rect.height / 2) / window.innerHeight;
+            }
+            confetti({
+                particleCount: 45,
+                spread: 70,
+                origin: { x: x, y: y },
+                colors: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6']
+            });
+        }
+
+        function fireConfetti() {
+            if (typeof confetti !== 'function') return;
+            const count = 200;
+            const defaults = { origin: { y: 0.7 } };
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+
+        // Giant XXX Alert Overlay
+        let xxxTimeout;
+        function triggerXXXAlert(wordText, wrongTargetName) {
+            const container = document.getElementById('xxxAlertContainer');
+            const alertBox = document.getElementById('xxxAlertBox');
+            if (!container || !alertBox) return;
+
+            clearTimeout(xxxTimeout);
+            alertBox.innerHTML = `
+                <div class="flex flex-col items-center gap-1.5 text-center">
+                    <span class="text-2xl sm:text-4xl font-black tracking-widest text-white drop-shadow-md">
+                        ❌ XXX SAI RỒI! ❌
+                    </span>
+                    <span class="text-xs sm:text-sm font-semibold text-rose-100">
+                        "${wordText}" không thuộc ${wrongTargetName}! Hãy nghe lại và thử âm kia nhé!
+                    </span>
+                </div>
+            `;
+
+            container.classList.remove('hidden');
+            alertBox.classList.remove('animate-xxx');
+            void alertBox.offsetWidth;
+            alertBox.classList.add('animate-xxx');
+
+            xxxTimeout = setTimeout(() => {
+                alertBox.classList.remove('animate-xxx');
+                container.classList.add('hidden');
+            }, 850);
+        }
+
+        // Web Speech API Voice Synthesis
+        function speakWord(text, rateModifier = 1) {
+            if (!('speechSynthesis' in window)) {
+                showToast("Trình duyệt không hỗ trợ đọc giọng nói.", "warning");
+                return;
+            }
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            const speedInput = parseFloat(document.getElementById('voiceSpeed').value) || 1.0;
+            const accentLang = document.getElementById('voiceAccent').value || 'en-GB';
+
+            utterance.rate = speedInput * rateModifier;
+            utterance.pitch = 1.0;
+            utterance.lang = accentLang;
+
+            const voices = window.speechSynthesis.getVoices();
+            let preferredVoice = voices.find(v => v.lang === accentLang && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Daniel') || v.name.includes('Samantha')));
+            if (!preferredVoice) {
+                preferredVoice = voices.find(v => v.lang.startsWith(accentLang));
+            }
+            if (!preferredVoice) {
+                preferredVoice = voices.find(v => v.lang.startsWith('en'));
+            }
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Render 10-Lesson Navigation Grid
+        function renderLessonMenu() {
+            const menu = document.getElementById('lessonGridMenu');
+            menu.innerHTML = '';
+
+            let completedLessonsCount = 0;
+
+            Object.keys(LESSON_CONFIG).forEach(key => {
+                const lesson = LESSON_CONFIG[key];
+                const isActive = key === currentLessonKey;
+
+                const totalWords = lesson.words.length;
+                const placedWords = lesson.words.filter(w => placementsByLesson[key][w.id] !== 'bank').length;
+                const isWordsDone = placedWords === totalWords;
+
+                const hasMcq = Array.isArray(lesson.mcqs) && lesson.mcqs.length > 0;
+                const totalMcq = hasMcq ? lesson.mcqs.length : 0;
+                const doneMcq = hasMcq ? Object.keys(mcqProgressByLesson[key]).length : 0;
+                const isMcqDone = !hasMcq || (doneMcq === totalMcq);
+
+                const isFullyCompleted = isWordsDone && isMcqDone;
+                if (isFullyCompleted) completedLessonsCount++;
+
+                const btn = document.createElement('button');
+                btn.type = "button";
+                btn.onclick = () => switchLesson(key);
+
+                let cardStyle = isActive
+                    ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-blue-600 shadow-md shadow-blue-500/20 scale-[1.02]'
+                    : isFullyCompleted
+                        ? 'bg-emerald-50/80 hover:bg-emerald-100/70 text-emerald-900 border-emerald-300'
+                        : 'bg-slate-50 hover:bg-white text-slate-700 border-slate-200 hover:border-blue-300';
+
+                const subTextStyle = isActive ? 'text-blue-100' : isFullyCompleted ? 'text-emerald-700' : 'text-slate-500';
+                const statusBadge = isFullyCompleted
+                    ? `<i class="fa-solid fa-circle-check ${isActive ? 'text-amber-300' : 'text-emerald-600'}"></i>`
+                    : `<span class="text-[10px] font-bold ${isActive ? 'text-blue-200' : 'text-slate-400'}">${placedWords}/${totalWords}</span>`;
+
+                btn.className = `flex flex-col items-start justify-between p-2.5 sm:p-3 rounded-2xl border transition-all text-left cursor-pointer ${cardStyle}`;
+                btn.innerHTML = `
+                    <div class="w-full flex items-center justify-between gap-1">
+                        <span class="text-xs font-extrabold tracking-tight">${lesson.shortTitle}</span>
+                        ${statusBadge}
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-bold mt-1 truncate w-full ${subTextStyle}">${lesson.pairLabel}</span>
+                `;
+                menu.appendChild(btn);
+            });
+
+            document.getElementById('overallProgressBadge').innerText = `Hoàn thành: ${completedLessonsCount}/10 chuyên đề`;
+        }
+
+        // Switch Lesson
+        function switchLesson(lessonKey) {
+            currentLessonKey = lessonKey;
+            const lesson = LESSON_CONFIG[lessonKey];
+
+            document.getElementById('bannerTag').innerText = lesson.tag;
+            document.getElementById('bannerTitle').innerText = lesson.title;
+            document.getElementById('bannerDesc').innerText = lesson.desc;
+            document.getElementById('bannerWatermark').innerText = lesson.watermark;
+
+            document.getElementById('colALabel').innerText = lesson.colA.symbol;
+            document.getElementById('colATitle').innerText = lesson.colA.name;
+            document.getElementById('colAExample').innerText = lesson.colA.example;
+            document.getElementById('colAHint').innerText = lesson.colA.hint;
+
+            document.getElementById('colBLabel').innerText = lesson.colB.symbol;
+            document.getElementById('colBTitle').innerText = lesson.colB.name;
+            document.getElementById('colBExample').innerText = lesson.colB.example;
+            document.getElementById('colBHint').innerText = lesson.colB.hint;
+
+            document.getElementById('totalWordsCount').innerText = lesson.words.length;
+
+            renderLessonMenu();
+            renderTheory();
+            renderAllWords();
+            renderMCQSection();
+            buildExplanationTable();
+
+            const remaining = lesson.words.filter(w => placementsByLesson[lessonKey][w.id] === 'bank').length;
+            if (remaining === 0) {
+                document.getElementById('explanationSection').classList.remove('hidden');
+            } else {
+                document.getElementById('explanationSection').classList.add('hidden');
+            }
+        }
+
+        // Render Theory & Special Tip
+        function renderTheory() {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            const container = document.getElementById('theoryCardsContainer');
+            container.innerHTML = '';
+
+            lesson.theory.forEach(th => {
+                const isBlue = th.theme === 'blue';
+                const borderColor = isBlue ? 'border-blue-200/90' : 'border-indigo-200/90';
+                const bgGradient = isBlue ? 'from-blue-50/70 to-white' : 'from-indigo-50/70 to-white';
+                const badgeBg = isBlue ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700';
+                const btnBg = isBlue ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/30' : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30';
+                const checkColor = isBlue ? 'text-blue-600' : 'text-indigo-600';
+
+                const card = document.createElement('div');
+                card.className = `bg-gradient-to-b ${bgGradient} rounded-2xl p-5 border-2 ${borderColor} shadow-xs`;
+
+                const listHtml = th.points.map(pt => `
+                    <div class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-circle-check ${checkColor} mt-1 text-xs shrink-0"></i>
+                        <div class="text-xs sm:text-sm text-slate-700 leading-relaxed">${pt}</div>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl font-black ${badgeBg} px-3.5 py-1.5 rounded-xl font-serif">${th.symbol}</span>
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-sm sm:text-base">${th.title}</h4>
+                                <span class="text-[11px] font-bold uppercase tracking-wider ${isBlue ? 'text-blue-600' : 'text-indigo-600'}">${th.badge}</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="speakWord('${th.audioSample}', 0.85)" class="w-10 h-10 rounded-full ${btnBg} text-white flex items-center justify-center shadow-md transition transform hover:scale-105 active:scale-95 shrink-0" title="Nghe từ mẫu nhóm ${th.symbol}">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-2.5">
+                        ${listHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('specialTipContent').innerHTML = lesson.specialTip;
+        }
+
+        // Render Words in Bank & Columns
+        function renderAllWords() {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            const placement = placementsByLesson[currentLessonKey];
+
+            const bankContainer = document.getElementById('wordBank');
+            const dropColA = document.getElementById('dropColA');
+            const dropColB = document.getElementById('dropColB');
+
+            bankContainer.innerHTML = '';
+            Array.from(dropColA.querySelectorAll('.word-card-item')).forEach(el => el.remove());
+            Array.from(dropColB.querySelectorAll('.word-card-item')).forEach(el => el.remove());
+
+            let countBank = 0, countA = 0, countB = 0;
+
+            lesson.words.forEach(item => {
+                const pos = placement[item.id];
+                const card = createWordCardElement(item, pos, lesson);
+
+                if (pos === 'bank') {
+                    bankContainer.appendChild(card);
+                    countBank++;
+                } else if (pos === 'colA') {
+                    dropColA.appendChild(card);
+                    countA++;
+                } else if (pos === 'colB') {
+                    dropColB.appendChild(card);
+                    countB++;
+                }
+            });
+
+            const hintA = dropColA.querySelector('.empty-hint');
+            if (hintA) hintA.style.display = countA === 0 ? 'flex' : 'none';
+
+            const hintB = dropColB.querySelector('.empty-hint');
+            if (hintB) hintB.style.display = countB === 0 ? 'flex' : 'none';
+
+            document.getElementById('unassignedCount').innerText = countBank;
+            document.getElementById('placedCount').innerText = (lesson.words.length - countBank);
+            document.getElementById('countColA').innerText = `${countA} từ`;
+            document.getElementById('countColB').innerText = `${countB} từ`;
+
+            if (countBank === 0) {
+                bankContainer.innerHTML = `
+                    <div class="text-center py-4 space-y-1">
+                        <div class="text-sm sm:text-base font-extrabold text-emerald-600 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-trophy text-amber-500"></i> Tuyệt vời! Em đã phân loại chính xác toàn bộ ${lesson.words.length} từ vựng!
+                        </div>
+                        <p class="text-xs text-slate-500">Hãy kiểm tra bảng tổng kết phiên âm IPA chi tiết ở cuối trang nhé.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Create Interactive Word Card
+        function createWordCardElement(item, currentLoc, lesson) {
+            const card = document.createElement('div');
+            card.id = `card-word-${item.id}`;
+
+            const isPlaced = currentLoc !== 'bank';
+            const baseClass = isPlaced
+                ? "bg-emerald-50/95 border-emerald-400 text-emerald-950 shadow-xs"
+                : "bg-white border-slate-200 text-slate-800 shadow-card hover:border-blue-400 hover:shadow-md";
+
+            card.className = `word-card-item group relative inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 ${baseClass} transition-all select-none cursor-grab active:cursor-grabbing`;
+            card.setAttribute('draggable', 'true');
+
+            card.addEventListener('dragstart', (e) => {
+                draggedWordId = item.id;
+                card.classList.add('opacity-40', 'scale-95');
+                e.dataTransfer.setData('text/plain', item.id);
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('opacity-40', 'scale-95');
+                draggedWordId = null;
+            });
+
+            const wordBtn = document.createElement('button');
+            wordBtn.type = "button";
+            wordBtn.className = "font-bold text-sm sm:text-base hover:text-blue-600 flex items-center gap-1.5 transition cursor-pointer";
+            wordBtn.innerHTML = `<span>${item.word}</span>`;
+            wordBtn.title = `Nghe phát âm "${item.word}"`;
+            wordBtn.onclick = (e) => {
+                e.stopPropagation();
+                speakWord(item.word);
+            };
+
+            const audioBtn = document.createElement('button');
+            audioBtn.type = "button";
+            audioBtn.className = "w-7 h-7 rounded-full bg-slate-100 hover:bg-blue-600 text-slate-600 hover:text-white flex items-center justify-center text-xs transition cursor-pointer";
+            audioBtn.title = `Nghe phát âm "${item.word}"`;
+            audioBtn.innerHTML = '<i class="fa-solid fa-volume-high text-[11px]"></i>';
+            audioBtn.onclick = (e) => {
+                e.stopPropagation();
+                speakWord(item.word);
+            };
+
+            card.appendChild(wordBtn);
+            card.appendChild(audioBtn);
+
+            if (isPlaced) {
+                const ipaSpan = document.createElement('span');
+                ipaSpan.className = "text-[11px] font-mono font-semibold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded";
+                ipaSpan.innerText = item.ipa;
+                card.appendChild(ipaSpan);
+            }
+
+            const actionsWrapper = document.createElement('div');
+            actionsWrapper.className = "flex items-center gap-1.5 ml-0.5 pl-2 border-l border-slate-200";
+
+            if (currentLoc === 'bank') {
+                const btnToA = document.createElement('button');
+                btnToA.type = "button";
+                btnToA.className = "px-2 py-1 text-xs font-black rounded-lg bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white transition border border-blue-200 active:scale-95 cursor-pointer";
+                btnToA.title = `Chọn âm ${lesson.colA.symbol}`;
+                btnToA.innerText = lesson.colA.symbol;
+                btnToA.onclick = (e) => {
+                    e.stopPropagation();
+                    verifyAndPlaceWord(item.id, 'colA', card);
+                };
+
+                const btnToB = document.createElement('button');
+                btnToB.type = "button";
+                btnToB.className = "px-2 py-1 text-xs font-black rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white transition border border-indigo-200 active:scale-95 cursor-pointer";
+                btnToB.title = `Chọn âm ${lesson.colB.symbol}`;
+                btnToB.innerText = lesson.colB.symbol;
+                btnToB.onclick = (e) => {
+                    e.stopPropagation();
+                    verifyAndPlaceWord(item.id, 'colB', card);
+                };
+
+                actionsWrapper.appendChild(btnToA);
+                actionsWrapper.appendChild(btnToB);
+            } else {
+                const btnReturn = document.createElement('button');
+                btnReturn.type = "button";
+                btnReturn.className = "w-6 h-6 rounded-lg hover:bg-rose-100 text-slate-400 hover:text-rose-600 flex items-center justify-center text-xs transition cursor-pointer";
+                btnReturn.title = "Đưa lại về kho từ";
+                btnReturn.innerHTML = '<i class="fa-solid fa-rotate-left"></i>';
+                btnReturn.onclick = (e) => {
+                    e.stopPropagation();
+                    placementsByLesson[currentLessonKey][item.id] = 'bank';
+                    renderAllWords();
+                    renderLessonMenu();
+                };
+                actionsWrapper.appendChild(btnReturn);
+            }
+
+            card.appendChild(actionsWrapper);
+            return card;
+        }
+
+        // INSTANT FEEDBACK EVALUATION FOR WORD CARDS
+        function verifyAndPlaceWord(wordId, chosenCol, cardElement) {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            const wordObj = lesson.words.find(w => w.id === wordId);
+            if (!wordObj) return;
+
+            const isCorrect = (wordObj.target === chosenCol);
+            const targetColObj = chosenCol === 'colA' ? lesson.colA : lesson.colB;
+
+            if (isCorrect) {
+                playSoundSuccess();
+                popMiniConfetti(cardElement);
+                speakWord(wordObj.word);
+
+                if (cardElement) {
+                    cardElement.classList.add('animate-pop', '!bg-emerald-500', '!text-white', '!border-emerald-600');
+                }
+
+                showToast(`🎉 Chính xác! "${wordObj.word}" (${wordObj.ipa}) thuộc âm ${targetColObj.symbol}!`, "success");
+
+                setTimeout(() => {
+                    placementsByLesson[currentLessonKey][wordId] = chosenCol;
+                    renderAllWords();
+                    renderLessonMenu();
+
+                    const remaining = lesson.words.filter(w => placementsByLesson[currentLessonKey][w.id] === 'bank').length;
+                    if (remaining === 0) {
+                        fireConfetti();
+                        document.getElementById('explanationSection').classList.remove('hidden');
+                        showToast(`🏆 XUẤT SẮC! Em đã hoàn thành 100% từ vựng của ${lesson.shortTitle}!`, "success");
+                    }
+                }, 220);
+
+            } else {
+                playSoundError();
+                triggerXXXAlert(wordObj.word, targetColObj.name);
+
+                if (cardElement) {
+                    cardElement.classList.remove('animate-shake');
+                    void cardElement.offsetWidth;
+                    cardElement.classList.add('animate-shake', '!border-rose-500', '!bg-rose-100', '!text-rose-900');
+
+                    setTimeout(() => {
+                        cardElement.classList.remove('animate-shake', '!border-rose-500', '!bg-rose-100', '!text-rose-900');
+                    }, 800);
+                }
+
+                showToast(`❌ XXX SAI RỒI! "${wordObj.word}" không thuộc âm ${targetColObj.symbol}. Hãy nghe lại nhé!`, "warning");
+                speakWord(wordObj.word, 0.8);
+            }
+        }
+
+        // Drag and Drop Handlers
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e, targetCol) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const wordId = parseInt(e.dataTransfer.getData('text/plain') || draggedWordId);
+            if (wordId) {
+                const cardEl = document.getElementById(`card-word-${wordId}`);
+                verifyAndPlaceWord(wordId, targetCol, cardEl);
+            }
+        }
+
+        // Render Multiple Choice Questions
+        function renderMCQSection() {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            const section = document.getElementById('mcqSection');
+            const container = document.getElementById('mcqQuestionsContainer');
+
+            if (!lesson.mcqs || lesson.mcqs.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            container.innerHTML = '';
+
+            const solvedMap = mcqProgressByLesson[currentLessonKey];
+            const solvedCount = Object.keys(solvedMap).length;
+            document.getElementById('mcqScoreBadge').innerText = `Đúng: ${solvedCount}/${lesson.mcqs.length} câu`;
+
+            lesson.mcqs.forEach(q => {
+                const isSolved = Boolean(solvedMap[q.id]);
+
+                const qCard = document.createElement('div');
+                qCard.className = `p-4 sm:p-5 rounded-2xl border-2 transition-all ${isSolved ? 'bg-emerald-50/50 border-emerald-300' : 'bg-slate-50/70 border-slate-200'}`;
+
+                const optionsHtml = q.options.map(opt => {
+                    const isThisCorrectOption = isSolved && opt.label === q.correct;
+                    const btnStyle = isThisCorrectOption
+                        ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm font-bold'
+                        : 'bg-white hover:bg-blue-50 text-slate-800 border-slate-200 hover:border-blue-400';
+
+                    return `
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="handleMCQChoice('${q.id}', '${opt.label}', this)"
+                                class="flex-1 flex items-center justify-between px-3 py-2 rounded-xl border text-left text-sm transition cursor-pointer ${btnStyle}">
+                                <span><strong class="mr-1.5">${opt.label}.</strong> ${opt.html}</span>
+                                ${isThisCorrectOption ? `<span class="text-xs bg-white/25 px-1.5 py-0.5 rounded font-mono">${opt.sound}</span>` : ''}
+                            </button>
+                            <button type="button" onclick="speakWord('${opt.word}')" title="Nghe từ ${opt.word}" class="w-8 h-9 rounded-xl bg-white hover:bg-blue-600 text-slate-500 hover:text-white border border-slate-200 flex items-center justify-center text-xs transition shrink-0 cursor-pointer">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                qCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-lg ${isSolved ? 'bg-emerald-600 text-white' : 'bg-purple-100 text-purple-700'}">
+                            Câu ${q.num} ${isSolved ? '✓ Đã hoàn thành' : ''}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        ${optionsHtml}
+                    </div>
+                    ${isSolved ? `
+                        <div class="mt-3 p-3 rounded-xl bg-emerald-100/70 border border-emerald-200 text-xs text-emerald-950 leading-relaxed">
+                            <strong><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Giải thích:</strong> ${q.explanation}
+                        </div>
+                    ` : ''}
+                `;
+
+                container.appendChild(qCard);
+            });
+        }
+
+        // Handle MCQ Option Selection with Instant Feedback
+        function handleMCQChoice(questionId, chosenLabel, btnEl) {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            const question = lesson.mcqs.find(q => q.id === questionId);
+            if (!question) return;
+
+            const chosenOpt = question.options.find(o => o.label === chosenLabel);
+            speakWord(chosenOpt.word);
+
+            if (chosenLabel === question.correct) {
+                playSoundSuccess();
+                popMiniConfetti(btnEl);
+                mcqProgressByLesson[currentLessonKey][questionId] = chosenLabel;
+                renderMCQSection();
+                renderLessonMenu();
+                showToast(`🎉 Chính xác! Đáp án ${chosenLabel} (${chosenOpt.word}) phát âm là ${chosenOpt.sound}!`, "success");
+            } else {
+                playSoundError();
+                triggerXXXAlert(`${chosenLabel}. ${chosenOpt.word}`, `đáp án đúng (từ này đọc là ${chosenOpt.sound})`);
+                if (btnEl) {
+                    btnEl.classList.remove('animate-shake');
+                    void btnEl.offsetWidth;
+                    btnEl.classList.add('animate-shake', '!bg-rose-500', '!text-white', '!border-rose-600');
+                    setTimeout(() => {
+                        btnEl.classList.remove('animate-shake', '!bg-rose-500', '!text-white', '!border-rose-600');
+                    }, 750);
+                }
+                showToast(`❌ XXX SAI RỒI! "${chosenOpt.word}" phát âm là ${chosenOpt.sound}. Thử lại nhé!`, "warning");
+            }
+        }
+
+        // Shuffle Words in Pool
+        function shuffleUnassignedWords() {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            const placement = placementsByLesson[currentLessonKey];
+            const bankWords = lesson.words.filter(w => placement[w.id] === 'bank');
+            if (bankWords.length <= 1) {
+                showToast("Không còn từ nào để trộn!", "info");
+                return;
+            }
+            lesson.words.sort(() => Math.random() - 0.5);
+            renderAllWords();
+            showToast("Đã xáo trộn thứ tự các thẻ từ!", "info");
+        }
+
+        // Auto-solve Demonstration
+        function autoSolveDemo() {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            lesson.words.forEach(item => {
+                placementsByLesson[currentLessonKey][item.id] = item.target;
+            });
+            if (lesson.mcqs) {
+                lesson.mcqs.forEach(q => {
+                    mcqProgressByLesson[currentLessonKey][q.id] = q.correct;
+                });
+            }
+            renderAllWords();
+            renderMCQSection();
+            renderLessonMenu();
+            fireConfetti();
+            document.getElementById('explanationSection').classList.remove('hidden');
+            document.getElementById('explanationSection').scrollIntoView({ behavior: 'smooth' });
+            showToast("Đã mở toàn bộ đáp án & bảng tra cứu phiên âm IPA!", "info");
+        }
+
+        // Reset Current Lesson
+        function resetExercise() {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            lesson.words.forEach(item => {
+                placementsByLesson[currentLessonKey][item.id] = 'bank';
+            });
+            mcqProgressByLesson[currentLessonKey] = {};
+            document.getElementById('explanationSection').classList.add('hidden');
+            renderAllWords();
+            renderMCQSection();
+            renderLessonMenu();
+            showToast(`Đã làm mới ${lesson.shortTitle}. Bắt đầu luyện tập nào!`, "info");
+        }
+
+        // Build IPA Explanation Table
+        function buildExplanationTable() {
+            const lesson = LESSON_CONFIG[currentLessonKey];
+            const tbody = document.getElementById('explanationTableBody');
+            tbody.innerHTML = '';
+
+            lesson.words.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+                const isColA = item.target === 'colA';
+                const badgeColor = isColA
+                    ? 'bg-blue-100 text-blue-700 border-blue-200'
+                    : 'bg-indigo-100 text-indigo-700 border-indigo-200';
+                const soundLabel = isColA ? lesson.colA.symbol : lesson.colB.symbol;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-slate-900">${item.word}</td>
+                    <td class="py-3 px-4 font-mono text-xs sm:text-sm font-semibold text-blue-700">${item.ipa}</td>
+                    <td class="py-3 px-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${badgeColor}">
+                            ${soundLabel}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-xs sm:text-sm text-slate-600">${item.meaning}</td>
+                    <td class="py-3 px-4 text-center">
+                        <button type="button" onclick="speakWord('${item.word}')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-600 inline-flex items-center justify-center transition cursor-pointer" title="Nghe phát âm">
+                            <i class="fa-solid fa-volume-high text-xs"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Toast Helper
+        let toastTimeout;
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            clearTimeout(toastTimeout);
+            toastMessage.innerText = message;
+
+            if (type === 'success') {
+                toastIcon.className = "w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs text-white shrink-0";
+                toastIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else if (type === 'warning') {
+                toastIcon.className = "w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center text-xs text-white shrink-0";
+                toastIcon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            } else {
+                toastIcon.className = "w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs text-white shrink-0";
+                toastIcon.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+            }
+
+            toast.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 3200);
+        }
+
+        /* =========================================================================
+           GITHUB 1-CLICK PUSH & STUDENT LINK GENERATOR (MS TUYET SYSTEM)
+           ========================================================================= */
+        function getGithubConfig() {
+            const owner = (document.getElementById('ghOwnerInput')?.value || DEFAULT_GITHUB_OWNER).trim();
+            const repo = (document.getElementById('ghRepoInput')?.value || DEFAULT_GITHUB_REPO).trim();
+            const slug = (document.getElementById('ghFileNameInput')?.value || FILE_SLUG).trim();
+            return { owner, repo, slug };
+        }
+
+        function updateShareLinksFromFilename() {
+            const { owner, repo, slug } = getGithubConfig();
+            const baseUrl = `https://${owner}.github.io/${repo}/`;
+            const cleanUrl = slug === 'index.html' ? baseUrl : `${baseUrl}${slug}`;
+            document.getElementById('inputSharePractice').value = cleanUrl;
+            const ownerDisp = document.getElementById('ghOwnerDisplay');
+            if (ownerDisp) ownerDisp.innerText = `${owner}/${repo}`;
+            const manualLink = document.getElementById('ghManualUploadLink');
+            if (manualLink) manualLink.href = `https://github.com/${owner}/${repo}/upload/main`;
+        }
+
+        function openShareModal() {
+            try {
+                const savedToken = localStorage.getItem('ms_tuyet_gh_token');
+                if (savedToken) document.getElementById('ghTokenInput').value = savedToken;
+                const savedOwner = localStorage.getItem('ms_tuyet_gh_owner');
+                if (savedOwner) document.getElementById('ghOwnerInput').value = savedOwner;
+                const savedRepo = localStorage.getItem('ms_tuyet_gh_repo');
+                if (savedRepo) document.getElementById('ghRepoInput').value = savedRepo;
+            } catch (e) {}
+            updateShareLinksFromFilename();
+            document.getElementById('shareModal').classList.remove('hidden');
+            document.getElementById('shareModal').classList.add('flex');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+            document.getElementById('shareModal').classList.remove('flex');
+        }
+
+        function getStudentHtml() {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(INITIAL_RAW_HTML, 'text/html');
+            const teacherElements = doc.querySelectorAll('.teacher-only');
+            teacherElements.forEach(el => el.remove());
+            return "<!DOCTYPE html>\n" + doc.documentElement.outerHTML;
+        }
+
+        function encodeUtf8Base64(str) {
+            const bytes = new TextEncoder().encode(str);
+            let binary = '';
+            const chunkSize = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+            }
+            return btoa(binary);
+        }
+
+        async function pushToGitHubNow() {
+            const tokenInput = document.getElementById('ghTokenInput');
+            const statusBox = document.getElementById('ghPushStatusBox');
+            const btn = document.getElementById('btnPushGithubNow');
+
+            const token = (tokenInput?.value || '').trim();
+            const { owner, repo, slug } = getGithubConfig();
+
+            if (!token) {
+                statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+                statusBox.innerHTML = "⚠️ Cô vui lòng dán mã GitHub Personal Access Token của tài khoản <strong>" + owner + "</strong> vào ô bên trên (chỉ cần nhập 1 lần đầu tiên)!";
+                statusBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                localStorage.setItem('ms_tuyet_gh_token', token);
+                localStorage.setItem('ms_tuyet_gh_owner', owner);
+                localStorage.setItem('ms_tuyet_gh_repo', repo);
+            } catch (e) {}
+
+            btn.disabled = true;
+            const oldBtnHtml = btn.innerHTML;
+            btn.innerHTML = `<span>Đang đẩy lên GitHub...</span>`;
+            statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-blue-500/20 text-blue-200 border border-blue-400/30";
+            statusBox.innerText = `⏳ Đang kiểm tra kho ${owner}/${repo} và tải lên tệp ${slug}...`;
+            statusBox.classList.remove('hidden');
+
+            const headers = {
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/vnd.github+json",
+                "Content-Type": "application/json"
+            };
+
+            try {
+                const repoUrl = `https://api.github.com/repos/${owner}/${repo}`;
+                const repoCheck = await fetch(repoUrl, { method: "GET", headers });
+                if (repoCheck.status === 404) {
+                    statusBox.innerText = `⏳ Chưa có kho "${repo}" trên tài khoản ${owner}. Đang tự động khởi tạo kho mới...`;
+                    const createRepoRes = await fetch("https://api.github.com/user/repos", {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({
+                            name: repo,
+                            description: "Hệ thống Học Liệu Tương Tác - Tiếng Anh Ms Tuyết",
+                            public: true,
+                            auto_init: true
+                        })
+                    });
+                    if (!createRepoRes.ok) {
+                        const errRepo = await createRepoRes.json().catch(() => ({}));
+                        throw new Error(errRepo.message || `Không thể tạo kho ${repo} (HTTP ${createRepoRes.status})`);
+                    }
+                }
+
+                const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(slug)}`;
+                let existingSha = null;
+                const getRes = await fetch(apiUrl, { method: "GET", headers });
+                if (getRes.ok) {
+                    const fileData = await getRes.json();
+                    existingSha = fileData.sha;
+                }
+
+                const bodyPayload = {
+                    message: `Đăng học liệu Phonics Studio (10 Chuyên đề IPA): ${slug} (Tiếng Anh Ms Tuyết)`,
+                    content: encodeUtf8Base64(getStudentHtml())
+                };
+                if (existingSha) {
+                    bodyPayload.sha = existingSha;
+                }
+
+                const putRes = await fetch(apiUrl, {
+                    method: "PUT",
+                    headers,
+                    body: JSON.stringify(bodyPayload)
+                });
+
+                if (!putRes.ok) {
+                    const errJson = await putRes.json().catch(() => ({}));
+                    throw new Error(errJson.message || `Lỗi HTTP ${putRes.status}`);
+                }
+
+                await fetch(`https://api.github.com/repos/${owner}/${repo}/pages`, {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({ source: { branch: "main", path: "/" } })
+                }).catch(() => {});
+
+                updateShareLinksFromFilename();
+                statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-emerald-500/20 text-emerald-200 border border-emerald-400/40";
+                statusBox.innerHTML = `✅ Đã đẩy thành công tệp <strong>${slug}</strong> lên kho <strong>${owner}/${repo}</strong>! Link bên dưới sẽ sẵn sàng sau 30–60 giây. Cô bấm "Sao chép Link" để gửi học sinh nhé!`;
+                showToast("Đã đẩy trang Phonics Studio lên GitHub thành công!", "success");
+            } catch (err) {
+                statusBox.className = "p-2.5 rounded-xl text-xs font-medium bg-rose-500/20 text-rose-200 border border-rose-400/30";
+                statusBox.innerHTML = `❌ Không thể đẩy tự động: ${err.message}. Cô hãy kiểm tra lại mã Token (cần tích quyền "repo") hoặc bấm "Tải file .html" để kéo vào GitHub nhé.`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldBtnHtml;
+            }
+        }
+
+        function downloadCleanHtmlFile() {
+            const { slug } = getGithubConfig();
+            const blob = new Blob([getStudentHtml()], { type: "text/html;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = slug;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Đã tải xuống tệp ${slug}!`, "success");
+        }
+
+        function copyTextFromInput(inputId, btnId) {
+            const input = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+            if (!input) return;
+
+            input.focus();
+            input.select();
+            input.setSelectionRange(0, 99999);
+
+            let copied = false;
+            try {
+                copied = document.execCommand('copy');
+            } catch (err) {
+                copied = false;
+            }
+
+            if (!copied) {
+                try {
+                    const tempTextArea = document.createElement('textarea');
+                    tempTextArea.value = input.value;
+                    tempTextArea.style.position = 'fixed';
+                    tempTextArea.style.left = '-9999px';
+                    tempTextArea.style.top = '0';
+                    document.body.appendChild(tempTextArea);
+                    tempTextArea.focus();
+                    tempTextArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempTextArea);
+                } catch (fallbackErr) {
+                    console.warn('Copy fallback error:', fallbackErr);
+                }
+            }
+
+            if (btn) {
+                const oldText = btn.innerText;
+                btn.innerText = "✓ Đã chép";
+                setTimeout(() => { btn.innerText = oldText; }, 2000);
+            }
+            showToast("Đã sao chép đường link gửi học sinh!", "success");
+        }
+
+        // Quick Voice Test Button
+        document.getElementById('testVoiceBtn').addEventListener('click', () => {
+            speakWord("Welcome to Ms Tuyet English Phonics Studio!");
+        });
+
+        // Initialize App on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            switchLesson('lesson1');
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+        });
+    </script></body></html>
